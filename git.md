@@ -147,15 +147,27 @@ git switch feature-branch
 ```bash
 # ローカルブランチの一覧（現在のブランチは*で表示）
 git branch
+# 出力例:
+#   feature-branch
+# * main
+#   develop
 
 # 現在のブランチ名のみを表示
 git branch --show-current
+# 出力例: main
 
 # または
 git rev-parse --abbrev-ref HEAD
+# 出力例: main
 
 # リモートブランチも含めて表示
 git branch -a
+# 出力例:
+#   feature-branch
+# * main
+#   develop
+#   remotes/origin/main
+#   remotes/origin/develop
 
 # ブランチの削除
 git branch -d feature-branch
@@ -316,22 +328,30 @@ git tag -d v1.0.0
 ```bash
 # 現在のブランチ名を取得
 git rev-parse --abbrev-ref HEAD
+# 出力例: main
 
 # 現在のコミットハッシュを取得
 git rev-parse HEAD
+# 出力例: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
 
 # 短縮コミットハッシュを取得
 git rev-parse --short HEAD
+# 出力例: a1b2c3d
 
 # リポジトリのルートディレクトリを取得
 git rev-parse --show-toplevel
+# 出力例: /home/user/my-project
 
 # .gitディレクトリの場所を取得
 git rev-parse --git-dir
+# 出力例: .git
 
 # 特定のブランチやタグのコミットハッシュを取得
 git rev-parse main
+# 出力例: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
+
 git rev-parse v1.0.0
+# 出力例: b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0a1
 ```
 
 ## 実用的な例
