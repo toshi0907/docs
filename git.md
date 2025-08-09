@@ -145,8 +145,14 @@ git switch feature-branch
 
 ### ブランチの管理
 ```bash
-# ローカルブランチの一覧
+# ローカルブランチの一覧（現在のブランチは*で表示）
 git branch
+
+# 現在のブランチ名のみを表示
+git branch --show-current
+
+# または
+git rev-parse --abbrev-ref HEAD
 
 # リモートブランチも含めて表示
 git branch -a
@@ -304,6 +310,28 @@ git push origin --tags
 
 # タグを削除
 git tag -d v1.0.0
+```
+
+### リポジトリ情報の取得（rev-parse）
+```bash
+# 現在のブランチ名を取得
+git rev-parse --abbrev-ref HEAD
+
+# 現在のコミットハッシュを取得
+git rev-parse HEAD
+
+# 短縮コミットハッシュを取得
+git rev-parse --short HEAD
+
+# リポジトリのルートディレクトリを取得
+git rev-parse --show-toplevel
+
+# .gitディレクトリの場所を取得
+git rev-parse --git-dir
+
+# 特定のブランチやタグのコミットハッシュを取得
+git rev-parse main
+git rev-parse v1.0.0
 ```
 
 ## 実用的な例
