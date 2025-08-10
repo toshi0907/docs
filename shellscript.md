@@ -11,6 +11,10 @@
 6. [関数](#関数)
 7. [ファイル操作](#ファイル操作)
 8. [よく使用されるコマンド](#よく使用されるコマンド)
+   - [テキスト処理](#テキスト処理)
+   - [sed（ストリームエディタ）](#sedストリームエディタ)
+   - [awk（パターンスキャンと処理）](#awkパターンスキャンと処理)
+   - [nkf（文字コード変換）](#nkf文字コード変換)
 9. [実用的な例](#実用的な例)
 
 ## 基本概念
@@ -436,14 +440,6 @@ grep -i "大小文字無視" file.txt  # 大小文字を無視
 # cut - 列の抽出
 echo "名前,年齢,職業" | cut -d',' -f2  # 年齢のみ抽出
 
-# awk - パターンスキャンと処理
-awk '{print $1, $3}' file.txt  # 1列目と3列目を表示
-awk -F',' '{print $2}' data.csv  # CSVファイルの2列目
-
-# sed - ストリームエディタ
-sed 's/old/new/g' file.txt  # oldをnewに置換
-sed -n '1,5p' file.txt  # 1-5行目を表示
-
 # sort - ソート
 sort file.txt
 sort -n numbers.txt  # 数値ソート
@@ -457,6 +453,178 @@ uniq -c file.txt  # 重複回数も表示
 wc -l file.txt  # 行数
 wc -w file.txt  # 単語数
 wc -c file.txt  # 文字数
+```
+
+### sed（ストリームエディタ）
+
+`sed`は、ストリームエディタとして、テキストの置換、削除、挿入などを行うコマンドです。
+
+```bash
+# 基本的な置換
+sed 's/old/new/' file.txt          # 各行の最初のoldをnewに置換
+sed 's/old/new/g' file.txt         # 各行のすべてのoldをnewに置換
+sed 's/old/new/2' file.txt         # 各行の2番目のoldのみ置換
+
+# 大小文字を区別しない置換
+sed 's/old/new/gi' file.txt        # 大小文字を区別せずすべて置換
+
+# 特定の行のみ処理
+sed '3s/old/new/' file.txt         # 3行目のみ置換
+sed '1,5s/old/new/g' file.txt      # 1-5行目のみ置換
+sed '/pattern/s/old/new/g' file.txt # パターンにマッチする行のみ置換
+
+# 行の表示
+sed -n '1,5p' file.txt             # 1-5行目のみ表示
+sed -n '/pattern/p' file.txt       # パターンにマッチする行のみ表示
+
+# 行の削除
+sed '3d' file.txt                  # 3行目を削除
+sed '1,5d' file.txt                # 1-5行目を削除
+sed '/pattern/d' file.txt          # パターンにマッチする行を削除
+
+# 行の挿入と追加
+sed '3i\新しい行' file.txt          # 3行目の前に挿入
+sed '3a\新しい行' file.txt          # 3行目の後に追加
+
+# インプレース編集（元ファイルを変更）
+sed -i 's/old/new/g' file.txt      # 元ファイルを直接変更
+sed -i.bak 's/old/new/g' file.txt  # バックアップを作成して変更
+
+# 複数のコマンドを実行
+sed -e 's/old/new/g' -e 's/foo/bar/g' file.txt
+sed 's/old/new/g; s/foo/bar/g' file.txt
+
+# 実用例
+# 設定ファイルのコメントアウト
+sed 's/^/#/' config.txt            # 各行の先頭に#を追加
+sed 's/^#//' config.txt            # 各行の先頭の#を削除
+
+# 空行の削除
+sed '/^$/d' file.txt
+
+# HTMLタグの削除
+sed 's/<[^>]*>//g' html_file.txt
+```
+
+### awk（パターンスキャンと処理）
+
+`awk`は、パターンスキャンと処理を行う強力なテキスト処理言語です。
+
+```bash
+# 基本的な使用法
+awk '{print}' file.txt             # 全行を表示（catと同じ）
+awk '{print $1}' file.txt          # 1列目のみ表示
+awk '{print $1, $3}' file.txt      # 1列目と3列目を表示
+awk '{print NF}' file.txt          # 各行のフィールド数を表示
+awk '{print NR, $0}' file.txt      # 行番号と行内容を表示
+
+# フィールド区切り文字の指定
+awk -F',' '{print $2}' data.csv    # CSVファイルの2列目
+awk -F':' '{print $1}' /etc/passwd # /etc/passwdのユーザー名のみ
+
+# パターンマッチング
+awk '/pattern/ {print}' file.txt   # パターンにマッチする行のみ表示
+awk '$1 == "値" {print}' file.txt   # 1列目が"値"と等しい行のみ
+awk '$3 > 100 {print}' file.txt    # 3列目が100より大きい行のみ
+
+# 条件演算子
+awk '$1 > 50 {print "大きい"} $1 <= 50 {print "小さい"}' file.txt
+
+# BEGIN と END
+awk 'BEGIN {print "開始"} {print $1} END {print "終了"}' file.txt
+
+# 変数と演算
+awk '{sum += $1} END {print "合計:", sum}' numbers.txt
+awk '{count++} END {print "行数:", count}' file.txt
+awk '{if ($1 > max) max = $1} END {print "最大値:", max}' numbers.txt
+
+# 複数フィールドの操作
+awk '{print $1 * $2}' file.txt     # 1列目と2列目の積
+awk '{print $1, $1 * 1.08}' prices.txt # 価格と税込み価格
+
+# 文字列操作
+awk '{print length($1)}' file.txt   # 1列目の文字数
+awk '{print toupper($1)}' file.txt  # 1列目を大文字に変換
+awk '{print tolower($1)}' file.txt  # 1列目を小文字に変換
+awk '{print substr($1, 1, 3)}' file.txt # 1列目の最初の3文字
+
+# 実用例
+# CSVファイルの処理
+awk -F',' '{print $1 ": " $2}' data.csv
+
+# ログファイルの分析
+awk '{print $1}' access.log | sort | uniq -c | sort -nr # IPアドレス別アクセス数
+
+# システム情報の抽出
+ps aux | awk '{sum += $3} END {print "CPU使用率合計:", sum "%"}'
+
+# 複雑な条件処理
+awk -F':' '$3 >= 1000 {print $1, $5}' /etc/passwd # UID 1000以上のユーザー
+
+# 複数ファイルの処理
+awk '{print FILENAME, $1}' file1.txt file2.txt
+```
+
+### nkf（文字コード変換）
+
+`nkf`（Network Kanji Filter）は、日本語の文字コード変換を行うコマンドです。
+
+```bash
+# 文字コードの確認
+nkf --guess file.txt               # ファイルの文字コードを推定表示
+
+# 基本的な変換
+nkf -w file.txt                    # UTF-8に変換して表示
+nkf -s file.txt                    # Shift_JISに変換して表示
+nkf -e file.txt                    # EUC-JPに変換して表示
+
+# ファイルの変換（上書き）
+nkf -w --overwrite file.txt        # UTF-8に変換して上書き
+nkf -s --overwrite file.txt        # Shift_JISに変換して上書き
+nkf -e --overwrite file.txt        # EUC-JPに変換して上書き
+
+# 改行コードの変換
+nkf -Lu file.txt                   # LF（Unix）改行に変換
+nkf -Lw file.txt                   # CRLF（Windows）改行に変換
+nkf -Lm file.txt                   # CR（Mac Classic）改行に変換
+
+# 文字コードと改行コードの同時変換
+nkf -w -Lu file.txt                # UTF-8 + LF改行に変換
+nkf -s -Lw file.txt                # Shift_JIS + CRLF改行に変換
+
+# 入力元文字コードの指定
+nkf -W -w file.txt                 # UTF-8から変換
+nkf -S -w file.txt                 # Shift_JISから変換
+nkf -E -w file.txt                 # EUC-JPから変換
+
+# ファイル出力
+nkf -w input.txt > output.txt      # 変換結果を別ファイルに保存
+
+# 実用例
+# CSVファイルの文字コード変換（Excel対応）
+nkf -s --overwrite data.csv        # Excel用にShift_JISに変換
+
+# Webアプリケーション用にUTF-8に統一
+find . -name "*.txt" -exec nkf -w --overwrite {} \;
+
+# 文字コード確認とバッチ変換
+for file in *.txt; do
+    echo "$file: $(nkf --guess "$file")"
+    nkf -w --overwrite "$file"
+done
+
+# パイプでの使用
+cat sjis_file.txt | nkf -w | grep "検索文字列"
+
+# 複数ファイルの一括変換
+nkf -w --overwrite *.txt
+
+# エラーハンドリング付きの変換
+if nkf -w input.txt > output.txt; then
+    echo "変換成功"
+else
+    echo "変換失敗"
+fi
 ```
 
 ### システム情報
