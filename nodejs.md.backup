@@ -1134,6 +1134,299 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 ```
 
+**public/about.html:**
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アバウト - Express 静的サイト</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>アバウト</h1>
+        <nav>
+            <ul>
+                <li><a href="/">ホーム</a></li>
+                <li><a href="/about.html">アバウト</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section>
+            <h2>このサイトについて</h2>
+            <p>Express.js を使用した静的サイトの配信デモです。</p>
+            <p>静的ファイル（HTML、CSS、JavaScript、画像）を効率的に配信します。</p>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 Express 静的サイト</p>
+    </footer>
+    
+    <script src="/js/main.js"></script>
+</body>
+</html>
+```
+
+**public/css/style.css:**
+```css
+/* リセットとベーススタイル */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+/* ヘッダー */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+nav a:hover {
+    background-color: #34495e;
+}
+
+/* メインコンテンツ */
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.hero {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.logo {
+    max-width: 200px;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 8px;
+}
+
+.features {
+    padding: 2rem;
+}
+
+.features h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.features ul {
+    list-style: none;
+}
+
+.features li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.features li:before {
+    content: "✓ ";
+    color: #27ae60;
+    font-weight: bold;
+}
+
+/* フッター */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .hero h2 {
+        font-size: 2rem;
+    }
+    
+    main {
+        margin: 1rem;
+    }
+}
+```
+
+**public/js/main.js:**
+```javascript
+// ページ読み込み時の処理
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Express 静的サイトが読み込まれました');
+    
+    // 現在のページをハイライト
+    highlightCurrentPage();
+    
+    // 簡単なアニメーション
+    animateElements();
+    
+    // イベントリスナーの設定
+    setupEventListeners();
+});
+
+// 現在のページのナビゲーションをハイライト
+function highlightCurrentPage() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('nav a');
+    
+    navLinks.forEach(link => {
+        const linkPath = new URL(link.href).pathname;
+        if (linkPath === currentPath || (currentPath === '/' && linkPath === '/')) {
+            link.style.backgroundColor = '#34495e';
+        }
+    });
+}
+
+// 要素のアニメーション
+function animateElements() {
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        heroSection.style.opacity = '0';
+        heroSection.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            heroSection.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            heroSection.style.opacity = '1';
+            heroSection.style.transform = 'translateY(0)';
+        }, 100);
+    }
+}
+
+// イベントリスナーの設定
+function setupEventListeners() {
+    // ナビゲーションリンクのスムーズ遷移
+    const navLinks = document.querySelectorAll('nav a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // 外部リンクの場合はそのまま遷移
+            if (this.hostname !== window.location.hostname) {
+                return;
+            }
+            
+            // 内部リンクの場合はスムーズ遷移（SPA風）
+            e.preventDefault();
+            
+            // 簡単なローディング表示
+            document.body.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                window.location.href = this.href;
+            }, 200);
+        });
+    });
+    
+    // 画像の遅延読み込み
+    const images = document.querySelectorAll('img');
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        observer.unobserve(img);
+                    }
+                }
+            });
+        });
+        
+        images.forEach(img => imageObserver.observe(img));
+    }
+}
+
+// 簡単なユーティリティ関数
+function showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem;
+        background-color: ${type === 'error' ? '#e74c3c' : '#3498db'};
+        color: white;
+        border-radius: 4px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+// CSS アニメーション（動的に追加）
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(style);
+```
 
 #### 高度な静的ファイル配信設定
 
@@ -1390,6 +1683,38 @@ app.listen(PORT, () => {
   }
 }
 ```
+
+#### デプロイメント例
+
+**Heroku へのデプロイ:**
+```javascript
+// app.js - Heroku 対応
+const express = require('express');
+const path = require('path');
+const app = express();
+
+// Heroku の PORT 環境変数を使用
+const PORT = process.env.PORT || 3000;
+
+// 静的ファイル配信
+app.use(express.static('public'));
+
+// ヘルスチェックエンドポイント
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+```
+
+**Procfile（Heroku用）:**
+```
+web: node app.js
+```
+
+この設定により、Express.js を使って静的サイトを効率的かつセキュアに配信できます。用途に応じて適切な設定を選択し、パフォーマンスとセキュリティを両立させることが重要です。
 
 ### HTTPクライアント
 
