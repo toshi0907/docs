@@ -13,6 +13,7 @@ Node.jsの基本的な使い方とJavaScriptプログラミングのリファレ
 8. [ファイル操作](#ファイル操作)
 9. [非同期処理](#非同期処理)
 10. [HTTP とウェブ開発](#httpとウェブ開発)
+    - [Express.js を使った静的サイトの配信](#expressjs-を使った静的サイトの配信)
 11. [npm パッケージ管理](#npmパッケージ管理)
 12. [実用的な例](#実用的な例)
 
@@ -1043,6 +1044,351 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`Express サーバーが起動しました: http://localhost:${PORT}`);
 });
+```
+
+### Express.js を使った静的サイトの配信
+
+Express.js を使って静的なWebサイト（HTML、CSS、JavaScript、画像ファイルなど）を効率的に配信する方法を詳しく解説します。
+
+#### 基本的な静的ファイル配信の設定
+
+**プロジェクト構造:**
+```
+my-static-site/
+├── app.js              # Express サーバー
+├── package.json        # 依存関係管理
+├── public/             # 静的ファイル用ディレクトリ
+│   ├── index.html     # メインページ
+│   ├── about.html     # アバウトページ
+│   ├── css/
+│   │   └── style.css  # スタイルシート
+│   ├── js/
+│   │   └── main.js    # JavaScript
+│   └── images/
+│       └── logo.png   # 画像ファイル
+└── views/             # テンプレート（必要に応じて）
+```
+
+**基本的なサーバー設定 (app.js):**
+```javascript
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// 静的ファイルの配信設定
+app.use(express.static('public'));
+
+// または、より明示的にパスを指定
+app.use(express.static(path.join(__dirname, 'public')));
+
+// サーバー起動
+app.listen(PORT, () => {
+    console.log(`静的サイトサーバーが起動しました: http://localhost:${PORT}`);
+    console.log(`公開ディレクトリ: ${path.join(__dirname, 'public')}`);
+});
+```
+
+#### サンプル静的ファイル
+
+**public/index.html:**
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express 静的サイト</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <h1>Express.js 静的サイト</h1>
+    <p>静的ファイルが正常に配信されています。</p>
+    <script src="/script.js"></script>
+</body>
+</html>
+```
+
+**public/style.css:**
+```css
+body {
+    font-family: Arial, sans-serif;
+    margin: 50px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+}
+
+p {
+    color: #666;
+}
+```
+
+**public/script.js:**
+```javascript
+console.log('静的ファイルが読み込まれました');
+document.addEventListener('DOMContentLoaded', function() {
+    alert('Express.js サーバーが動作しています！');
+});
+```
+
+
+#### 高度な静的ファイル配信設定
+
+**複数の静的ディレクトリの設定:**
+```javascript
+const express = require('express');
+const path = require('path');
+const app = express();
+
+// 複数の静的ディレクトリを設定
+app.use('/static', express.static('public'));           // /static/css/style.css
+app.use('/assets', express.static('assets'));           // /assets/images/logo.png
+app.use('/uploads', express.static('uploads'));         // /uploads/file.pdf
+app.use(express.static('public'));                      // /css/style.css (デフォルト)
+
+// ファイルタイプ別の設定
+app.use('/css', express.static('public/css', {
+    maxAge: '1d',  // CSS ファイルは1日キャッシュ
+    setHeaders: (res, path) => {
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    }
+}));
+
+app.use('/js', express.static('public/js', {
+    maxAge: '1h',  // JavaScript ファイルは1時間キャッシュ
+}));
+
+app.use('/images', express.static('public/images', {
+    maxAge: '7d',  // 画像ファイルは7日キャッシュ
+}));
+```
+
+**キャッシュとパフォーマンス最適化:**
+```javascript
+const express = require('express');
+const compression = require('compression'); // npm install compression
+const app = express();
+
+// Gzip圧縮を有効化
+app.use(compression());
+
+// 静的ファイルの詳細設定
+app.use(express.static('public', {
+    // キャッシュ設定
+    maxAge: '1d',                    // デフォルト1日キャッシュ
+    
+    // ETag を有効化（ファイル変更検出）
+    etag: true,
+    
+    // Last-Modified ヘッダーを設定
+    lastModified: true,
+    
+    // 隠しファイルへのアクセスを拒否
+    dotfiles: 'deny',
+    
+    // インデックスファイルの設定
+    index: ['index.html', 'index.htm'],
+    
+    // ファイルが見つからない場合の処理
+    fallthrough: true,
+    
+    // 詳細なヘッダー設定
+    setHeaders: (res, path, stat) => {
+        // セキュリティヘッダー
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+        
+        // ファイルタイプ別の設定
+        if (path.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+        } else if (path.endsWith('.css') || path.endsWith('.js')) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1年
+        } else if (path.match(/\.(jpg|jpeg|png|gif|ico|svg)$/)) {
+            res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30日
+        }
+    }
+}));
+```
+
+#### SPA（Single Page Application）対応
+
+**React/Vue.js などのSPA用設定:**
+```javascript
+const express = require('express');
+const path = require('path');
+const app = express();
+
+// 静的ファイル配信
+app.use(express.static(path.join(__dirname, 'build')));
+
+// API ルート（必要に応じて）
+app.get('/api/*', (req, res) => {
+    res.json({ message: 'API endpoint' });
+});
+
+// SPA用のフォールバック - すべてのルートを index.html に向ける
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`SPA サーバーが起動しました: http://localhost:${PORT}`);
+});
+```
+
+#### セキュリティ強化
+
+**セキュリティ対策を含む設定:**
+```javascript
+const express = require('express');
+const helmet = require('helmet');     // npm install helmet
+const rateLimit = require('express-rate-limit'); // npm install express-rate-limit
+const path = require('path');
+
+const app = express();
+
+// セキュリティミドルウェア
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+        },
+    },
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    }
+}));
+
+// レート制限
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15分
+    max: 100, // 最大100リクエスト
+    message: 'リクエストが多すぎます。しばらく待ってから再試行してください。'
+});
+app.use(limiter);
+
+// 静的ファイル配信（セキュリティ強化）
+app.use(express.static('public', {
+    dotfiles: 'deny',           // 隠しファイルアクセス拒否
+    index: false,               // ディレクトリ一覧表示を無効化
+    setHeaders: (res, path) => {
+        // セキュリティヘッダー強化
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'DENY');
+        res.setHeader('X-XSS-Protection', '1; mode=block');
+        
+        // 実行可能ファイルのダウンロード防止
+        if (path.match(/\.(exe|bat|cmd|com|pif|scr|vbs|js)$/i)) {
+            res.setHeader('Content-Disposition', 'attachment');
+        }
+    }
+}));
+
+// 404エラーのカスタムページ
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+```
+
+#### 開発環境とプロダクション環境の設定
+
+**環境別設定ファイル:**
+```javascript
+const express = require('express');
+const path = require('path');
+const app = express();
+
+// 環境変数の設定
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = process.env.PORT || 3000;
+
+// 開発環境での設定
+if (NODE_ENV === 'development') {
+    // 詳細なログ出力
+    app.use((req, res, next) => {
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+        next();
+    });
+    
+    // 開発用ミドルウェア
+    app.use(express.static('public', {
+        maxAge: 0,          // キャッシュ無効
+        etag: false,        // ETag 無効
+        lastModified: false // Last-Modified 無効
+    }));
+    
+    // ホットリロード対応（webpack-dev-server等と組み合わせ）
+    app.get('/dev-reload', (req, res) => {
+        res.json({ reload: true });
+    });
+    
+} else {
+    // プロダクション環境での設定
+    const compression = require('compression');
+    const helmet = require('helmet');
+    
+    app.use(compression());
+    app.use(helmet());
+    
+    // 強力なキャッシュ設定
+    app.use(express.static('public', {
+        maxAge: '1y',       // 1年間のキャッシュ
+        etag: true,
+        lastModified: true,
+        immutable: true
+    }));
+}
+
+// 共通設定
+app.use(express.static('public'));
+
+app.listen(PORT, () => {
+    console.log(`サーバーが起動しました (${NODE_ENV}): http://localhost:${PORT}`);
+});
+```
+
+#### package.json の設定例
+
+**依存関係とスクリプト:**
+```json
+{
+  "name": "express-static-site",
+  "version": "1.0.0",
+  "description": "Express.js を使った静的サイト配信",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "NODE_ENV=development nodemon app.js",
+    "build": "npm run clean && npm run copy-assets",
+    "clean": "rm -rf dist",
+    "copy-assets": "cp -r public dist",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": ["express", "static", "web", "server"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "compression": "^1.7.4",
+    "helmet": "^6.1.5",
+    "express-rate-limit": "^6.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
 ```
 
 ### HTTPクライアント
