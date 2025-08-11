@@ -104,6 +104,64 @@ set MY_VAR=値
 echo %MY_VAR%
 ```
 
+### 遅延環境変数
+
+遅延環境変数は、ループや条件分岐内で変数の値が変更される場合に使用します。通常の`%変数名%`では、バッチファイルの解析時に値が展開されるため、ループ内での変数の変更が反映されません。
+
+#### 基本的な使用方法
+
+```batch
+@echo off
+setlocal enabledelayedexpansion
+
+rem 通常の変数展開の問題例
+set count=0
+for /l %%i in (1,1,5) do (
+    set /a count=count+1
+    echo 通常の展開: %count%        rem 常に0が表示される
+    echo 遅延展開: !count!          rem 正しく1,2,3,4,5が表示される
+)
+```
+
+#### 遅延環境変数の構文
+
+```batch
+@echo off
+setlocal enabledelayedexpansion
+
+rem 遅延環境変数を有効にする
+rem 変数の参照時に !変数名! を使用
+
+set message=Hello
+set message=World
+echo 通常の展開: %message%    rem Hello が表示される
+echo 遅延展開: !message!      rem World が表示される
+```
+
+#### 実用的な例
+
+```batch
+@echo off
+setlocal enabledelayedexpansion
+
+rem ファイル名に連番を付ける例
+set counter=1
+for %%f in (*.txt) do (
+    set filename=!counter!_%%f
+    echo 新しいファイル名: !filename!
+    set /a counter=counter+1
+)
+
+rem 配列のような動作
+for /l %%i in (1,1,3) do (
+    set item%%i=アイテム%%i
+)
+
+for /l %%i in (1,1,3) do (
+    echo !item%%i!
+)
+```
+
 ## 出力とユーザー入力
 
 ### テキストの出力
