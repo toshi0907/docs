@@ -198,6 +198,218 @@ git config --global credential.helper cache
 echo "Git設定が完了しました"
 ```
 
+### 設定ファイルの分割と条件付き読み込み
+
+Gitでは`include`と`includeif`を使用して、設定ファイルを分割し、条件に応じて異なる設定を読み込むことができます。
+
+#### 基本的なinclude
+```bash
+# メイン設定ファイル（~/.gitconfig）に他の設定ファイルを含める
+git config --global include.path "~/.gitconfig-aliases"
+git config --global include.path "~/.gitconfig-work"
+
+# 相対パスも使用可能
+git config --global include.path "./config/git-aliases"
+```
+
+#### 条件付きinclude（includeif）
+```bash
+# 特定のディレクトリ以下でのみ適用される設定
+git config --global includeif."gitdir:~/work/".path "~/.gitconfig-work"
+git config --global includeif."gitdir:~/personal/".path "~/.gitconfig-personal"
+
+# 特定のブランチでのみ適用される設定
+git config --global includeif."onbranch:main".path "~/.gitconfig-main"
+git config --global includeif."onbranch:develop".path "~/.gitconfig-develop"
+
+# リモートURLに基づく条件
+git config --global includeif."hasconfig:remote.*.url:https://github.com/company/*".path "~/.gitconfig-company"
+```
+
+#### 実用的な設定例
+
+**メイン設定ファイル（~/.gitconfig）**
+```ini
+[user]
+    name = "共通の名前"
+    email = "default@example.com"
+
+[core]
+    editor = vim
+    autocrlf = input
+
+# エイリアス設定を分離
+[include]
+    path = ~/.gitconfig-aliases
+
+# 仕事用設定（~/work/以下のリポジトリで適用）
+[includeif "gitdir:~/work/"]
+    path = ~/.gitconfig-work
+
+# 個人用設定（~/personal/以下のリポジトリで適用）
+[includeif "gitdir:~/personal/"]
+    path = ~/.gitconfig-personal
+
+# 特定の組織のリポジトリ用設定
+[includeif "hasconfig:remote.*.url:git@github.com:company/*"]
+    path = ~/.gitconfig-company
+```
+
+**エイリアス専用ファイル（~/.gitconfig-aliases）**
+```ini
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    lg = log --oneline --graph --decorate --all
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    visual = !gitk
+    adog = log --all --decorate --oneline --graph
+    plog = log --graph --pretty='format:%C(red)%d%C(reset) %C(yellow)%h%C(reset) %ar %C(green)%aN%C(reset) %s'
+```
+
+**仕事用設定ファイル（~/.gitconfig-work）**
+```ini
+[user]
+    name = "山田太郎"
+    email = "taro.yamada@company.com"
+    signingkey = "WORK_GPG_KEY_ID"
+
+[commit]
+    gpgsign = true
+
+[core]
+    sshCommand = "ssh -i ~/.ssh/id_rsa_work"
+
+[credential "https://github.com"]
+    username = "work-username"
+
+[url "git@github-work:company/"]
+    insteadOf = "https://github.com/company/"
+```
+
+**個人用設定ファイル（~/.gitconfig-personal）**
+```ini
+[user]
+    name = "Taro Yamada"
+    email = "taro@personal.com"
+    signingkey = "PERSONAL_GPG_KEY_ID"
+
+[commit]
+    gpgsign = false
+
+[core]
+    sshCommand = "ssh -i ~/.ssh/id_rsa_personal"
+
+[credential "https://github.com"]
+    username = "personal-username"
+```
+
+**会社用設定ファイル（~/.gitconfig-company）**
+```ini
+[user]
+    email = "taro.yamada@company.com"
+
+[commit]
+    gpgsign = true
+
+[push]
+    default = simple
+
+[pull]
+    rebase = true
+
+[branch]
+    autosetupmerge = always
+    autosetuprebase = always
+```
+
+#### includeifの条件パターン
+
+```bash
+# ディレクトリベースの条件
+# 指定したディレクトリ以下のリポジトリで適用
+includeif."gitdir:~/work/".path
+
+# パターンマッチング（*を使用可能）
+includeif."gitdir:~/projects/*/".path
+
+# 絶対パスを使用
+includeif."gitdir:/home/user/work/".path
+
+# ブランチベースの条件
+# 特定のブランチで作業中に適用
+includeif."onbranch:main".path
+includeif."onbranch:feature/*".path
+
+# リモートURLベースの条件
+# 特定のリモートURLを持つリポジトリで適用
+includeif."hasconfig:remote.*.url:https://github.com/company/*".path
+includeif."hasconfig:remote.*.url:git@github.com:personal/*".path
+```
+
+#### 設定の確認方法
+```bash
+# 現在適用されている全ての設定を表示（出力元も表示）
+git config --list --show-origin
+
+# 特定の設定値がどのファイルから読み込まれているかを確認
+git config --show-origin user.email
+git config --show-origin user.name
+
+# 条件付き設定が正しく適用されているかテスト
+cd ~/work/some-project
+git config user.email  # 仕事用のメールアドレスが表示されるはず
+
+cd ~/personal/my-project
+git config user.email  # 個人用のメールアドレスが表示されるはず
+```
+
+#### 設定ファイル管理のベストプラクティス
+```bash
+# 設定ファイルをGitで管理（dotfiles）
+mkdir ~/dotfiles
+mv ~/.gitconfig ~/dotfiles/gitconfig
+mv ~/.gitconfig-aliases ~/dotfiles/gitconfig-aliases
+mv ~/.gitconfig-work ~/dotfiles/gitconfig-work
+mv ~/.gitconfig-personal ~/dotfiles/gitconfig-personal
+
+# シンボリックリンクを作成
+ln -s ~/dotfiles/gitconfig ~/.gitconfig
+ln -s ~/dotfiles/gitconfig-aliases ~/.gitconfig-aliases
+ln -s ~/dotfiles/gitconfig-work ~/.gitconfig-work
+ln -s ~/dotfiles/gitconfig-personal ~/.gitconfig-personal
+
+# dotfilesリポジトリで管理
+cd ~/dotfiles
+git init
+git add .
+git commit -m "Add git configuration files"
+```
+
+#### トラブルシューティング
+```bash
+# includeifの条件が正しく動作しているかデバッグ
+# 詳細なトレース情報を出力
+GIT_TRACE2_CONFIG_PARAMS=1 git config --list
+
+# 設定の読み込み順序を確認
+git config --list --show-origin | grep -E "(user\.name|user\.email)"
+
+# 条件付き設定が適用されない場合の確認事項
+# 1. パスが正しいかチェック
+ls -la ~/.gitconfig-work
+
+# 2. gitdirの条件でディレクトリパスが正しいかチェック
+pwd
+git rev-parse --git-dir
+
+# 3. includeifの構文が正しいかチェック
+git config --global --get-regexp includeif
+```
+
 ### 設定の確認と管理
 ```bash
 # 特定の設定値を確認
