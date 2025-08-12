@@ -650,6 +650,8 @@ bundle exec jekyll build --profile
 ```yaml
 # limit プラグインを使用
 {% for post in site.posts limit:10 %}
+  <!-- ここに投稿の表示内容 -->
+{% endfor %}
 ```
 
 ### デバッグ方法
