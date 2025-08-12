@@ -2,7 +2,7 @@
 title: "技術ドキュメント集"
 description: "各種技術ドキュメントとリファレンス"
 baseurl: "/docs"
-url: ""
+url: "https://toshi0907.github.io"
 
 # Build settings
 markdown: kramdown
