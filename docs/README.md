@@ -7,10 +7,8 @@ title: "GitHub Pagesセットアップガイド"
 
 このフォルダには、GitHub Pagesで公開するためのJekyll設定とドキュメントが含まれています。
 
-## 目次
-1. [GitHub Pagesの有効化手順](#github-pagesの有効化手順)
-2. [設定後](#設定後)
-3. [ローカルでのテスト](#ローカルでのテスト)
+* 目次
+{:toc}
 
 ## GitHub Pagesの有効化手順
 
