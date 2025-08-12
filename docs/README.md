@@ -1,3 +1,8 @@
+---
+layout: page
+title: "GitHub Pagesセットアップガイド"
+---
+
 # GitHub Pagesセットアップガイド
 
 このフォルダには、GitHub Pagesで公開するためのJekyll設定とドキュメントが含まれています。
