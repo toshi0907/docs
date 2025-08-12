@@ -1,3 +1,8 @@
+---
+layout: page
+title: "Jekyll リファレンス"
+---
+
 # Jekyll リファレンス
 
 Jekyll の基本的な使い方と GitHub Pages での運用におけるベストプラクティスとTipsです。

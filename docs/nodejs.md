@@ -1,3 +1,8 @@
+---
+layout: page
+title: "Node.js リファレンス"
+---
+
 # Node.js リファレンス
 
 Node.jsの基本的な使い方とJavaScriptプログラミングのリファレンスです。初学者でも理解しやすいように段階的に説明します。
