@@ -86,6 +86,17 @@ git config --global merge.tool "code --wait"
 
 # 差分表示ツールを設定
 git config --global diff.tool vimdiff
+
+# シーケンスエディタを設定（rebase -i で使用）
+git config --global sequence.editor "vim"
+git config --global sequence.editor "code --wait"  # VS Code
+
+# 環境変数でも設定可能
+export GIT_SEQUENCE_EDITOR="vim"
+export GIT_SEQUENCE_EDITOR="code --wait"
+# GIT_SEQUENCE_EDITOR: インタラクティブリベース時にコミット順序や
+# 操作を編集するためのエディタを指定する環境変数
+# 設定されていない場合は core.editor または EDITOR の値を使用
 ```
 
 ### 核となる設定
@@ -107,6 +118,13 @@ git config --global init.defaultBranch main
 
 # プッシュの際のデフォルト動作を設定
 git config --global push.default simple
+
+# push.defaultの設定値の詳細説明:
+# - nothing: 明示的に指定しない限りプッシュしない（最も安全）
+# - current: 現在のブランチと同名のリモートブランチにプッシュ
+# - upstream: 設定された上流ブランチにプッシュ（追跡ブランチが必要）
+# - simple: 現在のブランチと同名の上流ブランチにプッシュ（デフォルト、推奨）
+# - matching: ローカルとリモートで同名の全ブランチをプッシュ（Git 2.0以前のデフォルト）
 
 # プルの際のデフォルト動作を設定（rebaseを使用）
 git config --global pull.rebase true
@@ -574,6 +592,13 @@ git remote show origin
 
 # リモートを削除
 git remote remove origin
+
+# リモートブランチの追跡設定を変更
+git remote set-branches origin main develop
+# 指定したブランチのみを追跡するように設定
+
+# 全てのブランチを追跡するように戻す
+git remote set-branches --add origin '*'
 ```
 
 ### プッシュとプル
@@ -583,6 +608,14 @@ git push origin main
 
 # 初回プッシュ時（上流ブランチを設定）
 git push -u origin main
+
+# 安全な強制プッシュ（リモートが期待される状態の場合のみ実行）
+git push --force-with-lease origin main
+# リモートブランチが最後にフェッチした時点と同じ状態の場合のみプッシュ
+# 他の人が変更をプッシュしていた場合は失敗するため安全
+
+# 特定のコミットと比較して安全プッシュ
+git push --force-with-lease=main:abc1234 origin main
 
 # リモートから最新の変更を取得
 git pull origin main
@@ -631,6 +664,11 @@ git rebase main
 
 # インタラクティブリベース（コミットの編集）
 git rebase -i HEAD~3
+
+# 空のコミットも保持してリベース
+git rebase --keep-empty main
+# 通常リベースでは空のコミット（変更のないコミット）は削除されるが、
+# このオプションで空のコミットも保持する
 
 # リベースを中止
 git rebase --abort
@@ -681,6 +719,47 @@ git reset HEAD filename.txt
 
 # または (Git 2.23以降)
 git restore --staged filename.txt
+```
+
+### ブランチとコミットの分析
+```bash
+# 二つのブランチの共通の祖先コミットを見つける
+git merge-base main feature-branch
+# 出力例: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
+
+# 複数ブランチの共通祖先を見つける
+git merge-base --octopus main feature1 feature2
+
+# 二つのブランチの関係を確認
+git merge-base --is-ancestor main feature-branch && echo "mainはfeature-branchの祖先" || echo "mainはfeature-branchの祖先ではない"
+
+# コミットの一覧を表示（リビジョン履歴）
+git rev-list HEAD
+# 最新から古い順にコミットハッシュを表示
+
+# 特定の範囲のコミット一覧
+git rev-list main..feature-branch
+# feature-branchにあってmainにないコミット一覧
+
+# コミット数を取得
+git rev-list --count HEAD
+# 現在のブランチのコミット総数
+
+git rev-list --count main..feature-branch
+# feature-branchにあってmainにないコミット数
+
+# 最新のN個のコミット
+git rev-list -n 5 HEAD
+# 最新5個のコミットハッシュ
+
+# 日付範囲でコミットを取得
+git rev-list --since="2023-01-01" --until="2023-12-31" HEAD
+
+# ファイルに関連するコミットのみ取得
+git rev-list HEAD -- filename.txt
+
+# マージコミットを除外
+git rev-list --no-merges HEAD
 ```
 
 ### タグ
