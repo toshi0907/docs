@@ -16,6 +16,7 @@ plugins:
 
 # Navigation
 header_pages:
+  - search.md
   - jekyll.md
   - git.md
   - nodejs.md
