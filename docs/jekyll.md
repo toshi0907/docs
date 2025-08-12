@@ -224,14 +224,22 @@ github_username: username
 
 # GitHub Pages でサポートされているプラグインのみ使用
 plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-seo-tag
-  - jekyll-paginate
-  - jekyll-mentions
-  - jekyll-redirect-from
-  - jekyll-avatar
+  - jekyll-coffeescript
+  - jekyll-default-layout
   - jekyll-gist
+  - jekyll-github-metadata
+  - jekyll-paginate
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-titles-from-headings
+  - jekyll-feed
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-avatar
+  - jekyll-mentions
+  - jekyll-include-cache
 
 # セキュリティ設定
 safe: true
@@ -486,39 +494,417 @@ _tutorials/
 
 ### GitHub Pages でサポートされているプラグイン
 
-#### SEO プラグイン
+GitHub Pages では、セキュリティ上の理由から使用できるプラグインが制限されています。以下は公式にサポートされているプラグインの完全なリストです。
+
+#### 1. jekyll-coffeescript
+**概要**: CoffeeScriptファイルをJavaScriptに変換します。
+
+**設定方法**:
 ```yaml
 # _config.yml
 plugins:
-  - jekyll-seo-tag
-
-# レイアウトファイルの head セクションに追加
-{% seo %}
+  - jekyll-coffeescript
 ```
 
-#### サイトマップ生成
+**使用方法**:
+```coffeescript
+# assets/js/script.coffee
+square = (x) -> x * x
+console.log square(5)
+```
+
+#### 2. jekyll-default-layout
+**概要**: フロントマターでレイアウトが指定されていないページに自動的にデフォルトレイアウトを適用します。
+
+**設定方法**:
 ```yaml
+# _config.yml
 plugins:
-  - jekyll-sitemap
+  - jekyll-default-layout
 
-# 自動的に /sitemap.xml が生成される
+jekyll-default-layout:
+  path: "_layouts/default.html"
 ```
 
-#### RSS フィード
+**使用方法**:
+ファイルにフロントマターがない場合でも、自動的にデフォルトレイアウトが適用されます。
+
+#### 3. jekyll-gist
+**概要**: GitHub Gistを埋め込むための`{% raw %}{% gist %}{% endraw %}`タグを提供します。
+
+**設定方法**:
 ```yaml
+# _config.yml
 plugins:
-  - jekyll-feed
+  - jekyll-gist
 
-# 自動的に /feed.xml が生成される
+gist:
+  noscript: false
 ```
 
-#### ページネーション
+**使用方法**:
+```liquid
+{% raw %}{% gist gist_id %}
+{% gist gist_id filename %}{% endraw %}
+```
+
+#### 4. jekyll-github-metadata
+**概要**: GitHubリポジトリのメタデータにアクセスできるようにします。
+
+**設定方法**:
 ```yaml
+# _config.yml
+plugins:
+  - jekyll-github-metadata
+
+repository: username/repository-name
+```
+
+**使用方法**:
+```liquid
+{% raw %}{{ site.github.repository_name }}
+{{ site.github.owner_name }}
+{{ site.github.repository_url }}{% endraw %}
+```
+
+#### 5. jekyll-paginate
+**概要**: ポストの一覧をページ分割する機能を提供します。
+
+**設定方法**:
+```yaml
+# _config.yml
 plugins:
   - jekyll-paginate
 
 paginate: 5
 paginate_path: "/blog/page:num/"
+```
+
+**使用方法**:
+```liquid
+{% raw %}<!-- index.html -->
+{% for post in paginator.posts %}
+  <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+{% endfor %}
+
+<!-- ページネーション -->
+{% if paginator.total_pages > 1 %}
+  {% if paginator.previous_page %}
+    <a href="{{ paginator.previous_page_path }}">前のページ</a>
+  {% endif %}
+  {% if paginator.next_page %}
+    <a href="{{ paginator.next_page_path }}">次のページ</a>
+  {% endif %}
+{% endif %}{% endraw %}
+```
+
+#### 6. jekyll-relative-links
+**概要**: Markdownファイル内の相対リンクを自動的に適切なURLに変換します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: false
+```
+
+**使用方法**:
+```markdown
+[リンクテキスト](other-page.md)
+[フォルダ内のページ](folder/page.md)
+```
+
+#### 7. jekyll-optional-front-matter
+**概要**: Markdownファイルにフロントマターがなくても処理できるようにします。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-optional-front-matter
+
+optional_front_matter:
+  remove_originals: true
+```
+
+#### 8. jekyll-readme-index
+**概要**: README.mdファイルをディレクトリのindex.htmlとして使用できるようにします。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-readme-index
+
+readme_index:
+  enabled: true
+  remove_originals: false
+```
+
+#### 9. jekyll-titles-from-headings
+**概要**: Markdownファイルの最初の見出しをページタイトルとして自動的に使用します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-titles-from-headings
+
+titles_from_headings:
+  enabled: true
+  strip_title: true
+  collections: false
+```
+
+#### 10. jekyll-feed
+**概要**: サイトのポスト用のAtom（RSS）フィードを自動生成します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-feed
+
+feed:
+  path: atom.xml
+  excerpt_only: false
+```
+
+**使用方法**:
+```html
+<!-- _layouts/default.html の head セクション -->
+{% raw %}{% feed_meta %}{% endraw %}
+```
+
+#### 11. jekyll-redirect-from
+**概要**: 古いURLから新しいURLへのリダイレクトを設定できます。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-redirect-from
+```
+
+**使用方法**:
+```yaml
+---
+title: 新しいページ
+redirect_from:
+  - /old-page/
+  - /another-old-page.html
+---
+```
+
+#### 12. jekyll-seo-tag
+**概要**: SEO用のメタタグを自動生成します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-seo-tag
+
+twitter:
+  username: your_twitter_username
+  card: summary
+
+social:
+  name: Your Name
+  links:
+    - https://twitter.com/your_twitter_username
+    - https://github.com/your_github_username
+```
+
+**使用方法**:
+```html
+<!-- _layouts/default.html の head セクション -->
+{% raw %}{% seo %}{% endraw %}
+```
+
+#### 13. jekyll-sitemap
+**概要**: サイト全体のサイトマップ（sitemap.xml）を自動生成します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-sitemap
+
+sitemap:
+  exclude:
+    - "/secret-page/"
+    - "/temp/"
+```
+
+**使用方法**:
+自動的に `/sitemap.xml` が生成されます。設定は不要です。
+
+#### 14. jekyll-avatar
+**概要**: GitHubユーザーのアバター画像を表示するための`{% raw %}{% avatar %}{% endraw %}`タグを提供します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-avatar
+```
+
+**使用方法**:
+```liquid
+{% raw %}{% avatar username %}
+{% avatar username size=40 %}{% endraw %}
+```
+
+#### 15. jekyll-mentions
+**概要**: GitHub風の@mentionを処理し、GitHub プロフィールページへのリンクに変換します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-mentions
+
+jekyll-mentions:
+  base_url: https://github.com
+```
+
+**使用方法**:
+```markdown
+@username についてのメンション
+```
+
+#### 16. jekyll-include-cache
+**概要**: includeファイルのキャッシュ機能を提供し、ビルド時間を短縮します。
+
+**設定方法**:
+```yaml
+# _config.yml
+plugins:
+  - jekyll-include-cache
+```
+
+**使用方法**:
+```liquid
+{% raw %}{% include_cached header.html %}
+{% include_cached sidebar.html param="value" %}{% endraw %}
+```
+
+#### 17. jekyll-theme-primer
+**概要**: GitHub Primer CSSフレームワークを使用するテーマです。
+
+**設定方法**:
+```yaml
+# _config.yml
+theme: jekyll-theme-primer
+plugins:
+  - jekyll-theme-primer
+```
+
+### プラグインの組み合わせ例
+
+#### 完全なSEO最適化構成
+```yaml
+# _config.yml
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-redirect-from
+
+# SEO設定
+title: "サイトタイトル"
+description: "サイトの説明"
+url: "https://username.github.io"
+author: "著者名"
+
+# ソーシャルメディア設定
+twitter:
+  username: your_twitter_username
+  card: summary_large_image
+
+social:
+  name: Your Name
+  links:
+    - https://twitter.com/your_twitter_username
+    - https://github.com/your_github_username
+```
+
+#### ブログサイト向け構成
+```yaml
+# _config.yml
+plugins:
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-mentions
+  - jekyll-gist
+
+# ページネーション設定
+paginate: 5
+paginate_path: "/page:num/"
+
+# フィード設定
+feed:
+  path: atom.xml
+  excerpt_only: true
+```
+
+#### ドキュメントサイト向け構成
+```yaml
+# _config.yml
+plugins:
+  - jekyll-default-layout
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-titles-from-headings
+  - jekyll-relative-links
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# デフォルトレイアウト設定
+jekyll-default-layout:
+  path: "_layouts/page.html"
+
+# 見出しからタイトル生成
+titles_from_headings:
+  enabled: true
+  strip_title: true
+  collections: true
+```
+
+### プラグイン使用時の注意点
+
+#### 1. GitHub Pages制限事項
+- 上記のプラグインのみが使用可能
+- カスタムプラグインは使用不可
+- プラグインの設定によってはビルドが失敗する場合がある
+
+#### 2. パフォーマンス考慮事項
+```yaml
+# 大量のページがある場合のキャッシュ活用
+plugins:
+  - jekyll-include-cache
+
+# サイトマップから除外する不要なページ
+sitemap:
+  exclude:
+    - "/assets/"
+    - "/404.html"
+```
+
+#### 3. ローカル開発とGitHub Pagesの差異
+```bash
+# ローカルでGitHub Pages環境を再現
+gem "github-pages", group: :jekyll_plugins
+
+# 本番環境でのテスト
+JEKYLL_ENV=production bundle exec jekyll build
 ```
 
 ### カスタムプラグインの作成
