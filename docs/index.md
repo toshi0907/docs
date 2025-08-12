@@ -10,6 +10,10 @@ permalink: /
 
 ## ドキュメント一覧
 
+### 静的サイト生成・GitHub Pages
+
+- **[Jekyll リファレンス](jekyll.html)** - Jekyll の基本的な使い方と GitHub Pages でのベストプラクティス
+
 ### プログラミング言語・ツール
 
 - **[Git リファレンス](git.html)** - Gitの基本的な使い方とコマンドのリファレンス
