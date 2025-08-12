@@ -1,7 +1,7 @@
 # Jekyll configuration for GitHub Pages
 title: "技術ドキュメント集"
 description: "各種技術ドキュメントとリファレンス"
-baseurl: ""
+baseurl: "/docs"
 url: ""
 
 # Build settings
