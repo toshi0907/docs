@@ -23,7 +23,6 @@ header_pages:
   - nginx.md
   - shellscript.md
   - bat.md
-  - copilot-instructions.md
 
 # Collections
 collections:
