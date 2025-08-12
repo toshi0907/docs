@@ -15,7 +15,7 @@ permalink: /
 - **[Python リファレンス](python.html)** - Pythonの基本的な使い方とライブラリリファレンス
 - **[Nginx リファレンス](nginx.html)** - Nginxの設定とコマンドリファレンス
 - **[Shell Script リファレンス](shellscript.html)** - シェルスクリプトの基本的な書き方とコマンド
-- **[バッチファイル リファレンス](bat.html)** - Windowsバッチファイルの基本的な使い方
+- **[Bat リファレンス](bat.html)** - Windowsバッチファイルの基本的な使い方
 - **[Jekyll リファレンス](jekyll.html)** - Jekyll の基本的な使い方と GitHub Pages でのベストプラクティス
 
 ---

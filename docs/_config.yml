@@ -16,13 +16,13 @@ plugins:
 
 # Navigation
 header_pages:
-  - jekyll.md
   - git.md
   - nodejs.md
   - python.md
   - nginx.md
   - shellscript.md
   - bat.md
+  - jekyll.md
 
 # Collections
 collections:
