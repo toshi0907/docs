@@ -64,6 +64,13 @@ getWeatherForecast('東京', 3)
     });
 ```
 
+### APIキーの取得方法
+
+1. [WeatherAPI.com](https://www.weatherapi.com/) にアクセス
+2. 「Sign Up Free」をクリックしてアカウント作成
+3. メール認証を完了
+4. ダッシュボードでAPIキーを確認
+
 ## Yahoo! 地図 天気API
 
 ### 概要
@@ -153,16 +160,7 @@ yahooWeather.getWeatherByCoordinates(139.7671, 35.6812)
     });
 ```
 
-## APIキーの取得方法
-
-### WeatherAPI.com
-
-1. [WeatherAPI.com](https://www.weatherapi.com/) にアクセス
-2. 「Sign Up Free」をクリックしてアカウント作成
-3. メール認証を完了
-4. ダッシュボードでAPIキーを確認
-
-### Yahoo! 地図 天気API
+### APIキーの取得方法
 
 1. [Yahoo! デベロッパーネットワーク](https://developer.yahoo.co.jp/) にアクセス
 2. Yahoo! JAPAN IDでログイン
