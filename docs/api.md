@@ -10,11 +10,9 @@ title: "API リファレンス"
 * 目次
 {:toc}
 
-## Weather API サービス
+## WeatherAPI.com
 
-### WeatherAPI.com
-
-#### サービス概要
+### 概要
 
 **WeatherAPI.com** は、世界中の天気情報を提供するRESTful APIサービスです。現在の天気、予報、履歴データにアクセスできます。
 
@@ -31,7 +29,7 @@ title: "API リファレンス"
 - アラートと警報
 - 天文データ（日の出・日の入り）
 
-#### 使用例
+### 使用例
 
 ```javascript
 // WeatherAPI.com を使用した天気情報取得
@@ -66,9 +64,9 @@ getWeatherForecast('東京', 3)
     });
 ```
 
-### Yahoo! 地図 天気API
+## Yahoo! 地図 天気API
 
-#### サービス概要
+### 概要
 
 **Yahoo! 地図 天気API** は、Yahoo! JAPANが提供する日本国内の天気情報APIサービスです。日本の詳細な天気予報と観測データを提供します。
 
@@ -84,7 +82,7 @@ getWeatherForecast('東京', 3)
 - 降水量予測
 - 日本全国の詳細データ
 
-#### 使用例
+### 使用例
 
 ```javascript
 // Yahoo! 地図 天気API を使用した天気情報取得
