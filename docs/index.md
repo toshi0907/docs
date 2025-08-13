@@ -17,6 +17,7 @@ permalink: /
 - **[Shell Script リファレンス](shellscript.html)** - シェルスクリプトの基本的な書き方とコマンド
 - **[Bat リファレンス](bat.html)** - Windowsバッチファイルの基本的な使い方
 - **[Jekyll リファレンス](jekyll.html)** - Jekyll の基本的な使い方と GitHub Pages でのベストプラクティス
+- **[カスタムレイアウトデモ](custom-layout-demo.html)** - 新しく追加されたJekyllカスタムレイアウトの機能紹介
 
 ---
 

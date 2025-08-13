@@ -1,0 +1,187 @@
+---
+layout: default
+---
+<article class="doc-article">
+
+  <header class="doc-header">
+    <h1 class="doc-title">{{ page.title | escape }}</h1>
+    {%- if page.description -%}
+    <p class="doc-description">{{ page.description | escape }}</p>
+    {%- endif -%}
+    
+    {%- if page.tags or page.category -%}
+    <div class="doc-tags" style="margin-top: 15px;">
+      {%- if page.category -%}
+      <span class="tag category-tag" style="background: #28a745; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.8em; margin-right: 5px;">{{ page.category }}</span>
+      {%- endif -%}
+      {%- for tag in page.tags -%}
+      <span class="tag" style="background: #6c757d; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.8em; margin-right: 5px;">{{ tag }}</span>
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+  </header>
+
+  <div class="doc-content">
+    <!-- Navigation breadcrumb -->
+    <nav class="doc-breadcrumb" style="background: #f8f9fa; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9em;">
+      <a href="{{ '/' | relative_url }}" style="color: #007bff; text-decoration: none;">ホーム</a>
+      <span style="margin: 0 8px; color: #6c757d;">›</span>
+      <span style="color: #495057;">{{ page.title | escape }}</span>
+    </nav>
+
+    <!-- Table of Contents -->
+    {%- unless page.toc == false -%}
+    <div class="doc-toc" style="background: #fff; border: 2px solid #007bff; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+      <h3 style="margin-top: 0; color: #007bff; border-bottom: 1px solid #007bff; padding-bottom: 8px;">📖 目次</h3>
+      <div id="doc-toc-content"></div>
+    </div>
+    {%- endunless -%}
+
+    <!-- Main content -->
+    <div class="doc-main-content">
+      {{ content }}
+    </div>
+
+    <!-- Footer navigation -->
+    <div class="doc-footer-nav" style="margin-top: 50px; padding: 20px 0; border-top: 2px solid #e9ecef;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="{{ '/' | relative_url }}" style="color: #007bff; text-decoration: none; font-weight: 500;">← ドキュメント一覧に戻る</a>
+        {%- if page.last_modified_at or page.date -%}
+        <small style="color: #6c757d;">
+          {%- if page.last_modified_at -%}
+          最終更新: {{ page.last_modified_at | date: "%Y年%m月%d日" }}
+          {%- elsif page.date -%}
+          作成日: {{ page.date | date: "%Y年%m月%d日" }}
+          {%- endif -%}
+        </small>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+</article>
+
+<!-- Enhanced Table of Contents JavaScript -->
+{%- unless page.toc == false -%}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Generate enhanced Table of Contents
+    const headings = document.querySelectorAll('.doc-main-content h2, .doc-main-content h3, .doc-main-content h4');
+    const tocContainer = document.getElementById('doc-toc-content');
+    
+    if (headings.length > 0 && tocContainer) {
+      const tocList = document.createElement('ul');
+      tocList.style.cssText = 'list-style: none; padding-left: 0; margin: 0; line-height: 1.6;';
+      
+      headings.forEach(function(heading, index) {
+        // Add ID to heading if it doesn't have one
+        if (!heading.id) {
+          heading.id = 'doc-heading-' + index;
+        }
+        
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = '#' + heading.id;
+        link.textContent = heading.textContent;
+        link.style.cssText = 'text-decoration: none; color: #007bff; transition: color 0.2s;';
+        
+        // Add hover effect
+        link.addEventListener('mouseenter', function() {
+          this.style.color = '#0056b3';
+        });
+        link.addEventListener('mouseleave', function() {
+          this.style.color = '#007bff';
+        });
+        
+        // Style based on heading level
+        if (heading.tagName === 'H2') {
+          listItem.style.cssText = 'margin-bottom: 8px; font-weight: 600;';
+          link.textContent = '📄 ' + heading.textContent;
+        } else if (heading.tagName === 'H3') {
+          listItem.style.cssText = 'margin-bottom: 5px; margin-left: 25px; font-size: 0.95em;';
+          link.textContent = '▶ ' + heading.textContent;
+        } else if (heading.tagName === 'H4') {
+          listItem.style.cssText = 'margin-bottom: 3px; margin-left: 50px; font-size: 0.9em;';
+          link.textContent = '• ' + heading.textContent;
+        }
+        
+        listItem.appendChild(link);
+        tocList.appendChild(listItem);
+      });
+      
+      tocContainer.appendChild(tocList);
+    } else if (tocContainer) {
+      // Hide TOC container if no headings found
+      tocContainer.parentNode.style.display = 'none';
+    }
+  });
+</script>
+{%- endunless -%}
+
+<!-- Additional styling for documentation layout -->
+<style>
+  .doc-article {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .doc-title {
+    border-bottom: 3px solid #007bff;
+    padding-bottom: 10px;
+    color: #212529;
+  }
+  
+  .doc-main-content h2 {
+    color: #007bff;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 8px;
+    margin-top: 40px;
+  }
+  
+  .doc-main-content h3 {
+    color: #495057;
+    margin-top: 30px;
+  }
+  
+  .doc-main-content code {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 0.9em;
+  }
+  
+  .doc-main-content pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 15px;
+    overflow-x: auto;
+  }
+  
+  .doc-main-content blockquote {
+    border-left: 4px solid #007bff;
+    background: #f8f9fa;
+    margin: 20px 0;
+    padding: 15px 20px;
+    font-style: italic;
+  }
+  
+  .doc-main-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+  }
+  
+  .doc-main-content th,
+  .doc-main-content td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    text-align: left;
+  }
+  
+  .doc-main-content th {
+    background: #f8f9fa;
+    font-weight: 600;
+  }
+</style>
