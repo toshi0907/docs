@@ -10,6 +10,7 @@ permalink: /
 
 ## ドキュメント一覧
 
+- **[API リファレンス](api.html)** - 各種APIサービスの情報と使用例
 - **[Git リファレンス](git.html)** - Gitの基本的な使い方とコマンドのリファレンス
 - **[Node.js リファレンス](nodejs.html)** - Node.jsの基本的な使い方とAPIリファレンス
 - **[Python リファレンス](python.html)** - Pythonの基本的な使い方とライブラリリファレンス
