@@ -681,4 +681,254 @@ who
 w
 ```
 
+### セットアップ段階のセキュリティ対策
+
+サーバーのセットアップ時に実施すべき基本的なセキュリティ設定です。
+
+#### SSH設定の強化
+
+```bash
+# SSH設定ファイルの編集
+sudo nano /etc/ssh/sshd_config
+
+# 推奨設定項目:
+# Port 22022                        # デフォルトポート変更
+# PermitRootLogin no                # rootログイン禁止
+# PasswordAuthentication no         # パスワード認証無効化
+# PubkeyAuthentication yes          # 公開鍵認証有効化
+# MaxAuthTries 3                    # 認証試行回数制限
+# ClientAliveInterval 300           # 接続維持間隔
+# ClientAliveCountMax 2             # 無応答時の最大回数
+
+# SSH設定反映
+sudo systemctl restart sshd
+sudo systemctl reload sshd
+```
+
+#### ファイアウォール設定
+
+```bash
+# ufw（Ubuntu/Debian）の設定
+sudo ufw enable
+sudo ufw default deny incoming     # 入力拒否がデフォルト
+sudo ufw default allow outgoing    # 出力許可がデフォルト
+sudo ufw allow 22022/tcp          # SSH（カスタムポート）
+sudo ufw allow 80/tcp             # HTTP
+sudo ufw allow 443/tcp            # HTTPS
+
+# iptables（基本的な設定）
+sudo iptables -P INPUT DROP       # デフォルト拒否
+sudo iptables -P FORWARD DROP
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -A INPUT -i lo -j ACCEPT              # ローカルループバック許可
+sudo iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 22022 -j ACCEPT  # SSH
+
+# 設定の保存
+sudo iptables-save > /etc/iptables/rules.v4
+```
+
+#### ユーザー管理とアクセス制御
+
+```bash
+# 管理用ユーザーの作成
+sudo adduser admin_user
+sudo usermod -aG sudo admin_user   # sudo権限付与
+
+# ユーザーのパスワードポリシー設定
+sudo nano /etc/login.defs
+# PASS_MAX_DAYS 90     # パスワード有効期限
+# PASS_MIN_DAYS 1      # パスワード変更間隔
+# PASS_WARN_AGE 7      # 期限切れ警告日数
+
+# SSH公開鍵の設定
+mkdir ~/.ssh
+chmod 700 ~/.ssh
+nano ~/.ssh/authorized_keys  # 公開鍵を追加
+chmod 600 ~/.ssh/authorized_keys
+
+# 不要なユーザーアカウントの無効化
+sudo usermod -L username     # アカウントロック
+sudo usermod -s /bin/false username  # シェル無効化
+```
+
+#### システム更新とパッケージ管理
+
+```bash
+# システム全体の更新
+sudo apt update && sudo apt upgrade -y    # Debian/Ubuntu
+sudo yum update -y                        # CentOS/RHEL
+
+# 自動セキュリティ更新の設定（Ubuntu/Debian）
+sudo apt install unattended-upgrades
+sudo dpkg-reconfigure -plow unattended-upgrades
+
+# 不要なサービスの停止
+systemctl list-unit-files --type=service  # サービス一覧確認
+sudo systemctl disable service_name       # 不要サービス無効化
+sudo systemctl stop service_name          # サービス停止
+```
+
+#### ログ設定とファイルシステム保護
+
+```bash
+# ログ保存期間の設定
+sudo nano /etc/logrotate.conf
+# 以下の設定を追加/変更:
+# weekly                    # 週単位でローテーション
+# rotate 52                 # 52週間（1年）保持
+# compress                  # 古いログを圧縮
+# delaycompress            # 1回遅らせて圧縮
+# missingok                # ファイルがなくてもエラーにしない
+# notifempty               # 空ファイルはローテーションしない
+
+sudo nano /etc/rsyslog.conf
+# 以下の設定を追加:
+# *.info;mail.none;authpriv.none;cron.none                /var/log/messages
+# authpriv.*                                              /var/log/secure
+# mail.*                                                  -/var/log/maillog
+# cron.*                                                  /var/log/cron
+# *.emerg                                                 :omusrmsg:*
+
+# 重要ディレクトリの権限設定
+sudo chmod 700 /root
+sudo chmod 755 /home
+sudo chmod 1777 /tmp               # スティッキービット設定
+
+# ファイルシステムの整合性チェック設定
+sudo nano /etc/aide/aide.conf      # AIDE設定
+# 以下の設定を追加/変更:
+# database=file:/var/lib/aide/aide.db
+# database_out=file:/var/lib/aide/aide.db.new
+# gzip_dbout=yes
+# verbose=5
+# report_url=file:/var/log/aide/aide.log
+# 
+# # 監視するディレクトリとルール
+# /bin f+p+u+g+s+m+c+md5+sha1
+# /sbin f+p+u+g+s+m+c+md5+sha1
+# /usr/bin f+p+u+g+s+m+c+md5+sha1
+# /usr/sbin f+p+u+g+s+m+c+md5+sha1
+# /etc f+p+u+g+s+m+c+md5+sha1
+# /root f+p+u+g+s+m+c+md5+sha1
+sudo aide --init                   # 初期データベース作成
+sudo mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
+```
+
+### 運用中の定期チェック
+
+サーバー運用中に定期的に実施すべきセキュリティチェック項目です。
+
+#### 日次チェック項目
+
+```bash
+# ログイン履歴の確認
+last -n 20                        # 最近のログイン
+lastlog                           # 全ユーザーの最終ログイン
+who -u                            # 現在のログインユーザー
+
+# 異常なプロセスの確認
+ps aux --sort=-%cpu | head -10    # CPU使用率上位
+ps aux --sort=-%mem | head -10    # メモリ使用率上位
+netstat -tulpn | grep LISTEN      # リスニングポート確認
+
+# システムリソースの監視
+df -h                             # ディスク使用量
+free -h                           # メモリ使用量
+uptime                            # システム負荷
+```
+
+#### 週次チェック項目
+
+```bash
+# システムログの確認
+sudo journalctl --since "7 days ago" --priority=err  # エラーログ
+sudo grep -i "failed\|error\|warning" /var/log/syslog | tail -50
+
+# セキュリティ更新の確認
+sudo apt list --upgradable | grep -i security  # Debian/Ubuntu
+sudo yum check-update --security                # CentOS/RHEL
+
+# ユーザーアカウントの監査
+sudo awk -F: '($3 >= 1000) {print $1}' /etc/passwd  # 一般ユーザー一覧
+sudo passwd -S --all              # パスワード状態確認
+sudo find /home -name ".ssh" -type d             # SSH設定確認
+
+# ファイル権限の確認
+sudo find / -perm -4000 2>/dev/null              # SUID設定ファイル
+sudo find / -perm -2000 2>/dev/null              # SGID設定ファイル
+sudo find / -type f -perm -002 2>/dev/null       # 書き込み可能ファイル
+```
+
+#### 月次チェック項目
+
+```bash
+# システム全体のセキュリティ監査
+sudo lynis audit system           # Lynis使用（要インストール）
+sudo chkrootkit                   # ルートキット検査（要インストール）
+
+# ログローテーションの確認
+sudo logrotate -d /etc/logrotate.conf  # 設定テスト
+sudo ls -la /var/log/*.gz              # 圧縮済みログ確認
+
+# バックアップの整合性確認
+sudo aide --check                 # ファイル整合性チェック
+# バックアップデータの復元テスト
+
+# ネットワークセキュリティチェック
+sudo ss -tulpn                    # ネットワーク接続確認
+sudo netstat -i                   # ネットワークインターフェース統計
+nmap -sS localhost                # ローカルポートスキャン（要インストール）
+```
+
+#### セキュリティインシデント対応
+
+```bash
+# 緊急時のアクセス遮断
+sudo ufw deny from IP_ADDRESS     # 特定IPアドレスのブロック
+sudo iptables -A INPUT -s IP_ADDRESS -j DROP
+
+# 侵害の疑いがある場合の初期対応
+sudo netstat -an | grep ESTABLISHED  # 外部接続確認
+sudo lsof -i                         # ネットワーク接続プロセス
+sudo ps auxf                         # プロセスツリー表示
+sudo find /tmp -type f -mtime -1     # 最近作成されたファイル
+
+# ログの保全
+sudo cp -r /var/log /backup/incident_logs_$(date +%Y%m%d_%H%M%S)
+sudo journalctl --output=json > /backup/journal_$(date +%Y%m%d_%H%M%S).json
+```
+
+#### 自動化スクリプト例
+
+```bash
+# セキュリティチェック自動化スクリプト
+#!/bin/bash
+# /usr/local/bin/security_check.sh
+
+echo "=== 日次セキュリティチェック $(date) ==="
+
+# 失敗ログイン試行の確認
+echo "--- 失敗ログイン試行 ---"
+sudo grep "Failed password" /var/log/auth.log | tail -10
+
+# ディスク使用量警告
+echo "--- ディスク使用量 ---"
+df -h | awk '$5 > 80 {print "WARNING: " $0}'
+
+# メモリ使用量確認
+echo "--- メモリ使用量 ---"
+free -h
+
+# 異常なプロセス確認
+echo "--- CPU使用率上位プロセス ---"
+ps aux --sort=-%cpu | head -5
+
+# 結果をメール送信（設定済みの場合）
+# echo "セキュリティチェック完了" | mail -s "Security Check $(date)" admin@example.com
+
+# crontabに追加して自動実行
+# 0 9 * * * /usr/local/bin/security_check.sh >> /var/log/security_check.log 2>&1
+```
+
 このリファレンスは、Linuxコマンドラインの基本的な操作から応用まで幅広くカバーしています。各コマンドの詳細なオプションについては、`man コマンド名` でマニュアルページを参照してください。
