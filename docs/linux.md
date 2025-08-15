@@ -191,6 +191,213 @@ bg %1          # ジョブ1をバックグラウンドに
 Ctrl+Z         # 現在のプロセスを一時停止
 ```
 
+## タスクスケジューリング（cron）
+
+### cron とは
+cron は Unix/Linux システムにおけるタスクスケジューラーです。指定した時間に自動的にコマンドやスクリプトを実行することができます。定期的なバックアップ、ログの整理、システムメンテナンスなどに使用されます。
+
+### crontab の基本操作
+
+```bash
+# crontab の編集
+crontab -e
+
+# 現在の crontab を表示
+crontab -l
+
+# crontab を削除
+crontab -r
+
+# 特定ユーザーの crontab を編集（root権限が必要）
+sudo crontab -e -u username
+
+# 特定ユーザーの crontab を表示
+sudo crontab -l -u username
+```
+
+### crontab の書式
+
+crontab のエントリは以下の形式で記述します：
+
+```
+分 時 日 月 曜日 コマンド
+*  *  *  *  *    command
+```
+
+各フィールドの説明：
+- **分**: 0-59
+- **時**: 0-23
+- **日**: 1-31
+- **月**: 1-12 または jan-dec
+- **曜日**: 0-7 または sun-sat（0と7は日曜日）
+
+### 特殊文字
+
+```bash
+*    # すべての値にマッチ
+,    # 複数の値を指定（例: 1,3,5）
+-    # 範囲を指定（例: 1-5）
+/    # 間隔を指定（例: */5 は5分おき）
+```
+
+### よく使用される cron 表現例
+
+```bash
+# 毎分実行
+* * * * * /path/to/command
+
+# 毎時0分に実行（毎時正時）
+0 * * * * /path/to/command
+
+# 毎日午前2時30分に実行
+30 2 * * * /path/to/command
+
+# 毎週月曜日の午前9時に実行
+0 9 * * 1 /path/to/command
+
+# 毎月1日の午前0時に実行
+0 0 1 * * /path/to/command
+
+# 平日（月〜金）の午前9時から午後5時まで1時間おきに実行
+0 9-17 * * 1-5 /path/to/command
+
+# 5分おきに実行
+*/5 * * * * /path/to/command
+
+# 営業時間（9-17時）の30分おきに平日のみ実行
+*/30 9-17 * * 1-5 /path/to/command
+
+# 毎年1月1日の午前0時（新年）
+0 0 1 1 * /path/to/new_year_script.sh
+```
+
+### 実践的な cron ジョブの例
+
+```bash
+# システムバックアップ（毎日午前3時）
+0 3 * * * /usr/local/bin/backup_script.sh
+
+# ログファイルのローテーション（毎週日曜日）
+0 0 * * 0 /usr/sbin/logrotate /etc/logrotate.conf
+
+# 一時ファイルの削除（毎日午前4時）
+0 4 * * * find /tmp -type f -atime +7 -delete
+
+# データベースのバックアップ（毎日午前2時）
+0 2 * * * mysqldump -u root -p database_name > /backup/db_$(date +\%Y\%m\%d).sql
+
+# ディスク容量チェック（平日の午前9時）
+0 9 * * 1-5 df -h | mail -s "Disk Usage Report" admin@example.com
+
+# Webサイトの死活監視（5分おき）
+*/5 * * * * curl -f http://example.com > /dev/null 2>&1 || echo "Site down" | mail admin@example.com
+```
+
+### 環境変数の設定
+
+```bash
+# crontab内で環境変数を設定
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=admin@example.com
+
+# 特定の環境変数を使用
+HOME=/home/user
+0 2 * * * cd $HOME && ./backup.sh
+```
+
+### ログとデバッグ
+
+```bash
+# cron ジョブのログを確認
+tail -f /var/log/cron
+# または
+journalctl -u cron
+
+# 特定ユーザーのcronログを確認
+grep "username" /var/log/cron
+
+# cronジョブの出力をファイルに記録
+0 2 * * * /path/to/script.sh >> /var/log/my_script.log 2>&1
+
+# メール送信の設定（MAILTO変数）
+MAILTO=admin@example.com
+0 2 * * * /path/to/script.sh
+
+# エラーのみメール送信
+0 2 * * * /path/to/script.sh >/dev/null
+```
+
+### cron の実行時刻を確認
+
+```bash
+# 次回の実行予定時刻を確認するスクリプト例
+#!/bin/bash
+# cron_next.sh
+echo "=== 次回のcron実行予定 ==="
+for user in $(cut -f1 -d: /etc/passwd); do
+    if crontab -u $user -l >/dev/null 2>&1; then
+        echo "User: $user"
+        crontab -u $user -l
+        echo "---"
+    fi
+done
+```
+
+### トラブルシューティング
+
+```bash
+# cronデーモンのステータス確認
+systemctl status cron        # Debian/Ubuntu
+systemctl status crond       # Red Hat/CentOS
+
+# cronデーモンの再起動
+sudo systemctl restart cron  # Debian/Ubuntu
+sudo systemctl restart crond # Red Hat/CentOS
+
+# crontabの構文チェック
+# 一時ファイルに保存してテスト
+crontab -l > /tmp/mycron
+nano /tmp/mycron
+crontab /tmp/mycron
+
+# 手動でコマンドをテスト
+/bin/bash -c "cd /home/user && ./script.sh"
+```
+
+### セキュリティとベストプラクティス
+
+```bash
+# スクリプトの権限設定
+chmod 755 /path/to/script.sh
+chmod +x /path/to/script.sh
+
+# 絶対パスを使用
+0 2 * * * /usr/bin/python3 /home/user/script.py
+
+# ログ出力の設定
+0 2 * * * /path/to/script.sh 2>&1 | logger -t my_script
+
+# リダイレクトでログ管理
+0 2 * * * /path/to/script.sh >> /var/log/script.log 2>&1
+
+# ロックファイルを使用して重複実行を防止
+0 */6 * * * /usr/bin/flock -n /tmp/script.lock /path/to/script.sh
+```
+
+### anacron との違い
+
+```bash
+# anacron の確認（システムが常時稼働していない場合に有用）
+cat /etc/anacrontab
+
+# anacron の実行
+sudo anacron -f  # 強制実行
+sudo anacron -T  # 設定テスト
+```
+
+anacron は、指定した期間内にシステムが稼働していれば、停止していた間に実行されなかったジョブを実行します。ノートPCなど、常時稼働していないシステムに適しています。
+
 ## ネットワーク関連
 
 ### ネットワーク接続確認
