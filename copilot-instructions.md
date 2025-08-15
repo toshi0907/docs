@@ -169,6 +169,7 @@ chmod +x script.sh
 - [ ] **自動TOC使用**: Jekyll/kramdownの `{:toc}` 機能を使用（手動TOC禁止）
 - [ ] **階層構造**: H1/H2/H3の適切な使用
 - [ ] **kramdown互換**: GitHub Pagesで正しく表示される形式
+- [ ] **config更新**: 新規にファイル追加時は、configファイルのheader_pages:に項目を追加すること
 
 ### 推奨項目
 - [ ] **YAML Front Matter**: Jekyll用メタデータの追加
