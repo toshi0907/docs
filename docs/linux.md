@@ -774,7 +774,21 @@ sudo systemctl stop service_name          # サービス停止
 ```bash
 # ログ保存期間の設定
 sudo nano /etc/logrotate.conf
+# 以下の設定を追加/変更:
+# weekly                    # 週単位でローテーション
+# rotate 52                 # 52週間（1年）保持
+# compress                  # 古いログを圧縮
+# delaycompress            # 1回遅らせて圧縮
+# missingok                # ファイルがなくてもエラーにしない
+# notifempty               # 空ファイルはローテーションしない
+
 sudo nano /etc/rsyslog.conf
+# 以下の設定を追加:
+# *.info;mail.none;authpriv.none;cron.none                /var/log/messages
+# authpriv.*                                              /var/log/secure
+# mail.*                                                  -/var/log/maillog
+# cron.*                                                  /var/log/cron
+# *.emerg                                                 :omusrmsg:*
 
 # 重要ディレクトリの権限設定
 sudo chmod 700 /root
@@ -783,6 +797,20 @@ sudo chmod 1777 /tmp               # スティッキービット設定
 
 # ファイルシステムの整合性チェック設定
 sudo nano /etc/aide/aide.conf      # AIDE設定
+# 以下の設定を追加/変更:
+# database=file:/var/lib/aide/aide.db
+# database_out=file:/var/lib/aide/aide.db.new
+# gzip_dbout=yes
+# verbose=5
+# report_url=file:/var/log/aide/aide.log
+# 
+# # 監視するディレクトリとルール
+# /bin f+p+u+g+s+m+c+md5+sha1
+# /sbin f+p+u+g+s+m+c+md5+sha1
+# /usr/bin f+p+u+g+s+m+c+md5+sha1
+# /usr/sbin f+p+u+g+s+m+c+md5+sha1
+# /etc f+p+u+g+s+m+c+md5+sha1
+# /root f+p+u+g+s+m+c+md5+sha1
 sudo aide --init                   # 初期データベース作成
 sudo mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 ```
