@@ -570,6 +570,35 @@ source ~/.bashrc
 . ~/.bashrc
 ```
 
+### デフォルトエディタの設定
+
+システム全体のデフォルトエディタを設定する方法です。
+
+```bash
+# update-alternativesでデフォルトエディタを設定（Debian/Ubuntu）
+sudo update-alternatives --config editor
+
+# 利用可能なエディタを表示
+sudo update-alternatives --display editor
+
+# 新しいエディタを代替候補に追加
+sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nano 40
+sudo update-alternatives --install /usr/bin/editor editor /usr/bin/vim 30
+
+# 環境変数EDITORでユーザー固有の設定
+export EDITOR=nano
+export VISUAL=nano
+
+# 永続化（.bashrc または .zshrc に追記）
+echo 'export EDITOR=nano' >> ~/.bashrc
+echo 'export VISUAL=nano' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**使用場面:**
+- `git commit`、`crontab -e`、`sudo visudo` などでエディタが自動起動される際のデフォルト設定
+- システム管理タスクで一貫したエディタ体験を提供
+
 ## アーカイブと圧縮
 
 ### tar アーカイブ
