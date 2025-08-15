@@ -24,6 +24,9 @@ header_pages:
   - shellscript.md
   - bat.md
   - jekyll.md
+  - linux.md
+  - termux.md
+  - custom-layout-demo.md
 
 # Collections
 collections:
