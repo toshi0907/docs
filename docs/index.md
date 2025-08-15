@@ -18,6 +18,8 @@ permalink: /
 - **[Shell Script リファレンス](shellscript.html)** - シェルスクリプトの基本的な書き方とコマンド
 - **[Bat リファレンス](bat.html)** - Windowsバッチファイルの基本的な使い方
 - **[Jekyll リファレンス](jekyll.html)** - Jekyll の基本的な使い方と GitHub Pages でのベストプラクティス
+- **[Linux CLI リファレンス](linux.html)** - Linux コマンドラインインターフェースの基本的な使い方とコマンド
+- **[Termux リファレンス](termux.html)** - Android アプリ Termux の使用方法と Linux 環境構築
 - **[カスタムレイアウトデモ](custom-layout-demo.html)** - 新しく追加されたJekyllカスタムレイアウトの機能紹介
 
 ---
