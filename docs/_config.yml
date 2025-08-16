@@ -20,6 +20,7 @@ header_pages:
   - git.md
   - nodejs.md
   - python.md
+  - regexp.md
   - nginx.md
   - shellscript.md
   - bat.md

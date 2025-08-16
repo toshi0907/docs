@@ -14,6 +14,7 @@ permalink: /
 - **[Git リファレンス](git.html)** - Gitの基本的な使い方とコマンドのリファレンス
 - **[Node.js リファレンス](nodejs.html)** - Node.jsの基本的な使い方とAPIリファレンス
 - **[Python リファレンス](python.html)** - Pythonの基本的な使い方とライブラリリファレンス
+- **[正規表現 リファレンス](regexp.html)** - 正規表現の基本的な使い方から応用まで、様々な言語とツールでの実践例
 - **[Nginx リファレンス](nginx.html)** - Nginxの設定とコマンドリファレンス
 - **[Shell Script リファレンス](shellscript.html)** - シェルスクリプトの基本的な書き方とコマンド
 - **[Bat リファレンス](bat.html)** - Windowsバッチファイルの基本的な使い方
