@@ -21,26 +21,31 @@ layout: default
     {%- endif -%}
   </header>
 
-  <div class="doc-content">
-    <!-- Navigation breadcrumb -->
-    <nav class="doc-breadcrumb" style="background: #f8f9fa; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9em;">
-      <a href="{{ '/' | relative_url }}" style="color: #007bff; text-decoration: none;">ホーム</a>
-      <span style="margin: 0 8px; color: #6c757d;">›</span>
-      <span style="color: #495057;">{{ page.title | escape }}</span>
-    </nav>
-
-    <!-- Table of Contents -->
+  <div class="doc-content-wrapper">
+    <!-- Table of Contents Sidebar -->
     {%- unless page.toc == false -%}
-    <div class="doc-toc" style="background: #fff; border: 2px solid #007bff; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
-      <h3 style="margin-top: 0; color: #007bff; border-bottom: 1px solid #007bff; padding-bottom: 8px;">📖 目次</h3>
-      <div id="doc-toc-content"></div>
-    </div>
+    <aside class="doc-toc-sidebar">
+      <div class="doc-toc" style="background: #fff; border: 2px solid #007bff; border-radius: 8px; padding: 20px;">
+        <h3 style="margin-top: 0; color: #007bff; border-bottom: 1px solid #007bff; padding-bottom: 8px;">📖 目次</h3>
+        <div id="doc-toc-content"></div>
+      </div>
+    </aside>
     {%- endunless -%}
 
-    <!-- Main content -->
-    <div class="doc-main-content">
-      {{ content }}
+    <div class="doc-content">
+      <!-- Navigation breadcrumb -->
+      <nav class="doc-breadcrumb" style="background: #f8f9fa; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px; font-size: 0.9em;">
+        <a href="{{ '/' | relative_url }}" style="color: #007bff; text-decoration: none;">ホーム</a>
+        <span style="margin: 0 8px; color: #6c757d;">›</span>
+        <span style="color: #495057;">{{ page.title | escape }}</span>
+      </nav>
+
+      <!-- Main content -->
+      <div class="doc-main-content">
+        {{ content }}
+      </div>
     </div>
+  </div>
 
     <!-- Footer navigation -->
     <div class="doc-footer-nav" style="margin-top: 50px; padding: 20px 0; border-top: 2px solid #e9ecef;">
@@ -121,8 +126,53 @@ layout: default
 <!-- Additional styling for documentation layout -->
 <style>
   .doc-article {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
+  }
+
+  .doc-content-wrapper {
+    display: flex;
+    gap: 20px;
+    position: relative;
+  }
+
+  .doc-toc-sidebar {
+    width: 280px;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+    order: 2;
+    flex-shrink: 0;
+  }
+
+  .doc-content {
+    flex: 1;
+    min-width: 0;
+    order: 1;
+  }
+
+  /* Responsive behavior */
+  @media (max-width: 1024px) {
+    .doc-content-wrapper {
+      flex-direction: column;
+    }
+    
+    .doc-toc-sidebar {
+      width: 100%;
+      position: static;
+      order: 1;
+      margin-bottom: 20px;
+    }
+    
+    .doc-content {
+      order: 2;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .doc-toc-sidebar {
+      display: none;
+    }
   }
   
   .doc-title {
