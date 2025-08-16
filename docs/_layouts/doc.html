@@ -125,6 +125,13 @@ layout: default
 
 <!-- Additional styling for documentation layout -->
 <style>
+  /* Override minima theme wrapper width restriction for large screens */
+  @media (min-width: 1441px) {
+    .wrapper {
+      max-width: none;
+    }
+  }
+
   .doc-article {
     margin: 0 auto;
   }
