@@ -3167,6 +3167,278 @@ heroku ps:scale web=2
 }
 ```
 
+#### モダンなPaaS（Platform as a Service）
+
+**Vercel での Node.js デプロイ:**
+```bash
+# Vercel CLIのインストール
+npm install -g vercel
+
+# プロジェクトのデプロイ
+vercel
+
+# 本番環境の設定
+vercel --prod
+
+# 環境変数の設定
+vercel env add NODE_ENV production
+vercel env add DATABASE_URL [your-database-url]
+```
+
+**vercel.json 設定例:**
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "app.js": {
+      "maxDuration": 30
+    }
+  }
+}
+```
+
+**Railway での Node.js デプロイ:**
+```bash
+# Railway CLIのインストール
+npm install -g @railway/cli
+
+# Railwayにログイン
+railway login
+
+# プロジェクトの初期化
+railway init
+
+# デプロイ
+railway up
+
+# 環境変数の設定
+railway variables set NODE_ENV=production
+railway variables set PORT=3000
+```
+
+**railway.json 設定例:**
+```json
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "npm start",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100,
+    "restartPolicyType": "ALWAYS"
+  }
+}
+```
+
+**Render での Node.js デプロイ:**
+
+Render.com でのWeb Serviceの設定:
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: my-node-app
+    env: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: myapp-db
+          property: connectionString
+    healthCheckPath: /health
+```
+
+#### サーバーレス デプロイ
+
+**AWS Lambda での Node.js デプロイ:**
+```javascript
+// lambda/handler.js - Express アプリのラッパー
+const serverless = require('serverless-http');
+const app = require('../app'); // Express アプリ
+
+module.exports.handler = serverless(app);
+```
+
+**serverless.yml 設定:**
+```yaml
+service: my-node-app
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    NODE_ENV: production
+    DATABASE_URL: ${env:DATABASE_URL}
+
+functions:
+  app:
+    handler: lambda/handler.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+      - http:
+          path: /
+          method: ANY
+          cors: true
+
+plugins:
+  - serverless-offline
+```
+
+**Vercel Functions での API デプロイ:**
+```javascript
+// api/users.js - Vercel Function
+export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    // ユーザー一覧取得
+    const users = await getUsers();
+    res.status(200).json({ success: true, data: users });
+  } else if (req.method === 'POST') {
+    // ユーザー作成
+    const newUser = await createUser(req.body);
+    res.status(201).json({ success: true, data: newUser });
+  } else {
+    res.setHeader('Allow', ['GET', 'POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
+```
+
+#### Kubernetes デプロイ
+
+**deployment.yaml:**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+  labels:
+    app: node-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata:
+      labels:
+        app: node-app
+    spec:
+      containers:
+      - name: node-app
+        image: your-registry/node-app:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: url
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app-service
+spec:
+  selector:
+    app: node-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+  type: LoadBalancer
+```
+
+**Helm Chart での管理:**
+```yaml
+# values.yaml
+replicaCount: 3
+
+image:
+  repository: your-registry/node-app
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: your-app.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: your-app-tls
+      hosts:
+        - your-app.example.com
+
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 100m
+  limits:
+    memory: 256Mi
+    cpu: 200m
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+```
+
 #### 継続的デプロイ（CI/CD）
 
 **GitHub Actions ワークフロー (.github/workflows/deploy.yml):**
@@ -3350,7 +3622,225 @@ app.get('/monitoring/metrics', (req, res) => {
 });
 ```
 
-このような本番環境でのデプロイに関する包括的な知識を身につけることで、Node.jsアプリケーションを安全で効率的に運用することができます。
+#### モダンな監視とObservability
+
+**Application Performance Monitoring (APM)**
+
+**New Relic での監視:**
+```javascript
+// アプリケーションの先頭で New Relic を初期化
+require('newrelic');
+
+const express = require('express');
+const app = express();
+
+// カスタムメトリクスの記録
+const newrelic = require('newrelic');
+
+app.get('/api/users', async (req, res) => {
+    const startTime = Date.now();
+    
+    try {
+        const users = await getUsers();
+        
+        // カスタムメトリクスを記録
+        newrelic.recordMetric('Custom/Users/Count', users.length);
+        newrelic.recordMetric('Custom/API/ResponseTime', Date.now() - startTime);
+        
+        res.json({ success: true, data: users });
+    } catch (error) {
+        // エラーの記録
+        newrelic.noticeError(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+```
+
+**DataDog での監視:**
+```javascript
+const tracer = require('dd-trace').init({
+    service: 'my-node-app',
+    env: 'production',
+    version: '1.0.0'
+});
+
+const StatsD = require('node-statsd');
+const client = new StatsD();
+
+// カスタムメトリクスの送信
+app.get('/api/orders', async (req, res) => {
+    const span = tracer.startSpan('api.orders.get');
+    
+    try {
+        const orders = await getOrders();
+        
+        // メトリクスの送信
+        client.increment('api.orders.success');
+        client.histogram('api.orders.count', orders.length);
+        
+        span.setTag('orders.count', orders.length);
+        span.finish();
+        
+        res.json({ success: true, data: orders });
+    } catch (error) {
+        span.setTag('error', true);
+        span.setTag('error.message', error.message);
+        span.finish();
+        
+        client.increment('api.orders.error');
+        throw error;
+    }
+});
+```
+
+**Prometheus + Grafana での監視:**
+```javascript
+const prometheus = require('prom-client');
+
+// メトリクスレジストリの作成
+const register = new prometheus.Registry();
+
+// カスタムメトリクスの定義
+const httpRequestDuration = new prometheus.Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'Duration of HTTP requests in seconds',
+    labelNames: ['method', 'route', 'status'],
+    buckets: [0.1, 0.5, 1, 2, 5]
+});
+
+const httpRequestCounter = new prometheus.Counter({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'route', 'status']
+});
+
+// メトリクスの登録
+register.registerMetric(httpRequestDuration);
+register.registerMetric(httpRequestCounter);
+
+// デフォルトメトリクスの収集
+prometheus.collectDefaultMetrics({ register });
+
+// メトリクス収集ミドルウェア
+const metricsMiddleware = (req, res, next) => {
+    const start = Date.now();
+    
+    res.on('finish', () => {
+        const duration = (Date.now() - start) / 1000;
+        const route = req.route ? req.route.path : req.path;
+        
+        httpRequestDuration
+            .labels(req.method, route, res.statusCode)
+            .observe(duration);
+            
+        httpRequestCounter
+            .labels(req.method, route, res.statusCode)
+            .inc();
+    });
+    
+    next();
+};
+
+app.use(metricsMiddleware);
+
+// メトリクスエンドポイント
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+});
+```
+
+**構造化ログとトレーシング:**
+```javascript
+const winston = require('winston');
+const { v4: uuidv4 } = require('uuid');
+
+// トレースIDミドルウェア
+const traceMiddleware = (req, res, next) => {
+    req.traceId = req.headers['x-trace-id'] || uuidv4();
+    res.setHeader('x-trace-id', req.traceId);
+    next();
+};
+
+// 構造化ロガーの設定
+const logger = winston.createLogger({
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.errors({ stack: true }),
+        winston.format.json()
+    ),
+    defaultMeta: {
+        service: 'my-node-app',
+        environment: process.env.NODE_ENV
+    },
+    transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: 'logs/app.log' })
+    ]
+});
+
+app.use(traceMiddleware);
+
+// 各リクエストでトレースIDを含むログ出力
+app.use((req, res, next) => {
+    logger.info('Request received', {
+        traceId: req.traceId,
+        method: req.method,
+        url: req.originalUrl,
+        userAgent: req.get('User-Agent'),
+        ip: req.ip
+    });
+    next();
+});
+```
+
+**エラートラッキング（Sentry）:**
+```javascript
+const Sentry = require('@sentry/node');
+const { ProfilingIntegration } = require('@sentry/profiling-node');
+
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    integrations: [
+        new ProfilingIntegration(),
+    ],
+    tracesSampleRate: 1.0,
+    profilesSampleRate: 1.0,
+});
+
+// Express エラーハンドラー
+app.use(Sentry.Handlers.errorHandler());
+
+// カスタムエラー追跡
+app.get('/api/users/:id', async (req, res) => {
+    try {
+        const user = await getUserById(req.params.id);
+        if (!user) {
+            throw new Error(`User not found: ${req.params.id}`);
+        }
+        res.json({ success: true, data: user });
+    } catch (error) {
+        Sentry.captureException(error, {
+            tags: {
+                section: 'user_api'
+            },
+            user: {
+                id: req.user?.id,
+                email: req.user?.email
+            },
+            extra: {
+                userId: req.params.id,
+                traceId: req.traceId
+            }
+        });
+        
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+```
+
+このような本番環境でのデプロイと運用に関する包括的な知識を身につけることで、Node.jsアプリケーションを安全で効率的に運用することができます。モダンな開発環境では、従来のVMベースのデプロイに加えて、コンテナ化、サーバーレス、マネージドサービスなど多様な選択肢があります。プロジェクトの要件と制約を考慮して最適なデプロイ戦略を選択しましょう。
 
 ## 参考情報
 
