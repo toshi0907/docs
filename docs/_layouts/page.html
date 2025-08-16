@@ -1,83 +1,214 @@
 ---
 layout: default
 ---
-<article class="post">
+<article class="page-article">
 
-  <header class="post-header">
-    <h1 class="post-title">{{ page.title | escape }}</h1>
+  <header class="page-header">
+    <h1 class="page-title">{{ page.title | escape }}</h1>
     {%- if page.description -%}
-    <p class="post-description">{{ page.description | escape }}</p>
+    <p class="page-description">{{ page.description | escape }}</p>
     {%- endif -%}
   </header>
 
-  <div class="post-content">
-    {%- if page.toc != false -%}
-    <!-- Table of Contents -->
-    <div class="toc-container" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 15px; margin-bottom: 20px;">
-      <h3 style="margin-top: 0; color: #495057;">目次</h3>
-      <div id="toc"></div>
-    </div>
-    {%- endif -%}
+  <div class="page-content-wrapper">
+    <!-- Table of Contents Sidebar -->
+    {%- unless page.toc == false -%}
+    <aside class="page-toc-sidebar">
+      <div class="page-toc" style="background: #fff; border: 2px solid #007bff; border-radius: 8px; padding: 20px;">
+        <h3 style="margin-top: 0; color: #007bff; border-bottom: 1px solid #007bff; padding-bottom: 8px;">📖 目次</h3>
+        <div id="page-toc-content"></div>
+      </div>
+    </aside>
+    {%- endunless -%}
 
-    {{ content }}
+    <div class="page-content">
+      <!-- Main content -->
+      <div class="page-main-content">
+        {{ content }}
+      </div>
 
-    {%- if page.last_modified_at or page.date -%}
-    <div class="page-meta" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 0.9em;">
-      <p>
-        {%- if page.last_modified_at -%}
-        最終更新: {{ page.last_modified_at | date: "%Y年%m月%d日" }}
-        {%- elsif page.date -%}
-        作成日: {{ page.date | date: "%Y年%m月%d日" }}
-        {%- endif -%}
-      </p>
+      {%- if page.last_modified_at or page.date -%}
+      <div class="page-meta" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #6c757d; font-size: 0.9em;">
+        <p>
+          {%- if page.last_modified_at -%}
+          最終更新: {{ page.last_modified_at | date: "%Y年%m月%d日" }}
+          {%- elsif page.date -%}
+          作成日: {{ page.date | date: "%Y年%m月%d日" }}
+          {%- endif -%}
+        </p>
+      </div>
+      {%- endif -%}
     </div>
-    {%- endif -%}
   </div>
 
 </article>
 
-{%- if page.toc != false -%}
-<!-- Table of Contents JavaScript -->
+<!-- Enhanced Table of Contents JavaScript -->
+{%- unless page.toc == false -%}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Generate Table of Contents
-    const headings = document.querySelectorAll('.post-content h2, .post-content h3, .post-content h4');
-    const toc = document.getElementById('toc');
+    // Generate enhanced Table of Contents
+    const headings = document.querySelectorAll('.page-main-content h2, .page-main-content h3, .page-main-content h4');
+    const tocContainer = document.getElementById('page-toc-content');
     
-    if (headings.length > 0 && toc) {
+    if (headings.length > 0 && tocContainer) {
       const tocList = document.createElement('ul');
-      tocList.style.cssText = 'list-style: none; padding-left: 0; margin: 0;';
+      tocList.style.cssText = 'list-style: none; padding-left: 0; margin: 0; line-height: 1.6;';
       
       headings.forEach(function(heading, index) {
         // Add ID to heading if it doesn't have one
         if (!heading.id) {
-          heading.id = 'heading-' + index;
+          heading.id = 'page-heading-' + index;
         }
         
         const listItem = document.createElement('li');
         const link = document.createElement('a');
         link.href = '#' + heading.id;
         link.textContent = heading.textContent;
-        link.style.cssText = 'text-decoration: none; color: #007bff;';
+        link.style.cssText = 'text-decoration: none; color: #007bff; transition: color 0.2s;';
+        
+        // Add hover effect
+        link.addEventListener('mouseenter', function() {
+          this.style.color = '#0056b3';
+        });
+        link.addEventListener('mouseleave', function() {
+          this.style.color = '#007bff';
+        });
         
         // Style based on heading level
         if (heading.tagName === 'H2') {
-          listItem.style.cssText = 'margin-bottom: 5px; font-weight: 500;';
+          listItem.style.cssText = 'margin-bottom: 8px; font-weight: 600;';
+          link.textContent = '📄 ' + heading.textContent;
         } else if (heading.tagName === 'H3') {
-          listItem.style.cssText = 'margin-bottom: 3px; margin-left: 20px; font-size: 0.9em;';
+          listItem.style.cssText = 'margin-bottom: 5px; margin-left: 25px; font-size: 0.95em;';
+          link.textContent = '▶ ' + heading.textContent;
         } else if (heading.tagName === 'H4') {
-          listItem.style.cssText = 'margin-bottom: 2px; margin-left: 40px; font-size: 0.8em;';
+          listItem.style.cssText = 'margin-bottom: 3px; margin-left: 50px; font-size: 0.9em;';
+          link.textContent = '• ' + heading.textContent;
         }
         
         listItem.appendChild(link);
         tocList.appendChild(listItem);
       });
       
-      toc.appendChild(tocList);
-    } else if (toc) {
+      tocContainer.appendChild(tocList);
+    } else if (tocContainer) {
       // Hide TOC container if no headings found
-      toc.parentNode.style.display = 'none';
+      tocContainer.parentNode.style.display = 'none';
     }
   });
 </script>
-{%- endif -%}
+{%- endunless -%}
+
+<!-- Additional styling for page layout with sidebar TOC -->
+<style>
+  .page-article {
+    max-width: 2000px;
+    margin: 0 auto;
+  }
+
+  .page-content-wrapper {
+    display: flex;
+    gap: 20px;
+    position: relative;
+  }
+
+  .page-toc-sidebar {
+    width: 280px;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+    order: 2;
+    flex-shrink: 0;
+  }
+
+  .page-content {
+    flex: 1;
+    min-width: 0;
+    order: 1;
+  }
+
+  /* Responsive behavior */
+  @media (max-width: 1024px) {
+    .page-content-wrapper {
+      flex-direction: column;
+    }
+    
+    .page-toc-sidebar {
+      width: 100%;
+      position: static;
+      order: 1;
+      margin-bottom: 20px;
+    }
+    
+    .page-content {
+      order: 2;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .page-toc-sidebar {
+      display: none;
+    }
+  }
+  
+  .page-title {
+    border-bottom: 3px solid #007bff;
+    padding-bottom: 10px;
+    color: #212529;
+  }
+  
+  .page-main-content h2 {
+    color: #007bff;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 8px;
+    margin-top: 40px;
+  }
+  
+  .page-main-content h3 {
+    color: #495057;
+    margin-top: 30px;
+  }
+  
+  .page-main-content code {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 0.9em;
+  }
+  
+  .page-main-content pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 15px;
+    overflow-x: auto;
+  }
+  
+  .page-main-content blockquote {
+    border-left: 4px solid #007bff;
+    background: #f8f9fa;
+    margin: 20px 0;
+    padding: 15px 20px;
+    font-style: italic;
+  }
+  
+  .page-main-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+  }
+  
+  .page-main-content th,
+  .page-main-content td {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    text-align: left;
+  }
+  
+  .page-main-content th {
+    background: #f8f9fa;
+    font-weight: 600;
+  }
+</style>
