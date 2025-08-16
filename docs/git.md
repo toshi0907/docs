@@ -161,6 +161,185 @@ git config --global credential.https://github.com.username "your-username"
 git config --global url."git@github.com:".insteadOf "https://github.com/"
 ```
 
+### SSH鍵の設定
+
+GitHubにSSH鍵方式で接続するための手順です。SSH鍵を使用することで、パスワードを毎回入力する必要がなくなり、より安全な認証が可能になります。
+
+#### SSH鍵の生成
+
+```bash
+# SSH鍵ペアの生成（RSA 4096bit）
+ssh-keygen -t rsa -b 4096 -C "your.email@example.com"
+
+# または Ed25519鍵の生成（推奨）
+ssh-keygen -t ed25519 -C "your.email@example.com"
+
+# 鍵の保存場所を指定（デフォルト: ~/.ssh/id_rsa または ~/.ssh/id_ed25519）
+# Enter file in which to save the key (/home/user/.ssh/id_rsa): [Enter]
+
+# パスフレーズの設定（推奨）
+# Enter passphrase (empty for no passphrase): [パスフレーズを入力]
+# Enter same passphrase again: [パスフレーズを再入力]
+```
+
+#### SSH鍵の確認
+
+```bash
+# 公開鍵の内容を表示
+cat ~/.ssh/id_rsa.pub
+# または Ed25519の場合
+cat ~/.ssh/id_ed25519.pub
+
+# SSH鍵の一覧を確認
+ls -la ~/.ssh/
+
+# SSH鍵の権限を確認・設定
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_rsa
+chmod 644 ~/.ssh/id_rsa.pub
+```
+
+#### GitHubへのSSH鍵の登録
+
+1. **公開鍵をクリップボードにコピー**
+```bash
+# Linux/WSL
+cat ~/.ssh/id_rsa.pub | xclip -selection clipboard
+# または
+cat ~/.ssh/id_rsa.pub
+
+# macOS
+cat ~/.ssh/id_rsa.pub | pbcopy
+
+# Windows (Git Bash)
+cat ~/.ssh/id_rsa.pub | clip
+```
+
+2. **GitHubでの設定**
+- GitHubにログインして Settings → SSH and GPG keys にアクセス
+- "New SSH key" をクリック
+- Title に識別しやすい名前を入力（例: "MyComputer-2024"）
+- Key の欄にコピーした公開鍵を貼り付け
+- "Add SSH key" をクリック
+
+#### SSH接続のテスト
+
+```bash
+# GitHubへのSSH接続をテスト
+ssh -T git@github.com
+
+# 成功した場合の出力例:
+# Hi username! You've successfully authenticated, but GitHub does not
+# provide shell access.
+
+# 詳細なデバッグ情報付きでテスト
+ssh -vT git@github.com
+```
+
+#### SSH設定ファイルの作成
+
+```bash
+# SSH設定ファイルを作成・編集
+nano ~/.ssh/config
+
+# 基本的な設定例
+cat >> ~/.ssh/config << 'EOF'
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+EOF
+
+# 設定ファイルの権限を設定
+chmod 600 ~/.ssh/config
+```
+
+#### 複数アカウント用のSSH設定
+
+```bash
+# 複数のGitHubアカウントを使い分ける場合の設定
+cat >> ~/.ssh/config << 'EOF'
+# 個人用アカウント
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa_personal
+    IdentitiesOnly yes
+
+# 仕事用アカウント
+Host github-work
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa_work
+    IdentitiesOnly yes
+EOF
+
+# 使用例
+# 個人用: git clone git@github.com:username/repo.git
+# 仕事用: git clone git@github-work:company/repo.git
+```
+
+#### SSH Agentの使用
+
+```bash
+# SSH Agentを開始
+eval "$(ssh-agent -s)"
+
+# SSH鍵をAgentに追加
+ssh-add ~/.ssh/id_rsa
+
+# 追加された鍵を確認
+ssh-add -l
+
+# SSH Agentから鍵を削除
+ssh-add -d ~/.ssh/id_rsa
+
+# 全ての鍵を削除
+ssh-add -D
+```
+
+#### トラブルシューティング
+
+```bash
+# 1. Permission denied (publickey) エラーの場合
+# SSH鍵の権限を確認
+ls -la ~/.ssh/
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_rsa
+chmod 644 ~/.ssh/id_rsa.pub
+
+# 2. SSH鍵が認識されない場合
+# SSH Agentに鍵を追加
+ssh-add ~/.ssh/id_rsa
+
+# 3. 複数の鍵がある場合の問題
+# 明示的に鍵を指定
+ssh -i ~/.ssh/id_rsa -T git@github.com
+
+# 4. 接続の詳細情報を確認
+ssh -vvv git@github.com
+
+# 5. GitHubの既知のホストを追加
+ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+```
+
+#### 既存リポジトリをSSHに変更
+
+```bash
+# 現在のリモートURL確認
+git remote -v
+
+# HTTPSからSSHに変更
+git remote set-url origin git@github.com:username/repository.git
+
+# 変更を確認
+git remote -v
+
+# SSH接続でプッシュテスト
+git push origin main
+```
+
 ### 色の設定
 ```bash
 # 色表示を有効化
