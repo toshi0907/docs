@@ -453,15 +453,120 @@ du -sh /path/  # 特定ディレクトリのサイズ
 
 ### ログ確認
 
-```bash
-# システムログ
-journalctl              # systemd ジャーナル
-journalctl -f           # リアルタイム監視
-journalctl -u service   # 特定サービスのログ
+#### journalctl コマンド
 
-# 従来のログファイル
-tail -f /var/log/syslog
-tail -f /var/log/messages
+`journalctl` は systemd ジャーナル（systemd-journald）からログを閲覧するためのコマンドです。従来のテキストファイルベースのログとは異なり、バイナリ形式で保存されたログを効率的に検索・フィルタリングできます。
+
+```bash
+# 基本的な使用方法
+journalctl              # 全てのログを表示
+journalctl -f           # リアルタイム監視（follow）
+journalctl -r           # 逆順（新しいものから）表示
+
+# 行数制限
+journalctl -n 20        # 最新20行を表示
+journalctl --lines=50   # 最新50行を表示
+
+# 特定サービスのログ
+journalctl -u nginx              # nginxサービスのログ
+journalctl -u ssh.service       # SSHサービスのログ
+journalctl -u systemd-logind    # ログインサービスのログ
+```
+
+#### 時間によるフィルタリング
+
+```bash
+# 時間範囲指定
+journalctl --since "2024-01-01"                    # 2024年1月1日以降
+journalctl --since "2024-01-01 10:00:00"          # 具体的な時刻以降
+journalctl --since "1 hour ago"                    # 1時間前以降
+journalctl --since "yesterday"                     # 昨日以降
+journalctl --since "2 days ago" --until "1 day ago"  # 2日前から1日前まで
+
+# 相対時間指定
+journalctl --since "10 minutes ago"  # 10分前以降
+journalctl --since "30 seconds ago"  # 30秒前以降
+```
+
+#### 優先度・重要度によるフィルタリング
+
+```bash
+# 優先度別フィルタリング（数値が小さいほど重要）
+journalctl -p 0         # emergency（システム使用不可）
+journalctl -p 1         # alert（即座の対応が必要）
+journalctl -p 2         # critical（重大な状況）
+journalctl -p 3         # error（エラー条件）
+journalctl -p 4         # warning（警告条件）
+journalctl -p 5         # notice（正常だが重要な状況）
+journalctl -p 6         # info（情報メッセージ）
+journalctl -p 7         # debug（デバッグメッセージ）
+
+# 名前での指定も可能
+journalctl --priority=err       # エラー以上
+journalctl --priority=warning   # 警告以上
+```
+
+#### 出力フォーマット
+
+```bash
+# 出力形式の変更
+journalctl --output=json        # JSON形式
+journalctl --output=json-pretty # 見やすいJSON形式
+journalctl --output=verbose     # 詳細な情報を含む
+journalctl --output=short       # 短縮形式（デフォルト）
+journalctl --output=cat         # メッセージ部分のみ
+
+# ファイルへの出力
+journalctl --output=json > system_logs.json
+```
+
+#### 実用的な使用例
+
+```bash
+# システム起動時のエラーチェック
+journalctl -b --priority=err
+
+# 特定サービスの最近のエラー
+journalctl -u apache2 --since "today" --priority=warning
+
+# SSH接続試行の監視
+journalctl -u ssh -f --grep="Failed password"
+
+# システム全体の最近1時間のエラーと警告
+journalctl --since "1 hour ago" --priority=warning
+
+# カーネルメッセージのみ表示
+journalctl -k
+
+# 特定ユーザーのセッション情報
+journalctl _UID=1000
+```
+
+#### その他の便利なオプション
+
+```bash
+# ディスク使用量確認
+journalctl --disk-usage
+
+# ログローテーション管理
+journalctl --vacuum-time=2weeks    # 2週間以前のログを削除
+journalctl --vacuum-size=100M      # 100MBを超える分を削除
+
+# ログの整合性確認
+journalctl --verify
+
+# 追跡可能な fields の一覧
+journalctl --fields
+```
+
+#### 従来のログファイル
+
+```bash
+# 従来のテキストベースログファイル
+tail -f /var/log/syslog      # システム全般のログ
+tail -f /var/log/messages    # システムメッセージ（Red Hat系）
+tail -f /var/log/auth.log    # 認証関連ログ（Debian系）
+tail -f /var/log/secure      # 認証関連ログ（Red Hat系）
 ```
 
 ## 権限管理
