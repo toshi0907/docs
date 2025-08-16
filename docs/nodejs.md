@@ -2219,1629 +2219,6 @@ if (require.main === module) {
 }
 ```
 
-## 本番環境でのデプロイ
-
-Node.jsアプリケーションを本番環境にデプロイする際の重要な考慮事項とベストプラクティスについて詳しく解説します。
-
-### 本番環境のセットアップ
-
-#### 環境変数の管理
-
-**本番用の環境変数設定:**
-```bash
-# 本番環境用の .env.production ファイル
-NODE_ENV=production
-PORT=80
-DATABASE_URL=postgresql://user:password@db-server:5432/myapp
-REDIS_URL=redis://redis-server:6379
-JWT_SECRET=your-super-secure-jwt-secret-key
-API_KEY=your-production-api-key
-LOG_LEVEL=info
-```
-
-**セキュアな環境変数管理:**
-```javascript
-// config/environment.js
-const dotenv = require('dotenv');
-
-// 環境に応じた設定ファイルの読み込み
-const envFile = process.env.NODE_ENV === 'production' 
-    ? '.env.production' 
-    : '.env.development';
-
-dotenv.config({ path: envFile });
-
-const config = {
-    // 必須の環境変数をチェック
-    port: process.env.PORT || 3000,
-    nodeEnv: process.env.NODE_ENV || 'development',
-    
-    // データベース設定
-    database: {
-        url: process.env.DATABASE_URL,
-        ssl: process.env.NODE_ENV === 'production'
-    },
-    
-    // セキュリティ設定
-    jwt: {
-        secret: process.env.JWT_SECRET,
-        expiresIn: process.env.JWT_EXPIRES || '24h'
-    },
-    
-    // ログ設定
-    logging: {
-        level: process.env.LOG_LEVEL || 'debug'
-    }
-};
-
-// 必須環境変数の検証
-function validateConfig() {
-    const required = ['DATABASE_URL', 'JWT_SECRET'];
-    const missing = required.filter(key => !process.env[key]);
-    
-    if (missing.length > 0) {
-        throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-    }
-}
-
-if (process.env.NODE_ENV === 'production') {
-    validateConfig();
-}
-
-module.exports = config;
-```
-
-#### プロセス管理（PM2）
-
-**PM2のインストールと設定:**
-```bash
-# PM2のグローバルインストール
-npm install -g pm2
-
-# アプリケーションの起動
-pm2 start app.js --name "my-app"
-
-# クラスターモードで起動（CPUコア数分のプロセス）
-pm2 start app.js --name "my-app" -i max
-
-# PM2の状態確認
-pm2 status
-pm2 logs
-pm2 monit
-```
-
-**ecosystem.config.js - PM2設定ファイル:**
-```javascript
-module.exports = {
-    apps: [{
-        name: 'my-node-app',
-        script: 'app.js',
-        
-        // 実行環境
-        cwd: '/path/to/your/app',
-        node_args: '--max-old-space-size=1024',
-        
-        // インスタンス設定
-        instances: 'max',        // CPUコア数分のプロセス
-        exec_mode: 'cluster',    // クラスターモード
-        
-        // 環境変数
-        env: {
-            NODE_ENV: 'development',
-            PORT: 3000
-        },
-        env_production: {
-            NODE_ENV: 'production',
-            PORT: 80
-        },
-        
-        // ログ設定
-        log_file: './logs/app.log',
-        error_file: './logs/error.log',
-        out_file: './logs/out.log',
-        log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-        
-        // 再起動設定
-        max_restarts: 5,
-        min_uptime: '10s',
-        max_memory_restart: '500M',
-        
-        // ウォッチ設定（開発時のみ）
-        watch: false,
-        ignore_watch: ['node_modules', 'logs'],
-        
-        // 自動再起動設定
-        autorestart: true,
-        
-        // ヘルスチェック
-        health_check_grace_period: 3000,
-        
-        // その他の設定
-        merge_logs: true,
-        time: true
-    }],
-    
-    // デプロイ設定
-    deploy: {
-        production: {
-            user: 'deploy',
-            host: 'your-server.com',
-            ref: 'origin/main',
-            repo: 'git@github.com:username/your-app.git',
-            path: '/var/www/production',
-            'pre-deploy-local': '',
-            'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production',
-            'pre-setup': ''
-        }
-    }
-};
-```
-
-**PM2運用コマンド:**
-```bash
-# 本番環境でのアプリケーション起動
-pm2 start ecosystem.config.js --env production
-
-# アプリケーションの管理
-pm2 restart my-node-app      # 再起動
-pm2 reload my-node-app       # ゼロダウンタイム再起動
-pm2 stop my-node-app         # 停止
-pm2 delete my-node-app       # 削除
-
-# ログの確認
-pm2 logs my-node-app         # リアルタイムログ
-pm2 logs --lines 100         # 過去100行のログ
-
-# プロセス情報の確認
-pm2 describe my-node-app     # 詳細情報
-pm2 monit                    # リアルタイム監視
-
-# PM2の自動起動設定
-pm2 startup                  # システム起動時の自動開始
-pm2 save                     # 現在の設定を保存
-```
-
-### セキュリティ対策
-
-#### セキュリティヘッダーとミドルウェア
-
-```javascript
-const express = require('express');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const compression = require('compression');
-const cors = require('cors');
-
-const app = express();
-
-// セキュリティミドルウェア
-app.use(helmet({
-    // Content Security Policy
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            scriptSrc: ["'self'"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'"],
-            frameSrc: ["'none'"],
-            objectSrc: ["'none'"]
-        }
-    },
-    
-    // HSTS (Strict Transport Security)
-    hsts: {
-        maxAge: 31536000,          // 1年
-        includeSubDomains: true,
-        preload: true
-    },
-    
-    // その他のセキュリティヘッダー
-    noSniff: true,                 // X-Content-Type-Options
-    frameguard: { action: 'deny' }, // X-Frame-Options
-    xssFilter: true,               // X-XSS-Protection
-    referrerPolicy: { policy: 'same-origin' }
-}));
-
-// レート制限
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,     // 15分
-    max: 100,                      // 最大100リクエスト
-    message: {
-        error: 'Too many requests',
-        retryAfter: 15 * 60
-    },
-    standardHeaders: true,         // Rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false,          // Disable the `X-RateLimit-*` headers
-    
-    // スキップ条件
-    skip: (req) => {
-        // 特定のIPアドレスをスキップ
-        const trustedIPs = ['127.0.0.1', '::1'];
-        return trustedIPs.includes(req.ip);
-    }
-});
-
-app.use('/api/', limiter);
-
-// CORS設定
-const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = [
-            'https://yourdomain.com',
-            'https://www.yourdomain.com'
-        ];
-        
-        // 本番環境では厳格にチェック
-        if (process.env.NODE_ENV === 'production') {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        } else {
-            callback(null, true); // 開発環境では全て許可
-        }
-    },
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
-
-// 圧縮
-app.use(compression({
-    filter: (req, res) => {
-        if (req.headers['x-no-compression']) {
-            return false;
-        }
-        return compression.filter(req, res);
-    },
-    level: 6,
-    threshold: 1024
-}));
-```
-
-#### 入力値の検証とサニタイゼーション
-
-```javascript
-const joi = require('joi');
-const validator = require('validator');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss');
-
-// MongoDB インジェクション対策
-app.use(mongoSanitize());
-
-// XSS対策のミドルウェア
-const xssProtection = (req, res, next) => {
-    // リクエストボディのサニタイゼーション
-    if (req.body) {
-        for (const key in req.body) {
-            if (typeof req.body[key] === 'string') {
-                req.body[key] = xss(req.body[key]);
-            }
-        }
-    }
-    next();
-};
-
-app.use(xssProtection);
-
-// バリデーションスキーマの例
-const userSchema = joi.object({
-    name: joi.string()
-        .min(2)
-        .max(50)
-        .pattern(/^[a-zA-Z\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF\s]+$/)
-        .required(),
-    
-    email: joi.string()
-        .email()
-        .max(255)
-        .required(),
-    
-    password: joi.string()
-        .min(8)
-        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-        .required(),
-    
-    age: joi.number()
-        .integer()
-        .min(0)
-        .max(150)
-        .optional()
-});
-
-// バリデーションミドルウェア
-const validateUser = (req, res, next) => {
-    const { error, value } = userSchema.validate(req.body);
-    
-    if (error) {
-        return res.status(400).json({
-            success: false,
-            error: 'Validation failed',
-            details: error.details.map(detail => ({
-                field: detail.path.join('.'),
-                message: detail.message
-            }))
-        });
-    }
-    
-    req.validatedData = value;
-    next();
-};
-
-// ユーザー作成エンドポイント
-app.post('/api/users', validateUser, async (req, res) => {
-    try {
-        const userData = req.validatedData;
-        
-        // パスワードのハッシュ化
-        const bcrypt = require('bcrypt');
-        const saltRounds = 12;
-        userData.password = await bcrypt.hash(userData.password, saltRounds);
-        
-        // ユーザー作成処理
-        const user = await createUser(userData);
-        
-        // パスワードを除いてレスポンス
-        const { password, ...userResponse } = user;
-        
-        res.status(201).json({
-            success: true,
-            data: userResponse
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'User creation failed'
-        });
-    }
-});
-```
-
-### パフォーマンス最適化
-
-#### キャッシュ戦略
-
-```javascript
-const Redis = require('redis');
-const redis = Redis.createClient({
-    url: process.env.REDIS_URL,
-    retry_strategy: (options) => {
-        if (options.error && options.error.code === 'ECONNREFUSED') {
-            return new Error('Redis server connection refused');
-        }
-        if (options.total_retry_time > 1000 * 60 * 60) {
-            return new Error('Retry time exhausted');
-        }
-        if (options.attempt > 10) {
-            return undefined;
-        }
-        return Math.min(options.attempt * 100, 3000);
-    }
-});
-
-// キャッシュミドルウェア
-const cacheMiddleware = (duration = 300) => {
-    return async (req, res, next) => {
-        const key = `cache:${req.originalUrl}`;
-        
-        try {
-            const cached = await redis.get(key);
-            
-            if (cached) {
-                console.log('Cache hit:', key);
-                return res.json(JSON.parse(cached));
-            }
-            
-            // レスポンスを拦截してキャッシュに保存
-            const originalJson = res.json;
-            res.json = function(data) {
-                redis.setex(key, duration, JSON.stringify(data));
-                console.log('Cached:', key);
-                return originalJson.call(this, data);
-            };
-            
-            next();
-        } catch (error) {
-            console.error('Cache error:', error);
-            next();
-        }
-    };
-};
-
-// 使用例
-app.get('/api/users', cacheMiddleware(600), async (req, res) => {
-    // 10分間キャッシュされるAPIエンドポイント
-    const users = await getUsers();
-    res.json({ success: true, data: users });
-});
-
-// セッションベースのキャッシュ
-const userSpecificCache = (duration = 300) => {
-    return async (req, res, next) => {
-        const userId = req.user?.id;
-        if (!userId) return next();
-        
-        const key = `user_cache:${userId}:${req.originalUrl}`;
-        
-        try {
-            const cached = await redis.get(key);
-            if (cached) {
-                return res.json(JSON.parse(cached));
-            }
-            
-            const originalJson = res.json;
-            res.json = function(data) {
-                redis.setex(key, duration, JSON.stringify(data));
-                return originalJson.call(this, data);
-            };
-            
-            next();
-        } catch (error) {
-            next();
-        }
-    };
-};
-```
-
-#### データベース最適化
-
-```javascript
-// 接続プールの設定
-const { Pool } = require('pg');
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    
-    // 接続プール設定
-    min: 2,                    // 最小接続数
-    max: 20,                   // 最大接続数
-    idleTimeoutMillis: 30000,  // アイドルタイムアウト
-    connectionTimeoutMillis: 2000, // 接続タイムアウト
-    
-    // SSL設定（本番環境）
-    ssl: process.env.NODE_ENV === 'production' ? {
-        rejectUnauthorized: false
-    } : false
-});
-
-// クエリ実行ヘルパー
-const query = async (text, params) => {
-    const start = Date.now();
-    try {
-        const result = await pool.query(text, params);
-        const duration = Date.now() - start;
-        
-        // スロークエリのログ出力
-        if (duration > 1000) {
-            console.warn(`Slow query detected: ${duration}ms`, { text, params });
-        }
-        
-        return result;
-    } catch (error) {
-        console.error('Database query error:', error);
-        throw error;
-    }
-};
-
-// ページネーション付きクエリ
-const getPaginatedUsers = async (page = 1, limit = 20) => {
-    const offset = (page - 1) * limit;
-    
-    // 総数とデータを並行取得
-    const [countResult, usersResult] = await Promise.all([
-        query('SELECT COUNT(*) FROM users'),
-        query('SELECT id, name, email, created_at FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2', [limit, offset])
-    ]);
-    
-    const total = parseInt(countResult.rows[0].count);
-    const totalPages = Math.ceil(total / limit);
-    
-    return {
-        users: usersResult.rows,
-        pagination: {
-            currentPage: page,
-            totalPages,
-            totalItems: total,
-            itemsPerPage: limit,
-            hasNext: page < totalPages,
-            hasPrev: page > 1
-        }
-    };
-};
-```
-
-### ログとモニタリング
-
-#### 構造化ログ
-
-```javascript
-const winston = require('winston');
-const { combine, timestamp, errors, json, printf } = winston.format;
-
-// カスタムフォーマット
-const customFormat = printf(({ timestamp, level, message, ...meta }) => {
-    return JSON.stringify({
-        timestamp,
-        level,
-        message,
-        ...meta
-    });
-});
-
-// ログレベル設定
-const logLevels = {
-    error: 0,
-    warn: 1,
-    info: 2,
-    http: 3,
-    debug: 4
-};
-
-// ロガーの設定
-const logger = winston.createLogger({
-    levels: logLevels,
-    level: process.env.LOG_LEVEL || 'info',
-    format: combine(
-        timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        errors({ stack: true }),
-        json(),
-        customFormat
-    ),
-    
-    transports: [
-        // ファイル出力
-        new winston.transports.File({
-            filename: 'logs/error.log',
-            level: 'error',
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
-            format: json()
-        }),
-        new winston.transports.File({
-            filename: 'logs/combined.log',
-            maxsize: 5242880,
-            maxFiles: 5,
-            format: json()
-        }),
-        
-        // コンソール出力
-        new winston.transports.Console({
-            format: combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            )
-        })
-    ],
-    
-    // 未処理例外のキャッチ
-    exceptionHandlers: [
-        new winston.transports.File({ filename: 'logs/exceptions.log' })
-    ],
-    
-    // 未処理のPromise拒否のキャッチ
-    rejectionHandlers: [
-        new winston.transports.File({ filename: 'logs/rejections.log' })
-    ]
-});
-
-// HTTPリクエストログミドルウェア
-const httpLogger = (req, res, next) => {
-    const start = Date.now();
-    
-    res.on('finish', () => {
-        const duration = Date.now() - start;
-        
-        logger.http('HTTP Request', {
-            method: req.method,
-            url: req.originalUrl,
-            statusCode: res.statusCode,
-            duration: `${duration}ms`,
-            userAgent: req.get('User-Agent'),
-            ip: req.ip,
-            userId: req.user?.id
-        });
-    });
-    
-    next();
-};
-
-app.use(httpLogger);
-
-// 使用例
-logger.info('Application started', {
-    port: PORT,
-    environment: process.env.NODE_ENV,
-    nodeVersion: process.version
-});
-
-logger.error('Database connection failed', {
-    error: error.message,
-    stack: error.stack,
-    database: process.env.DATABASE_URL?.split('@')[1] // 機密情報を除く
-});
-```
-
-#### ヘルスチェックとメトリクス
-
-```javascript
-const os = require('os');
-const process = require('process');
-
-// ヘルスチェックエンドポイント
-app.get('/health', async (req, res) => {
-    const healthcheck = {
-        uptime: process.uptime(),
-        message: 'OK',
-        timestamp: new Date().toISOString(),
-        
-        // システム情報
-        system: {
-            platform: os.platform(),
-            arch: os.arch(),
-            nodeVersion: process.version,
-            memory: {
-                total: Math.round(os.totalmem() / 1024 / 1024),
-                free: Math.round(os.freemem() / 1024 / 1024),
-                used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
-            },
-            cpu: {
-                cores: os.cpus().length,
-                loadAverage: os.loadavg()
-            }
-        },
-        
-        // アプリケーション固有の情報
-        application: {
-            environment: process.env.NODE_ENV,
-            version: process.env.npm_package_version || '1.0.0'
-        }
-    };
-    
-    try {
-        // データベース接続チェック
-        await pool.query('SELECT 1');
-        healthcheck.database = 'OK';
-        
-        // Redis接続チェック
-        await redis.ping();
-        healthcheck.redis = 'OK';
-        
-        res.status(200).json(healthcheck);
-    } catch (error) {
-        healthcheck.database = 'ERROR';
-        healthcheck.redis = 'ERROR';
-        healthcheck.message = 'Service Degraded';
-        
-        logger.error('Health check failed', {
-            error: error.message,
-            healthcheck
-        });
-        
-        res.status(503).json(healthcheck);
-    }
-});
-
-// メトリクスエンドポイント（Prometheus形式）
-app.get('/metrics', (req, res) => {
-    const metrics = `
-# HELP nodejs_heap_size_used_bytes Process heap space used in bytes
-# TYPE nodejs_heap_size_used_bytes gauge
-nodejs_heap_size_used_bytes ${process.memoryUsage().heapUsed}
-
-# HELP nodejs_heap_size_total_bytes Process heap space size in bytes  
-# TYPE nodejs_heap_size_total_bytes gauge
-nodejs_heap_size_total_bytes ${process.memoryUsage().heapTotal}
-
-# HELP process_uptime_seconds Process uptime in seconds
-# TYPE process_uptime_seconds counter
-process_uptime_seconds ${process.uptime()}
-
-# HELP system_memory_total_bytes System total memory in bytes
-# TYPE system_memory_total_bytes gauge
-system_memory_total_bytes ${os.totalmem()}
-
-# HELP system_memory_free_bytes System free memory in bytes
-# TYPE system_memory_free_bytes gauge
-system_memory_free_bytes ${os.freemem()}
-    `.trim();
-    
-    res.set('Content-Type', 'text/plain');
-    res.send(metrics);
-});
-```
-
-### デプロイ戦略
-
-#### Docker化
-
-**Dockerfile:**
-```dockerfile
-# マルチステージビルド
-FROM node:18-alpine AS builder
-
-# 作業ディレクトリの設定
-WORKDIR /usr/src/app
-
-# 依存関係のインストール
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
-
-# アプリケーションファイルのコピー
-COPY . .
-
-# 本番用イメージ
-FROM node:18-alpine AS production
-
-# セキュリティ: 非rootユーザーの作成
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
-# 作業ディレクトリの設定
-WORKDIR /usr/src/app
-
-# 依存関係とアプリケーションのコピー
-COPY --from=builder --chown=nodejs:nodejs /usr/src/app/node_modules ./node_modules
-COPY --chown=nodejs:nodejs . .
-
-# ヘルスチェック
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node healthcheck.js
-
-# ユーザー切り替え
-USER nodejs
-
-# ポートの公開
-EXPOSE 3000
-
-# アプリケーションの起動
-CMD ["node", "app.js"]
-```
-
-**docker-compose.yml:**
-```yaml
-version: '3.8'
-
-services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://user:password@db:5432/myapp
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      - db
-      - redis
-    volumes:
-      - ./logs:/usr/src/app/logs
-    restart: unless-stopped
-    
-  db:
-    image: postgres:14-alpine
-    environment:
-      - POSTGRES_DB=myapp
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-    depends_on:
-      - app
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
-```
-
-#### クラウドデプロイ（Heroku）
-
-**package.json のスクリプト設定:**
-```json
-{
-  "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "build": "npm run clean && npm run compile",
-    "clean": "rm -rf dist",
-    "heroku-postbuild": "npm run build"
-  },
-  "engines": {
-    "node": "18.x",
-    "npm": "9.x"
-  }
-}
-```
-
-**Procfile（Heroku用）:**
-```
-web: node app.js
-worker: node worker.js
-```
-
-**Herokuデプロイコマンド:**
-```bash
-# Heroku CLIのインストール
-npm install -g heroku
-
-# Herokuにログイン
-heroku login
-
-# アプリケーションの作成
-heroku create your-app-name
-
-# 環境変数の設定
-heroku config:set NODE_ENV=production
-heroku config:set JWT_SECRET=your-jwt-secret
-heroku config:set DATABASE_URL=postgres://...
-
-# PostgreSQLアドオンの追加
-heroku addons:create heroku-postgresql:hobby-dev
-
-# Redisアドオンの追加
-heroku addons:create heroku-redis:hobby-dev
-
-# デプロイ
-git push heroku main
-
-# ログの確認
-heroku logs --tail
-
-# スケーリング
-heroku ps:scale web=2
-```
-
-#### AWS ECS デプロイ
-
-**task-definition.json:**
-```json
-{
-  "family": "my-node-app",
-  "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "256",
-  "memory": "512",
-  "executionRoleArn": "arn:aws:iam::account:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::account:role/ecsTaskRole",
-  "containerDefinitions": [
-    {
-      "name": "my-node-app",
-      "image": "your-account.dkr.ecr.region.amazonaws.com/my-node-app:latest",
-      "portMappings": [
-        {
-          "containerPort": 3000,
-          "protocol": "tcp"
-        }
-      ],
-      "environment": [
-        {
-          "name": "NODE_ENV",
-          "value": "production"
-        }
-      ],
-      "secrets": [
-        {
-          "name": "DATABASE_URL",
-          "valueFrom": "arn:aws:secretsmanager:region:account:secret:database-url"
-        },
-        {
-          "name": "JWT_SECRET", 
-          "valueFrom": "arn:aws:secretsmanager:region:account:secret:jwt-secret"
-        }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/my-node-app",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      },
-      "healthCheck": {
-        "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
-        "interval": 30,
-        "timeout": 5,
-        "retries": 3,
-        "startPeriod": 60
-      }
-    }
-  ]
-}
-```
-
-#### モダンなPaaS（Platform as a Service）
-
-**Vercel での Node.js デプロイ:**
-```bash
-# Vercel CLIのインストール
-npm install -g vercel
-
-# プロジェクトのデプロイ
-vercel
-
-# 本番環境の設定
-vercel --prod
-
-# 環境変数の設定
-vercel env add NODE_ENV production
-vercel env add DATABASE_URL [your-database-url]
-```
-
-**vercel.json 設定例:**
-```json
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "app.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "app.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "app.js": {
-      "maxDuration": 30
-    }
-  }
-}
-```
-
-**Railway での Node.js デプロイ:**
-```bash
-# Railway CLIのインストール
-npm install -g @railway/cli
-
-# Railwayにログイン
-railway login
-
-# プロジェクトの初期化
-railway init
-
-# デプロイ
-railway up
-
-# 環境変数の設定
-railway variables set NODE_ENV=production
-railway variables set PORT=3000
-```
-
-**railway.json 設定例:**
-```json
-{
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "npm start",
-    "healthcheckPath": "/health",
-    "healthcheckTimeout": 100,
-    "restartPolicyType": "ALWAYS"
-  }
-}
-```
-
-**Render での Node.js デプロイ:**
-
-Render.com でのWeb Serviceの設定:
-```yaml
-# render.yaml
-services:
-  - type: web
-    name: my-node-app
-    env: node
-    plan: starter
-    buildCommand: npm install
-    startCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: myapp-db
-          property: connectionString
-    healthCheckPath: /health
-```
-
-#### サーバーレス デプロイ
-
-**AWS Lambda での Node.js デプロイ:**
-```javascript
-// lambda/handler.js - Express アプリのラッパー
-const serverless = require('serverless-http');
-const app = require('../app'); // Express アプリ
-
-module.exports.handler = serverless(app);
-```
-
-**serverless.yml 設定:**
-```yaml
-service: my-node-app
-
-provider:
-  name: aws
-  runtime: nodejs18.x
-  region: us-east-1
-  environment:
-    NODE_ENV: production
-    DATABASE_URL: ${env:DATABASE_URL}
-
-functions:
-  app:
-    handler: lambda/handler.handler
-    events:
-      - http:
-          path: /{proxy+}
-          method: ANY
-          cors: true
-      - http:
-          path: /
-          method: ANY
-          cors: true
-
-plugins:
-  - serverless-offline
-```
-
-**Vercel Functions での API デプロイ:**
-```javascript
-// api/users.js - Vercel Function
-export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    // ユーザー一覧取得
-    const users = await getUsers();
-    res.status(200).json({ success: true, data: users });
-  } else if (req.method === 'POST') {
-    // ユーザー作成
-    const newUser = await createUser(req.body);
-    res.status(201).json({ success: true, data: newUser });
-  } else {
-    res.setHeader('Allow', ['GET', 'POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
-}
-```
-
-#### Kubernetes デプロイ
-
-**deployment.yaml:**
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: node-app
-  labels:
-    app: node-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: node-app
-  template:
-    metadata:
-      labels:
-        app: node-app
-    spec:
-      containers:
-      - name: node-app
-        image: your-registry/node-app:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: url
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: node-app-service
-spec:
-  selector:
-    app: node-app
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3000
-  type: LoadBalancer
-```
-
-**Helm Chart での管理:**
-```yaml
-# values.yaml
-replicaCount: 3
-
-image:
-  repository: your-registry/node-app
-  tag: latest
-  pullPolicy: Always
-
-service:
-  type: LoadBalancer
-  port: 80
-  targetPort: 3000
-
-ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-  hosts:
-    - host: your-app.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: your-app-tls
-      hosts:
-        - your-app.example.com
-
-resources:
-  requests:
-    memory: 128Mi
-    cpu: 100m
-  limits:
-    memory: 256Mi
-    cpu: 200m
-
-autoscaling:
-  enabled: true
-  minReplicas: 2
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
-```
-
-#### 継続的デプロイ（CI/CD）
-
-**GitHub Actions ワークフロー (.github/workflows/deploy.yml):**
-```yaml
-name: Deploy to Production
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run tests
-      run: npm test
-    
-    - name: Run security audit
-      run: npm audit --audit-level moderate
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-    
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-    
-    - name: Build and push Docker image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: my-node-app
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-    
-    - name: Deploy to ECS
-      run: |
-        aws ecs update-service \
-          --cluster my-cluster \
-          --service my-service \
-          --force-new-deployment
-```
-
-### 監視とアラート
-
-#### 基本的な監視設定
-
-```javascript
-// アプリケーション内監視
-class ApplicationMonitor {
-    constructor() {
-        this.metrics = {
-            requests: {
-                total: 0,
-                errors: 0,
-                responseTime: []
-            },
-            memory: {
-                heapUsed: 0,
-                heapTotal: 0
-            },
-            activeConnections: 0
-        };
-        
-        this.startMonitoring();
-    }
-    
-    startMonitoring() {
-        // メモリ使用量の監視（5秒間隔）
-        setInterval(() => {
-            const memUsage = process.memoryUsage();
-            this.metrics.memory.heapUsed = memUsage.heapUsed;
-            this.metrics.memory.heapTotal = memUsage.heapTotal;
-            
-            // メモリ使用量が閾値を超えた場合のアラート
-            if (memUsage.heapUsed > 500 * 1024 * 1024) { // 500MB
-                logger.warn('High memory usage detected', {
-                    heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
-                    heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + 'MB'
-                });
-            }
-        }, 5000);
-        
-        // レスポンス時間の統計（1分間隔）
-        setInterval(() => {
-            if (this.metrics.requests.responseTime.length > 0) {
-                const times = this.metrics.requests.responseTime;
-                const avg = times.reduce((a, b) => a + b, 0) / times.length;
-                const max = Math.max(...times);
-                const min = Math.min(...times);
-                
-                logger.info('Response time statistics', {
-                    average: Math.round(avg),
-                    max,
-                    min,
-                    samples: times.length
-                });
-                
-                // レスポンス時間をリセット
-                this.metrics.requests.responseTime = [];
-            }
-        }, 60000);
-    }
-    
-    recordRequest(duration, isError = false) {
-        this.metrics.requests.total++;
-        this.metrics.requests.responseTime.push(duration);
-        
-        if (isError) {
-            this.metrics.requests.errors++;
-        }
-    }
-    
-    getMetrics() {
-        return {
-            ...this.metrics,
-            uptime: process.uptime(),
-            timestamp: new Date().toISOString()
-        };
-    }
-}
-
-const monitor = new ApplicationMonitor();
-
-// リクエスト監視ミドルウェア
-const monitoringMiddleware = (req, res, next) => {
-    const start = Date.now();
-    
-    res.on('finish', () => {
-        const duration = Date.now() - start;
-        const isError = res.statusCode >= 400;
-        
-        monitor.recordRequest(duration, isError);
-        
-        // 遅いリクエストのログ出力
-        if (duration > 1000) {
-            logger.warn('Slow request detected', {
-                method: req.method,
-                url: req.originalUrl,
-                duration: `${duration}ms`,
-                statusCode: res.statusCode
-            });
-        }
-    });
-    
-    next();
-};
-
-app.use(monitoringMiddleware);
-
-// 監視データエンドポイント
-app.get('/monitoring/metrics', (req, res) => {
-    res.json(monitor.getMetrics());
-});
-```
-
-#### モダンな監視とObservability
-
-**Application Performance Monitoring (APM)**
-
-**New Relic での監視:**
-```javascript
-// アプリケーションの先頭で New Relic を初期化
-require('newrelic');
-
-const express = require('express');
-const app = express();
-
-// カスタムメトリクスの記録
-const newrelic = require('newrelic');
-
-app.get('/api/users', async (req, res) => {
-    const startTime = Date.now();
-    
-    try {
-        const users = await getUsers();
-        
-        // カスタムメトリクスを記録
-        newrelic.recordMetric('Custom/Users/Count', users.length);
-        newrelic.recordMetric('Custom/API/ResponseTime', Date.now() - startTime);
-        
-        res.json({ success: true, data: users });
-    } catch (error) {
-        // エラーの記録
-        newrelic.noticeError(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-```
-
-**DataDog での監視:**
-```javascript
-const tracer = require('dd-trace').init({
-    service: 'my-node-app',
-    env: 'production',
-    version: '1.0.0'
-});
-
-const StatsD = require('node-statsd');
-const client = new StatsD();
-
-// カスタムメトリクスの送信
-app.get('/api/orders', async (req, res) => {
-    const span = tracer.startSpan('api.orders.get');
-    
-    try {
-        const orders = await getOrders();
-        
-        // メトリクスの送信
-        client.increment('api.orders.success');
-        client.histogram('api.orders.count', orders.length);
-        
-        span.setTag('orders.count', orders.length);
-        span.finish();
-        
-        res.json({ success: true, data: orders });
-    } catch (error) {
-        span.setTag('error', true);
-        span.setTag('error.message', error.message);
-        span.finish();
-        
-        client.increment('api.orders.error');
-        throw error;
-    }
-});
-```
-
-**Prometheus + Grafana での監視:**
-```javascript
-const prometheus = require('prom-client');
-
-// メトリクスレジストリの作成
-const register = new prometheus.Registry();
-
-// カスタムメトリクスの定義
-const httpRequestDuration = new prometheus.Histogram({
-    name: 'http_request_duration_seconds',
-    help: 'Duration of HTTP requests in seconds',
-    labelNames: ['method', 'route', 'status'],
-    buckets: [0.1, 0.5, 1, 2, 5]
-});
-
-const httpRequestCounter = new prometheus.Counter({
-    name: 'http_requests_total',
-    help: 'Total number of HTTP requests',
-    labelNames: ['method', 'route', 'status']
-});
-
-// メトリクスの登録
-register.registerMetric(httpRequestDuration);
-register.registerMetric(httpRequestCounter);
-
-// デフォルトメトリクスの収集
-prometheus.collectDefaultMetrics({ register });
-
-// メトリクス収集ミドルウェア
-const metricsMiddleware = (req, res, next) => {
-    const start = Date.now();
-    
-    res.on('finish', () => {
-        const duration = (Date.now() - start) / 1000;
-        const route = req.route ? req.route.path : req.path;
-        
-        httpRequestDuration
-            .labels(req.method, route, res.statusCode)
-            .observe(duration);
-            
-        httpRequestCounter
-            .labels(req.method, route, res.statusCode)
-            .inc();
-    });
-    
-    next();
-};
-
-app.use(metricsMiddleware);
-
-// メトリクスエンドポイント
-app.get('/metrics', async (req, res) => {
-    res.set('Content-Type', register.contentType);
-    res.end(await register.metrics());
-});
-```
-
-**構造化ログとトレーシング:**
-```javascript
-const winston = require('winston');
-const { v4: uuidv4 } = require('uuid');
-
-// トレースIDミドルウェア
-const traceMiddleware = (req, res, next) => {
-    req.traceId = req.headers['x-trace-id'] || uuidv4();
-    res.setHeader('x-trace-id', req.traceId);
-    next();
-};
-
-// 構造化ロガーの設定
-const logger = winston.createLogger({
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.json()
-    ),
-    defaultMeta: {
-        service: 'my-node-app',
-        environment: process.env.NODE_ENV
-    },
-    transports: [
-        new winston.transports.Console(),
-        new winston.transports.File({ filename: 'logs/app.log' })
-    ]
-});
-
-app.use(traceMiddleware);
-
-// 各リクエストでトレースIDを含むログ出力
-app.use((req, res, next) => {
-    logger.info('Request received', {
-        traceId: req.traceId,
-        method: req.method,
-        url: req.originalUrl,
-        userAgent: req.get('User-Agent'),
-        ip: req.ip
-    });
-    next();
-});
-```
-
-**エラートラッキング（Sentry）:**
-```javascript
-const Sentry = require('@sentry/node');
-const { ProfilingIntegration } = require('@sentry/profiling-node');
-
-Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    environment: process.env.NODE_ENV,
-    integrations: [
-        new ProfilingIntegration(),
-    ],
-    tracesSampleRate: 1.0,
-    profilesSampleRate: 1.0,
-});
-
-// Express エラーハンドラー
-app.use(Sentry.Handlers.errorHandler());
-
-// カスタムエラー追跡
-app.get('/api/users/:id', async (req, res) => {
-    try {
-        const user = await getUserById(req.params.id);
-        if (!user) {
-            throw new Error(`User not found: ${req.params.id}`);
-        }
-        res.json({ success: true, data: user });
-    } catch (error) {
-        Sentry.captureException(error, {
-            tags: {
-                section: 'user_api'
-            },
-            user: {
-                id: req.user?.id,
-                email: req.user?.email
-            },
-            extra: {
-                userId: req.params.id,
-                traceId: req.traceId
-            }
-        });
-        
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-```
-
-このような本番環境でのデプロイと運用に関する包括的な知識を身につけることで、Node.jsアプリケーションを安全で効率的に運用することができます。モダンな開発環境では、従来のVMベースのデプロイに加えて、コンテナ化、サーバーレス、マネージドサービスなど多様な選択肢があります。プロジェクトの要件と制約を考慮して最適なデプロイ戦略を選択しましょう。
-
 ## 参考情報
 
 ### デバッグ技法
@@ -3909,6 +2286,216 @@ console.log('メモリ使用量:');
 console.log('RSS:', Math.round(memoryUsage.rss / 1024 / 1024) + 'MB');
 console.log('Heap合計:', Math.round(memoryUsage.heapTotal / 1024 / 1024) + 'MB');
 console.log('Heap使用:', Math.round(memoryUsage.heapUsed / 1024 / 1024) + 'MB');
+```
+
+## 本番環境でのデプロイ
+
+Node.jsアプリケーションを本番環境で安定運用するための基本的な手法について説明します。
+
+### 環境変数の管理
+
+**本番用の環境変数設定:**
+```bash
+# .env.production
+NODE_ENV=production
+PORT=80
+DATABASE_URL=postgresql://user:password@localhost:5432/myapp
+LOG_LEVEL=info
+```
+
+### PM2によるプロセス管理
+
+PM2は本番環境でのNode.jsアプリケーション管理に最適なツールです。
+
+#### PM2のインストールと基本設定
+
+```bash
+# PM2のグローバルインストール
+npm install -g pm2
+
+# アプリケーションの起動
+pm2 start app.js --name "my-app"
+
+# クラスターモードで起動（CPUコア数分のプロセス）
+pm2 start app.js --name "my-app" -i max
+
+# 状態確認
+pm2 status
+pm2 logs
+pm2 monit
+```
+
+#### ecosystem.config.js - 本番用設定ファイル
+
+```javascript
+module.exports = {
+    apps: [{
+        name: 'my-node-app',
+        script: 'app.js',
+        
+        // インスタンス設定
+        instances: 'max',        // CPUコア数分のプロセス
+        exec_mode: 'cluster',    // クラスターモード
+        
+        // 環境変数
+        env: {
+            NODE_ENV: 'development',
+            PORT: 3000
+        },
+        env_production: {
+            NODE_ENV: 'production',
+            PORT: 80
+        },
+        
+        // ログ設定
+        log_file: './logs/app.log',
+        error_file: './logs/error.log',
+        out_file: './logs/out.log',
+        log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+        
+        // 自動再起動設定
+        max_restarts: 10,
+        min_uptime: '10s',
+        max_memory_restart: '500M',
+        autorestart: true,
+        
+        // ヘルスチェック
+        health_check_grace_period: 3000,
+        
+        // その他の本番設定
+        merge_logs: true,
+        time: true,
+        
+        // Node.jsオプション
+        node_args: '--max-old-space-size=1024'
+    }],
+    
+    // デプロイ設定
+    deploy: {
+        production: {
+            user: 'deploy',
+            host: 'your-server.com',
+            ref: 'origin/main',
+            repo: 'git@github.com:username/your-app.git',
+            path: '/var/www/production',
+            'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
+        }
+    }
+};
+```
+
+#### PM2運用コマンド
+
+```bash
+# 本番環境でのアプリケーション起動
+pm2 start ecosystem.config.js --env production
+
+# アプリケーションの管理
+pm2 restart my-node-app      # 再起動
+pm2 reload my-node-app       # ゼロダウンタイム再起動
+pm2 stop my-node-app         # 停止
+pm2 delete my-node-app       # 削除
+
+# ログの確認と管理
+pm2 logs my-node-app         # リアルタイムログ
+pm2 logs --lines 100         # 過去100行のログ
+pm2 flush                    # ログファイルのクリア
+
+# プロセス情報の確認
+pm2 describe my-node-app     # 詳細情報
+pm2 monit                    # リアルタイム監視
+pm2 list                     # プロセス一覧
+
+# PM2の自動起動設定
+pm2 startup                  # システム起動時の自動開始設定
+pm2 save                     # 現在のプロセス設定を保存
+pm2 resurrect               # 保存済み設定からプロセス復元
+
+# リソース監視とスケーリング
+pm2 scale my-node-app 4      # プロセス数を4に変更
+pm2 reset my-node-app        # メトリクスをリセット
+```
+
+#### PM2でのログローテーション
+
+```bash
+# PM2ログローテーションモジュールのインストール
+pm2 install pm2-logrotate
+
+# ログローテーション設定
+pm2 set pm2-logrotate:max_size 10M
+pm2 set pm2-logrotate:retain 30
+pm2 set pm2-logrotate:compress true
+```
+
+#### PM2クラスター間通信
+
+```javascript
+// app.js - クラスター間でのデータ共有
+process.on('message', (data) => {
+    if (data.type === 'broadcast') {
+        console.log('受信データ:', data.payload);
+    }
+});
+
+// 全クラスターにメッセージ送信
+function broadcastToAll(message) {
+    process.send({
+        type: 'process:msg',
+        data: {
+            type: 'broadcast',
+            payload: message
+        }
+    });
+}
+```
+
+### 基本的なセキュリティ対策
+
+```javascript
+const express = require('express');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+
+// セキュリティヘッダー設定
+app.use(helmet());
+
+// レート制限
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15分
+    max: 100 // リクエスト数制限
+});
+app.use(limiter);
+
+// 本番環境設定
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+```
+
+### Docker化（オプション）
+
+```dockerfile
+# Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+
+EXPOSE 3000
+USER node
+
+CMD ["node", "app.js"]
+```
+
+```bash
+# Dockerビルドとデプロイ
+docker build -t my-node-app .
+docker run -d --name my-app -p 80:3000 my-node-app
 ```
 
 このNode.jsリファレンスは、初学者が段階的に学習できるよう構成されています。基本概念から始まり、実用的なプロジェクト例まで幅広くカバーしており、実際の開発で使用できるコード例を豊富に含んでいます。
