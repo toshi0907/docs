@@ -12,6 +12,9 @@ permalink: /
 
 - **[API リファレンス](api.html)** - 各種APIサービスの情報と使用例
 - **[Git リファレンス](git.html)** - Gitの基本的な使い方とコマンドのリファレンス
+- **[HTML リファレンス](html.html)** - HTMLの基本的な使い方からセマンティックHTMLまで、Webページ作成の基礎知識
+- **[CSS リファレンス](css.html)** - CSSの基本構文からレスポンシブデザインまで、Webページスタイリングの完全ガイド
+- **[JavaScript リファレンス](javascript.html)** - JavaScriptの基本文法からモダンES6+機能まで、動的Webページ開発のリファレンス
 - **[Node.js リファレンス](nodejs.html)** - Node.jsの基本的な使い方とAPIリファレンス
 - **[Python リファレンス](python.html)** - Pythonの基本的な使い方とライブラリリファレンス
 - **[正規表現 リファレンス](regexp.html)** - 正規表現の基本的な使い方から応用まで、様々な言語とツールでの実践例
