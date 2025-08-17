@@ -102,9 +102,22 @@ layout: default
 
 <!-- Additional styling for page layout with sidebar TOC -->
 <style>
+  /* Override minima theme wrapper width restriction for large screens */
+  @media (min-width: 1441px) {
+    .wrapper {
+      max-width: none;
+    }
+  }
+
   .page-article {
-    max-width: 2000px;
     margin: 0 auto;
+  }
+
+  /* Apply max-width only on smaller screens to maintain readability */
+  @media (max-width: 1440px) {
+    .page-article {
+      max-width: 2000px;
+    }
   }
 
   .page-content-wrapper {
@@ -117,7 +130,9 @@ layout: default
     width: 280px;
     position: sticky;
     top: 20px;
-    height: fit-content;
+    height: calc(100vh - 40px);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
     order: 2;
     flex-shrink: 0;
   }
@@ -139,6 +154,9 @@ layout: default
       position: static;
       order: 1;
       margin-bottom: 20px;
+      height: auto;
+      max-height: none;
+      overflow-y: visible;
     }
     
     .page-content {
