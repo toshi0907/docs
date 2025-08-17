@@ -18,6 +18,9 @@ plugins:
 header_pages:
   - api.md
   - git.md
+  - html.md
+  - css.md
+  - javascript.md
   - nodejs.md
   - python.md
   - regexp.md
