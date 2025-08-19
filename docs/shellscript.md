@@ -558,6 +558,63 @@ awk -F':' '$3 >= 1000 {print $1, $5}' /etc/passwd # UID 1000以上のユーザ�
 awk '{print FILENAME, $1}' file1.txt file2.txt
 ```
 
+### shfmt（シェルスクリプトフォーマッター）
+
+`shfmt`は、シェルスクリプトの自動フォーマット（整形）を行うコマンドです。コードの可読性向上や一貫した書式設定に使用されます。
+
+```bash
+# 基本的な使用法
+shfmt script.sh                     # ファイルをフォーマットして表示
+shfmt -w script.sh                  # ファイルを直接変更（上書き）
+shfmt -d script.sh                  # 変更差分のみを表示
+
+# インデントの設定
+shfmt -i 2 script.sh                # 2文字のインデント（デフォルト）
+shfmt -i 4 script.sh                # 4文字のインデント
+shfmt -i 0 script.sh                # タブでインデント
+
+# 言語バリアントの指定
+shfmt -ln bash script.sh            # Bash形式
+shfmt -ln posix script.sh           # POSIX形式
+shfmt -ln mksh script.sh            # mksh形式
+
+# 関数の開始ブレースの位置
+shfmt -fn script.sh                 # 関数名と同じ行に開始ブレース
+shfmt -ci script.sh                 # ケース文の中身をインデント
+
+# 複数ファイルの処理
+shfmt -w *.sh                       # 全ての.shファイルをフォーマット
+find . -name "*.sh" -exec shfmt -w {} \;  # 再帰的に全ての.shファイルをフォーマット
+
+# 標準入力からの処理
+cat script.sh | shfmt               # パイプでフォーマット
+echo 'if [ $? -eq 0 ];then echo ok;fi' | shfmt  # 一行のスクリプトをフォーマット
+
+# フォーマットチェック（CI/CDで使用）
+shfmt -d *.sh                       # フォーマットが必要なファイルを確認
+if ! shfmt -d script.sh | grep -q .; then
+    echo "フォーマット済み"
+else
+    echo "フォーマットが必要"
+    exit 1
+fi
+
+# 実用例
+# 開発前のフォーマット
+shfmt -w -i 2 -ci -fn *.sh          # 全ファイルを統一フォーマット
+
+# Git pre-commitフックでの使用
+shfmt -d $(git diff --cached --name-only --diff-filter=ACM | grep '\.sh$')
+
+# プロジェクト全体の一括フォーマット
+find . -name "*.sh" -not -path "./vendor/*" -exec shfmt -w -i 2 {} \;
+
+# フォーマット前後の比較
+cp script.sh script.sh.backup
+shfmt -w script.sh
+diff script.sh.backup script.sh
+```
+
 ### nkf（文字コード変換）
 
 `nkf`（Network Kanji Filter）は、日本語の文字コード変換を行うコマンドです。
