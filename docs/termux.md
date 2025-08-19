@@ -133,6 +133,13 @@ ip addr show
 # SSH 接続ポートの確認（デフォルト: 8022）
 cat $PREFIX/etc/ssh/sshd_config | grep Port
 
+# ユーザ名の確認
+whoami
+# または
+echo $USER
+# または詳細情報
+id
+
 # 外部からの接続テスト（同一ネットワーク内から）
 # ssh -p 8022 username@device_ip_address
 ```
