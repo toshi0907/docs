@@ -486,6 +486,226 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
 ```
 
+#### 本番環境へのSSHデプロイメント
+
+```yaml
+# .github/workflows/deploy-production.yml
+name: 本番環境へのデプロイ
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # 手動実行を許可
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production  # 本番環境の承認を要求
+    
+    steps:
+    - name: チェックアウト
+      uses: actions/checkout@v4
+      
+    - name: SSH キーの設定
+      run: |
+        # SSH 秘密鍵をファイルに保存
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        
+        # known_hosts の設定（SSH フィンガープリント検証）
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: アプリケーションのビルド
+      run: |
+        npm ci
+        npm run build
+        
+    - name: ビルド成果物のアップロード
+      run: |
+        # rsync でファイルを本番サーバーにアップロード
+        rsync -avz --delete ./dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}
+        
+    - name: 本番サーバーでのコマンド実行
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          # サービスの停止
+          sudo systemctl stop myapp
+          
+          # 依存関係の更新
+          cd ${{ secrets.DEPLOY_PATH }}
+          npm ci --production
+          
+          # データベースマイグレーション
+          npm run migrate:prod
+          
+          # サービスの再起動
+          sudo systemctl start myapp
+          sudo systemctl reload nginx
+          
+          # ヘルスチェック
+          sleep 5
+          curl -f http://localhost:3000/health || exit 1
+        EOF
+        
+    - name: デプロイ完了通知
+      if: success()
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          echo "デプロイが完了しました: $(date)"
+          # Slack や Discord への通知も可能
+        EOF
+        
+    - name: ロールバック（失敗時）
+      if: failure()
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          echo "デプロイに失敗しました。ロールバックを実行します..."
+          # 前のバージョンに戻す処理
+          sudo systemctl stop myapp
+          rm -rf ${{ secrets.DEPLOY_PATH }}/current
+          mv ${{ secrets.DEPLOY_PATH }}/previous ${{ secrets.DEPLOY_PATH }}/current
+          sudo systemctl start myapp
+        EOF
+```
+
+**必要なシークレット設定:**
+
+GitHub リポジトリの Settings > Secrets and variables > Actions で以下を設定：
+
+- `SSH_PRIVATE_KEY`: SSH接続用の秘密鍵（OpenSSH形式）
+- `SERVER_HOST`: サーバーのIPアドレスまたはホスト名
+- `SERVER_USER`: SSH接続用のユーザー名
+- `DEPLOY_PATH`: デプロイ先のディレクトリパス
+
+**SSH キーの準備:**
+
+```bash
+# ローカルでSSHキーペアを生成
+ssh-keygen -t rsa -b 4096 -C "github-actions@yourproject.com"
+
+# 公開鍵をサーバーの authorized_keys に追加
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@your-server.com
+
+# 秘密鍵の内容をGitHub Secretsに保存
+cat ~/.ssh/id_rsa
+```
+
+#### 複数サーバーへの並列デプロイ
+
+```yaml
+# .github/workflows/deploy-multiple-servers.yml
+name: 複数サーバーへのデプロイ
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        server:
+          - { host: "web1.example.com", user: "deploy", path: "/var/www/app" }
+          - { host: "web2.example.com", user: "deploy", path: "/var/www/app" }
+          - { host: "web3.example.com", user: "deploy", path: "/var/www/app" }
+      fail-fast: false  # 一つのサーバーが失敗しても他を続行
+      
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: SSH接続とデプロイ
+      env:
+        SERVER_HOST: ${{ matrix.server.host }}
+        SERVER_USER: ${{ matrix.server.user }}
+        DEPLOY_PATH: ${{ matrix.server.path }}
+      run: |
+        # SSH設定
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+        
+        # リモートでのデプロイコマンド実行
+        ssh $SERVER_USER@$SERVER_HOST << EOF
+          cd $DEPLOY_PATH
+          git pull origin main
+          npm ci --production
+          pm2 restart all
+          echo "サーバー $SERVER_HOST でのデプロイが完了"
+        EOF
+```
+
+#### セキュアなSSH接続の追加設定
+
+```yaml
+# より安全なSSH接続の例
+- name: セキュアSSH接続の設定
+  run: |
+    # SSH設定ファイルの作成
+    mkdir -p ~/.ssh
+    cat > ~/.ssh/config << EOF
+    Host production-server
+      HostName ${{ secrets.SERVER_HOST }}
+      User ${{ secrets.SERVER_USER }}
+      Port ${{ secrets.SSH_PORT || 22 }}
+      IdentityFile ~/.ssh/id_rsa
+      StrictHostKeyChecking yes
+      UserKnownHostsFile ~/.ssh/known_hosts
+      ServerAliveInterval 60
+      ServerAliveCountMax 3
+    EOF
+    
+    # SSH キーの設定
+    echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+    chmod 600 ~/.ssh/id_rsa
+    
+    # Known hosts の設定
+    echo "${{ secrets.SERVER_FINGERPRINT }}" >> ~/.ssh/known_hosts
+    
+- name: デプロイコマンドの実行
+  run: |
+    ssh production-server << 'DEPLOY_SCRIPT'
+      set -e  # エラー時に停止
+      
+      # ログファイルの設定
+      DEPLOY_LOG="/var/log/deploy-$(date +%Y%m%d-%H%M%S).log"
+      exec > >(tee -a $DEPLOY_LOG) 2>&1
+      
+      echo "デプロイ開始: $(date)"
+      
+      # バックアップの作成
+      if [ -d "/var/www/app/current" ]; then
+        cp -r /var/www/app/current /var/www/app/backup-$(date +%Y%m%d-%H%M%S)
+      fi
+      
+      # 新しいバージョンのデプロイ
+      cd /var/www/app
+      git fetch --all
+      git checkout $GITHUB_SHA
+      npm ci --production
+      
+      # 設定ファイルのリンク
+      ln -sf /var/www/app/config/production.env .env
+      
+      # サービスの再起動
+      sudo systemctl restart myapp
+      
+      # ヘルスチェック
+      for i in {1..30}; do
+        if curl -f http://localhost:3000/health; then
+          echo "ヘルスチェック成功"
+          break
+        fi
+        echo "ヘルスチェック試行 $i/30..."
+        sleep 2
+      done
+      
+      echo "デプロイ完了: $(date)"
+    DEPLOY_SCRIPT
+```
+
 ### ベストプラクティス
 
 #### 1. セキュリティ
