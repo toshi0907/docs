@@ -167,3 +167,37 @@ chmod +x script.sh
 - [ ] **実用性**: 実行可能なコード例の提供
 - [ ] **完全性**: 基本から応用まで網羅的な内容
 - [ ] **保守性**: 更新・拡張しやすい構造
+
+## 参考資料
+
+### 公式ドキュメント
+
+- [GitHub Pages Documentation](https://docs.github.com/ja/pages): GitHub Pages公式ドキュメント
+- [Jekyll Documentation](https://jekyllrb.com/docs/): Jekyll静的サイトジェネレーター公式ドキュメント
+- [Kramdown Syntax](https://kramdown.gettalong.org/syntax.html): KramdownのMarkdown記法仕様
+- [YAML Front Matter](https://jekyllrb.com/docs/front-matter/): Jekyll用メタデータ形式
+- [GitHub Flavored Markdown Spec](https://github.github.com/gfm/): GitHub独自のMarkdown拡張仕様
+
+### 学習リソース
+
+- [GitHub Pages Quick Start](https://docs.github.com/ja/pages/quickstart): GitHub Pagesの基本的な使い方
+- [Jekyll Step by Step Tutorial](https://jekyllrb.com/docs/step-by-step/01-setup/): Jekyll入門チュートリアル
+- [Markdown Guide](https://www.markdownguide.org/): Markdown記法の包括的なガイド
+- [Technical Writing Guidelines](https://developers.google.com/tech-writing): Googleの技術文書作成ガイドライン
+- [MDN Documentation Guidelines](https://developer.mozilla.org/ja/docs/MDN/Writing_guidelines): Mozilla技術文書作成ガイドライン
+
+### ツールとリソース
+
+- [Markdown Lint Tool](https://github.com/markdownlint/markdownlint): Markdownファイルの品質チェックツール
+- [Jekyll Admin](https://github.com/jekyll/jekyll-admin): Jekyll管理用Webインターフェース
+- [Markdown All in One (VS Code)](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one): Visual Studio Code用Markdown拡張
+- [GitHub Pages Health Check](https://github.com/github/pages-health-check): GitHub Pagesサイトの健全性チェックツール
+- [Kramdown Live Editor](https://kramdown.herokuapp.com/): Kramdownのライブプレビューエディタ
+
+### ベストプラクティス・参考文献
+
+- [Write the Docs Community](https://www.writethedocs.org/): 技術文書作成コミュニティ
+- [Documentation System](https://documentation.divio.com/): ドキュメンテーションシステムの理論
+- [GitHub Community Guidelines](https://docs.github.com/ja/site-policy/github-terms/github-community-guidelines): GitHubコミュニティガイドライン
+- [Inclusive Design Principles](https://inclusivedesignprinciples.org/): インクルーシブなデザイン原則
+- [Plain Language Guidelines](https://www.plainlanguage.gov/guidelines/): 分かりやすい文章作成ガイドライン
