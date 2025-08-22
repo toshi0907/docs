@@ -168,36 +168,36 @@ chmod +x script.sh
 - [ ] **完全性**: 基本から応用まで網羅的な内容
 - [ ] **保守性**: 更新・拡張しやすい構造
 
+## 参考資料セクションの管理ルール
+
+### 個別ドキュメントページでの参考資料
+
+各技術ドキュメントファイル（css.md、html.md、javascript.md等）には、以下の構成で参考資料セクションを末尾に配置すること：
+
+#### 必須セクション構成
+```markdown
 ## 参考資料
 
 ### 公式ドキュメント
+- 対象技術の公式ドキュメントへのリンク
 
-- [GitHub Pages Documentation](https://docs.github.com/ja/pages): GitHub Pages公式ドキュメント
-- [Jekyll Documentation](https://jekyllrb.com/docs/): Jekyll静的サイトジェネレーター公式ドキュメント
-- [Kramdown Syntax](https://kramdown.gettalong.org/syntax.html): KramdownのMarkdown記法仕様
-- [YAML Front Matter](https://jekyllrb.com/docs/front-matter/): Jekyll用メタデータ形式
-- [GitHub Flavored Markdown Spec](https://github.github.com/gfm/): GitHub独自のMarkdown拡張仕様
+### 学習リソース  
+- チュートリアル、ガイド、学習サイトへのリンク
 
-### 学習リソース
+### ツールとライブラリ
+- 関連ツール、フレームワーク、拡張機能へのリンク
 
-- [GitHub Pages Quick Start](https://docs.github.com/ja/pages/quickstart): GitHub Pagesの基本的な使い方
-- [Jekyll Step by Step Tutorial](https://jekyllrb.com/docs/step-by-step/01-setup/): Jekyll入門チュートリアル
-- [Markdown Guide](https://www.markdownguide.org/): Markdown記法の包括的なガイド
-- [Technical Writing Guidelines](https://developers.google.com/tech-writing): Googleの技術文書作成ガイドライン
-- [MDN Documentation Guidelines](https://developer.mozilla.org/ja/docs/MDN/Writing_guidelines): Mozilla技術文書作成ガイドライン
+### ベストプラクティス・参考文献（オプション）
+- コミュニティガイド、設計原則等への追加リンク
+```
 
-### ツールとリソース
+#### 参考資料管理の原則
+- **関連性**: ドキュメント内容に直接関連するリソースのみ掲載
+- **信頼性**: 公式ドキュメント、著名なコミュニティサイトを優先
+- **最新性**: 定期的にリンクの有効性を確認し、古い情報を更新
+- **言語配慮**: 日本語リソースと英語リソースをバランスよく配置
+- **説明付与**: 各リンクには簡潔な説明文を併記
 
-- [Markdown Lint Tool](https://github.com/markdownlint/markdownlint): Markdownファイルの品質チェックツール
-- [Jekyll Admin](https://github.com/jekyll/jekyll-admin): Jekyll管理用Webインターフェース
-- [Markdown All in One (VS Code)](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one): Visual Studio Code用Markdown拡張
-- [GitHub Pages Health Check](https://github.com/github/pages-health-check): GitHub Pagesサイトの健全性チェックツール
-- [Kramdown Live Editor](https://kramdown.herokuapp.com/): Kramdownのライブプレビューエディタ
+### copilot-instructions.mdでの参考資料
 
-### ベストプラクティス・参考文献
-
-- [Write the Docs Community](https://www.writethedocs.org/): 技術文書作成コミュニティ
-- [Documentation System](https://documentation.divio.com/): ドキュメンテーションシステムの理論
-- [GitHub Community Guidelines](https://docs.github.com/ja/site-policy/github-terms/github-community-guidelines): GitHubコミュニティガイドライン
-- [Inclusive Design Principles](https://inclusivedesignprinciples.org/): インクルーシブなデザイン原則
-- [Plain Language Guidelines](https://www.plainlanguage.gov/guidelines/): 分かりやすい文章作成ガイドライン
+このファイル（copilot-instructions.md）には参考資料のリンクは含めず、ルールとガイドラインのみを記述すること。参考となるリソースは個別のドキュメントページで管理する。
