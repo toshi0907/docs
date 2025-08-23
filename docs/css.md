@@ -51,6 +51,7 @@ h1, h2, h3 {
 
 /* コメントの書き方 */
 /* これはコメントです */
+
 ```
 
 ### CSS の適用方法
@@ -62,6 +63,7 @@ h1, h2, h3 {
 <head>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 ```
 
 ```css
@@ -70,6 +72,7 @@ body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
 }
+
 ```
 
 #### 2. 内部スタイルシート
@@ -80,18 +83,20 @@ body {
         body {
             background-color: #f0f0f0;
         }
-        
+
         .highlight {
             background-color: yellow;
         }
     </style>
 </head>
+
 ```
 
 #### 3. インラインスタイル
 
 ```html
 <p style="color: red; font-weight: bold;">赤い太字のテキスト</p>
+
 ```
 
 ## セレクタ
@@ -111,6 +116,7 @@ p {
 
 /* IDセレクタ */
 #my-id {
+
     font-size: 18px;
 }
 
@@ -119,6 +125,7 @@ p {
     margin: 0;
     padding: 0;
 }
+
 ```
 
 ### 属性セレクタ
@@ -148,6 +155,7 @@ p {
 [class*="btn"] {
     cursor: pointer;
 }
+
 ```
 
 ### 疑似クラス
@@ -176,6 +184,7 @@ li:nth-child(3n) { color: red; }           /* 3の倍数番目 */
 input:checked + label { color: green; }    /* チェック済み */
 input:disabled { opacity: 0.5; }           /* 無効状態 */
 div:empty { display: none; }               /* 空要素 */
+
 ```
 
 ### 疑似要素
@@ -208,6 +217,7 @@ p::first-letter {
     background-color: yellow;
     color: black;
 }
+
 ```
 
 ### 結合子
@@ -232,6 +242,7 @@ h2 + p {
 h2 ~ p {
     color: gray;
 }
+
 ```
 
 ## ボックスモデル
@@ -243,13 +254,13 @@ h2 ~ p {
     /* コンテンツ領域 */
     width: 200px;
     height: 100px;
-    
+
     /* パディング（内側の余白） */
     padding: 20px;
-    
+
     /* ボーダー（境界線） */
     border: 2px solid black;
-    
+
     /* マージン（外側の余白） */
     margin: 10px;
 }
@@ -262,6 +273,7 @@ h2 ~ p {
 .content-box {
     box-sizing: content-box; /* デフォルト: widthはコンテンツのみ */
 }
+
 ```
 
 ### マージンとパディング
@@ -296,6 +308,7 @@ h2 ~ p {
 .margin-collapse + .margin-collapse {
     margin-top: 30px; /* 実際は30pxの余白（20pxではなく） */
 }
+
 ```
 
 ## テキストとフォント
@@ -318,7 +331,7 @@ h2 ~ p {
 
 /* 日本語フォント */
 .japanese {
-    font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", 
+    font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro",
                  "メイリオ", Meiryo, "MS Pゴシック", sans-serif;
 }
 
@@ -337,6 +350,7 @@ h2 ~ p {
 /* フォントスタイル */
 .italic { font-style: italic; }
 .oblique { font-style: oblique; }
+
 ```
 
 ### テキストスタイル
@@ -382,6 +396,7 @@ h2 ~ p {
 .shadow {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
+
 ```
 
 ## 色と背景
@@ -414,6 +429,7 @@ h2 ~ p {
 }
 
 .primary { color: var(--primary-color); }
+
 ```
 
 ### 背景
@@ -448,11 +464,12 @@ h2 ~ p {
 
 /* 複数背景 */
 .multiple-bg {
-    background: 
+    background:
         url('overlay.png') repeat,
         linear-gradient(to bottom, #fff, #ccc),
         url('main-bg.jpg') no-repeat center / cover;
 }
+
 ```
 
 ## レイアウト
@@ -489,6 +506,7 @@ h2 ~ p {
 .invisible {
     visibility: hidden; /* 要素は残るが透明になる */
 }
+
 ```
 
 ### Flexbox
@@ -497,11 +515,11 @@ h2 ~ p {
 /* フレックスコンテナ */
 .flex-container {
     display: flex;
-    
+
     /* 主軸方向 */
     flex-direction: row;        /* 水平（デフォルト） */
     /* flex-direction: column; */ /* 垂直 */
-    
+
     /* 主軸の配置 */
     justify-content: flex-start;  /* 開始位置 */
     /* justify-content: center; */    /* 中央 */
@@ -509,17 +527,17 @@ h2 ~ p {
     /* justify-content: space-between; */ /* 均等配置（両端） */
     /* justify-content: space-around; */  /* 均等配置（周囲） */
     /* justify-content: space-evenly; */  /* 完全均等配置 */
-    
+
     /* 交差軸の配置 */
     align-items: stretch;       /* 引き伸ばし（デフォルト） */
     /* align-items: flex-start; */   /* 開始位置 */
     /* align-items: center; */       /* 中央 */
     /* align-items: flex-end; */     /* 終了位置 */
-    
+
     /* 折り返し */
     flex-wrap: nowrap;          /* 折り返さない（デフォルト） */
     /* flex-wrap: wrap; */          /* 折り返す */
-    
+
     /* 隙間 */
     gap: 16px;                  /* アイテム間の隙間 */
 }
@@ -531,7 +549,7 @@ h2 ~ p {
     /* flex-grow: 1; */             /* 拡大比率 */
     /* flex-shrink: 1; */           /* 縮小比率 */
     /* flex-basis: auto; */         /* 基本サイズ */
-    
+
     /* 個別の交差軸配置 */
     align-self: center;
 }
@@ -559,6 +577,7 @@ h2 ~ p {
 .card {
     flex: 1 1 300px; /* 最小幅300px */
 }
+
 ```
 
 ### CSS Grid
@@ -567,22 +586,22 @@ h2 ~ p {
 /* グリッドコンテナ */
 .grid-container {
     display: grid;
-    
+
     /* グリッドトラックの定義 */
     grid-template-columns: 1fr 2fr 1fr;  /* 3列（比率1:2:1） */
     grid-template-rows: auto 1fr auto;   /* 3行 */
-    
+
     /* または具体的なサイズ */
     grid-template-columns: 200px 1fr 150px;
     grid-template-rows: 60px 1fr 40px;
-    
+
     /* 隙間 */
     gap: 20px;
     /* grid-column-gap: 20px; */
     /* grid-row-gap: 15px; */
-    
+
     /* グリッドエリアの定義 */
-    grid-template-areas: 
+    grid-template-areas:
         "header header header"
         "sidebar main aside"
         "footer footer footer";
@@ -593,11 +612,11 @@ h2 ~ p {
     /* 位置の指定（ライン番号） */
     grid-column: 1 / 3;         /* 列1から3まで */
     grid-row: 2 / 4;            /* 行2から4まで */
-    
+
     /* または */
     grid-column-start: 1;
     grid-column-end: 3;
-    
+
     /* スパンを使用 */
     grid-column: span 2;        /* 2列分 */
     grid-row: span 3;           /* 3行分 */
@@ -616,6 +635,7 @@ h2 ~ p {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
 }
+
 ```
 
 ### Position
@@ -657,6 +677,7 @@ h2 ~ p {
 .layer1 { z-index: 1; }
 .layer2 { z-index: 2; }  /* より前面に表示 */
 .layer3 { z-index: 10; } /* 最前面に表示 */
+
 ```
 
 ### Float と Clear
@@ -686,6 +707,7 @@ h2 ~ p {
     display: table;
     clear: both;
 }
+
 ```
 
 ## レスポンシブデザイン
@@ -714,7 +736,7 @@ h2 ~ p {
     .mobile-only {
         display: block;
     }
-    
+
     .hide-mobile {
         display: none;
     }
@@ -746,12 +768,13 @@ h2 ~ p {
     .no-print {
         display: none;
     }
-    
+
     body {
         font-size: 12pt;
         color: black;
     }
 }
+
 ```
 
 ### フレキシブル単位
@@ -783,6 +806,7 @@ h2 ~ p {
 .responsive-width {
     width: clamp(300px, 50%, 800px);
 }
+
 ```
 
 ## アニメーション
@@ -829,6 +853,7 @@ h2 ~ p {
 .custom-easing {
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+
 ```
 
 ### Keyframe アニメーション
@@ -884,6 +909,7 @@ h2 ~ p {
 .shorthand {
     animation: fadeIn 2s ease-in-out 0.5s 3 alternate forwards;
 }
+
 ```
 
 ### Transform
@@ -925,6 +951,7 @@ h2 ~ p {
     transform-origin: top left;     /* 左上を基準 */
     transform: rotate(45deg);
 }
+
 ```
 
 ## よく使うパターン
@@ -970,11 +997,12 @@ h2 ~ p {
         background-color: #333;
         display: none;
     }
-    
+
     .nav-menu.active {
         display: flex;
     }
 }
+
 ```
 
 ### カードレイアウト
@@ -1019,6 +1047,7 @@ h2 ~ p {
     color: #666;
     line-height: 1.6;
 }
+
 ```
 
 ### モーダル
@@ -1069,6 +1098,7 @@ h2 ~ p {
     font-size: 1.5rem;
     cursor: pointer;
 }
+
 ```
 
 ### フォームスタイリング
@@ -1119,6 +1149,7 @@ h2 ~ p {
     background-color: #6c757d;
     cursor: not-allowed;
 }
+
 ```
 
 ## CSS方法論
@@ -1162,6 +1193,7 @@ h2 ~ p {
 .card__title--large {
     font-size: 2rem;
 }
+
 ```
 
 ### CSS変数（カスタムプロパティ）
@@ -1174,19 +1206,19 @@ h2 ~ p {
     --success-color: #28a745;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
-    
+
     /* フォント */
     --font-family-base: "Arial", sans-serif;
     --font-size-base: 16px;
     --line-height-base: 1.6;
-    
+
     /* スペーシング */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 3rem;
-    
+
     /* ブレークポイント */
     --breakpoint-sm: 576px;
     --breakpoint-md: 768px;
@@ -1212,6 +1244,7 @@ h2 ~ p {
     --bg-color: #333;
     --text-color: #fff;
 }
+
 ```
 
 ## パフォーマンス最適化
@@ -1258,6 +1291,7 @@ div > ul > li > a { }  /* 深すぎる階層 */
     opacity: 1;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
+
 ```
 
 ### CSS Grid と Flexbox の使い分け
@@ -1296,6 +1330,7 @@ div > ul > li > a { }  /* 深すぎる階層 */
         grid-template-columns: 200px 1fr 200px;
     }
 }
+
 ```
 
 ## デバッグとツール
@@ -1316,7 +1351,7 @@ div > ul > li > a { }  /* 深すぎる階層 */
 
 /* グリッドライン表示 */
 .debug-grid {
-    background-image: 
+    background-image:
         linear-gradient(rgba(255,0,0,0.1) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,0,0,0.1) 1px, transparent 1px);
     background-size: 20px 20px;
@@ -1326,6 +1361,7 @@ div > ul > li > a { }  /* 深すぎる階層 */
 .debug-flex > * {
     border: 1px solid blue;
 }
+
 ```
 
 ### ブラウザの開発者ツール活用
@@ -1355,6 +1391,7 @@ div > ul > li > a { }  /* 深すぎる階層 */
 /* Autoprefixer: ベンダープレフィックス自動追加 */
 /* CSS Nano: CSS圧縮 */
 /* PurgeCSS: 未使用CSS削除 */
+
 ```
 
 ## 参考資料

@@ -40,36 +40,46 @@ Jekyll は静的サイトジェネレーターで、Markdown や HTML ファイ�
 
 ```bash
 # macOS (Homebrew使用)
+
 brew install ruby
 
 # Ubuntu/Debian
+
 sudo apt-get install ruby-full build-essential zlib1g-dev
 
 # Windows (RubyInstaller)
+
 # https://rubyinstaller.org/ からダウンロード
+
 ```
 
 #### 2. Jekyll のインストール
 
 ```bash
 # Gem として Jekyll をインストール
+
 gem install jekyll bundler
 
 # バージョン確認
+
 jekyll --version
+
 ```
 
 #### 3. 新しい Jekyll サイトの作成
 
 ```bash
 # 新しいサイトの作成
+
 jekyll new my-awesome-site
 cd my-awesome-site
 
 # ローカルサーバーの起動
+
 bundle exec jekyll serve
 
 # ブラウザで http://localhost:4000 にアクセス
+
 ```
 
 ### GitHub Pages 用の設定
@@ -78,15 +88,19 @@ bundle exec jekyll serve
 
 ```ruby
 # GitHub Pages 用の Gemfile
+
 source "https://rubygems.org"
 
 # GitHub Pages gem（Jekyll のバージョンを自動調整）
+
 gem "github-pages", group: :jekyll_plugins
 
 # テーマ
+
 gem "minima", "~> 2.5"
 
 # プラグイン
+
 group :jekyll_plugins do
   gem "jekyll-feed"
   gem "jekyll-sitemap"
@@ -94,12 +108,14 @@ group :jekyll_plugins do
 end
 
 # Windows 用
+
 platforms :mingw, :x64_mingw, :mswin, :jruby do
   gem "tzinfo", "~> 1.2"
   gem "tzinfo-data"
 end
 
 gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
+
 ```
 
 ## プロジェクト構造
@@ -107,6 +123,7 @@ gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
 ### 標準的なディレクトリ構造
 
 ```
+
 my-site/
 ├── _config.yml          # サイトの設定ファイル
 ├── _data/               # データファイル（YAML, JSON, CSV）
@@ -133,21 +150,28 @@ my-site/
 ├── Gemfile              # Ruby gem の依存関係
 ├── Gemfile.lock         # gem のバージョンロック
 └── index.md             # トップページ
+
 ```
 
 ### ファイル命名規則
 
 #### ポストファイル
+
 ```
+
 _posts/YYYY-MM-DD-title.MARKUP
 例: _posts/2023-12-01-jekyll-tutorial.md
+
 ```
 
 #### ページファイル
+
 ```
 # ルートディレクトリまたはサブディレクトリ
+
 about.md
 contact/index.md
+
 ```
 
 ## 設定ファイル（_config.yml）
@@ -156,29 +180,35 @@ contact/index.md
 
 ```yaml
 # サイト基本情報
+
 title: "My Awesome Site"
 description: "A fantastic Jekyll site"
 baseurl: "" # サブディレクトリがある場合（例: "/blog"）
 url: "https://username.github.io" # サイトのURL
 
 # ビルド設定
+
 markdown: kramdown
 highlighter: rouge
 theme: minima
 
 # プラグイン
+
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
 
 # パーマリンク設定
+
 permalink: /:categories/:year/:month/:day/:title:output_ext
 
 # タイムゾーン
+
 timezone: Asia/Tokyo
 
 # デフォルト設定
+
 defaults:
   - scope:
       path: ""
@@ -193,6 +223,7 @@ defaults:
       layout: "page"
 
 # 除外ファイル
+
 exclude:
   - Gemfile
   - Gemfile.lock
@@ -202,16 +233,19 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
   - README.md
+
 ```
 
 ### GitHub Pages 固有の設定
 
 ```yaml
 # GitHub Pages 用設定
+
 repository: username/repository-name
 github_username: username
 
 # GitHub Pages でサポートされているプラグインのみ使用
+
 plugins:
   - jekyll-coffeescript
   - jekyll-default-layout
@@ -231,8 +265,10 @@ plugins:
   - jekyll-include-cache
 
 # セキュリティ設定
+
 safe: true
 incremental: false
+
 ```
 
 ## GitHub Pages との連携
@@ -240,20 +276,26 @@ incremental: false
 ### 1. リポジトリの設定
 
 #### 新しいリポジトリの場合
+
 ```bash
 # GitHub Pages 用リポジトリの作成
+
 git init
 git add .
 git commit -m "Initial Jekyll site"
 git remote add origin https://github.com/username/username.github.io.git
 git push -u origin main
+
 ```
 
 #### 既存リポジトリの場合
+
 ```bash
 # docs ディレクトリを使用する場合
+
 mkdir docs
 # Jekyll サイトを docs ディレクトリに作成
+
 ```
 
 ### 2. GitHub Pages の有効化
@@ -268,19 +310,24 @@ mkdir docs
 
 ```yaml
 # _config.yml にカスタムドメインを設定
+
 url: "https://mydomain.com"
 enforce_ssl: true
+
 ```
 
 ```
 # CNAME ファイルをルートディレクトリに作成
+
 mydomain.com
+
 ```
 
 ### 4. GitHub Actions を使った高度なデプロイ
 
 ```yaml
 # .github/workflows/jekyll.yml
+
 name: Build and deploy Jekyll site to GitHub Pages
 
 on:
@@ -301,6 +348,7 @@ jobs:
           destination: ./_site
       - uses: actions/upload-pages-artifact@v3
       - uses: actions/deploy-pages@v4
+
 ```
 
 ## テーマとレイアウト
@@ -308,26 +356,34 @@ jobs:
 ### 人気の Jekyll テーマ
 
 #### GitHub Pages でサポートされているテーマ
+
 ```yaml
 # _config.yml でテーマを指定
+
 theme: minima
 # または
+
 theme: jekyll-theme-cayman
 theme: jekyll-theme-minimal
 theme: jekyll-theme-architect
+
 ```
 
 #### Gem ベースのテーマ
+
 ```ruby
 # Gemfile
+
 gem "beautiful-jekyll-theme"
 gem "tale"
 gem "hydeout"
+
 ```
 
 ### カスタムレイアウトの作成
 
 #### デフォルトレイアウト（_layouts/default.html）
+
 ```html
 <!DOCTYPE html>
 <html lang="{{ page.lang | default: site.lang | default: "ja" }}">
@@ -342,9 +398,11 @@ gem "hydeout"
     {%- include footer.html -%}
   </body>
 </html>
+
 ```
 
 #### ページレイアウト（_layouts/page.html）
+
 ```html
 ---
 layout: default
@@ -358,9 +416,11 @@ layout: default
     {{ content }}
   </div>
 </article>
+
 ```
 
 #### ポストレイアウト（_layouts/post.html）
+
 ```html
 ---
 layout: default
@@ -385,6 +445,7 @@ layout: default
     {{ content }}
   </div>
 </article>
+
 ```
 
 ## コンテンツ作成
@@ -392,6 +453,7 @@ layout: default
 ### フロントマターの活用
 
 #### ポストのフロントマター
+
 ```yaml
 ---
 layout: post
@@ -407,6 +469,7 @@ published: true
 ```
 
 #### ページのフロントマター
+
 ```yaml
 ---
 layout: page
@@ -420,13 +483,16 @@ nav: true
 ### Liquid テンプレート言語
 
 #### 基本的な変数出力
+
 ```liquid
 {{ site.title }}
 {{ page.title }}
 {{ content }}
+
 ```
 
 #### 条件分岐
+
 ```liquid
 {% if page.image %}
   <img src="{{ page.image }}" alt="{{ page.title }}">
@@ -435,26 +501,32 @@ nav: true
 {% unless page.published == false %}
   <p>{{ page.excerpt }}</p>
 {% endunless %}
+
 ```
 
 #### ループ処理
+
 ```liquid
 {% for post in site.posts limit:5 %}
   <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
   <p>{{ post.excerpt }}</p>
 {% endfor %}
+
 ```
 
 #### フィルター
+
 ```liquid
 {{ page.date | date: "%Y年%m月%d日" }}
 {{ page.title | upcase }}
 {{ content | strip_html | truncatewords: 30 }}
+
 ```
 
 ### コレクションの活用
 
 #### _config.yml でコレクションを定義
+
 ```yaml
 collections:
   tutorials:
@@ -462,21 +534,27 @@ collections:
     permalink: /:collection/:name/
   team:
     output: false
+
 ```
 
 #### コレクションファイルの作成
+
 ```
+
 _tutorials/
 ├── basic-setup.md
 ├── advanced-config.md
 └── deployment.md
+
 ```
 
 #### コレクションの表示
+
 ```liquid
 {% for tutorial in site.tutorials %}
   <h3><a href="{{ tutorial.url }}">{{ tutorial.title }}</a></h3>
 {% endfor %}
+
 ```
 
 ## プラグインの活用
@@ -486,90 +564,118 @@ _tutorials/
 GitHub Pages では、セキュリティ上の理由から使用できるプラグインが制限されています。以下は公式にサポートされているプラグインの完全なリストです。
 
 #### 1. jekyll-coffeescript
+
 **概要**: CoffeeScriptファイルをJavaScriptに変換します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-coffeescript
+
 ```
 
 **使用方法**:
+
 ```coffeescript
 # assets/js/script.coffee
+
 square = (x) -> x * x
 console.log square(5)
+
 ```
 
 #### 2. jekyll-default-layout
+
 **概要**: フロントマターでレイアウトが指定されていないページに自動的にデフォルトレイアウトを適用します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-default-layout
 
 jekyll-default-layout:
   path: "_layouts/default.html"
+
 ```
 
 **使用方法**:
 ファイルにフロントマターがない場合でも、自動的にデフォルトレイアウトが適用されます。
 
 #### 3. jekyll-gist
+
 **概要**: GitHub Gistを埋め込むための`{% raw %}{% gist %}{% endraw %}`タグを提供します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-gist
 
 gist:
   noscript: false
+
 ```
 
 **使用方法**:
+
 ```liquid
 {% raw %}{% gist gist_id %}
 {% gist gist_id filename %}{% endraw %}
+
 ```
 
 #### 4. jekyll-github-metadata
+
 **概要**: GitHubリポジトリのメタデータにアクセスできるようにします。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-github-metadata
 
 repository: username/repository-name
+
 ```
 
 **使用方法**:
+
 ```liquid
 {% raw %}{{ site.github.repository_name }}
 {{ site.github.owner_name }}
 {{ site.github.repository_url }}{% endraw %}
+
 ```
 
 #### 5. jekyll-paginate
+
 **概要**: ポストの一覧をページ分割する機能を提供します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-paginate
 
 paginate: 5
 paginate_path: "/blog/page:num/"
+
 ```
 
 **使用方法**:
+
 ```liquid
 {% raw %}<!-- index.html -->
 {% for post in paginator.posts %}
@@ -585,61 +691,79 @@ paginate_path: "/blog/page:num/"
     <a href="{{ paginator.next_page_path }}">次のページ</a>
   {% endif %}
 {% endif %}{% endraw %}
+
 ```
 
 #### 6. jekyll-relative-links
+
 **概要**: Markdownファイル内の相対リンクを自動的に適切なURLに変換します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-relative-links
 
 relative_links:
   enabled: true
   collections: false
+
 ```
 
 **使用方法**:
+
 ```markdown
 [リンクテキスト](other-page.md)
 [フォルダ内のページ](folder/page.md)
+
 ```
 
 #### 7. jekyll-optional-front-matter
+
 **概要**: Markdownファイルにフロントマターがなくても処理できるようにします。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-optional-front-matter
 
 optional_front_matter:
   remove_originals: true
+
 ```
 
 #### 8. jekyll-readme-index
+
 **概要**: README.mdファイルをディレクトリのindex.htmlとして使用できるようにします。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-readme-index
 
 readme_index:
   enabled: true
   remove_originals: false
+
 ```
 
 #### 9. jekyll-titles-from-headings
+
 **概要**: Markdownファイルの最初の見出しをページタイトルとして自動的に使用します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-titles-from-headings
 
@@ -647,39 +771,51 @@ titles_from_headings:
   enabled: true
   strip_title: true
   collections: false
+
 ```
 
 #### 10. jekyll-feed
+
 **概要**: サイトのポスト用のAtom（RSS）フィードを自動生成します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-feed
 
 feed:
   path: atom.xml
   excerpt_only: false
+
 ```
 
 **使用方法**:
+
 ```html
 <!-- _layouts/default.html の head セクション -->
 {% raw %}{% feed_meta %}{% endraw %}
+
 ```
 
 #### 11. jekyll-redirect-from
+
 **概要**: 古いURLから新しいURLへのリダイレクトを設定できます。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-redirect-from
+
 ```
 
 **使用方法**:
+
 ```yaml
 ---
 title: 新しいページ
@@ -690,11 +826,14 @@ redirect_from:
 ```
 
 #### 12. jekyll-seo-tag
+
 **概要**: SEO用のメタタグを自動生成します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-seo-tag
 
@@ -707,20 +846,26 @@ social:
   links:
     - https://twitter.com/your_twitter_username
     - https://github.com/your_github_username
+
 ```
 
 **使用方法**:
+
 ```html
 <!-- _layouts/default.html の head セクション -->
 {% raw %}{% seo %}{% endraw %}
+
 ```
 
 #### 13. jekyll-sitemap
+
 **概要**: サイト全体のサイトマップ（sitemap.xml）を自動生成します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-sitemap
 
@@ -728,77 +873,102 @@ sitemap:
   exclude:
     - "/secret-page/"
     - "/temp/"
+
 ```
 
 **使用方法**:
 自動的に `/sitemap.xml` が生成されます。設定は不要です。
 
 #### 14. jekyll-avatar
+
 **概要**: GitHubユーザーのアバター画像を表示するための`{% raw %}{% avatar %}{% endraw %}`タグを提供します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-avatar
+
 ```
 
 **使用方法**:
+
 ```liquid
 {% raw %}{% avatar username %}
 {% avatar username size=40 %}{% endraw %}
+
 ```
 
 #### 15. jekyll-mentions
+
 **概要**: GitHub風の@mentionを処理し、GitHub プロフィールページへのリンクに変換します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-mentions
 
 jekyll-mentions:
   base_url: https://github.com
+
 ```
 
 **使用方法**:
+
 ```markdown
 @username についてのメンション
+
 ```
 
 #### 16. jekyll-include-cache
+
 **概要**: includeファイルのキャッシュ機能を提供し、ビルド時間を短縮します。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-include-cache
+
 ```
 
 **使用方法**:
+
 ```liquid
 {% raw %}{% include_cached header.html %}
 {% include_cached sidebar.html param="value" %}{% endraw %}
+
 ```
 
 #### 17. jekyll-theme-primer
+
 **概要**: GitHub Primer CSSフレームワークを使用するテーマです。
 
 **設定方法**:
+
 ```yaml
 # _config.yml
+
 theme: jekyll-theme-primer
 plugins:
   - jekyll-theme-primer
+
 ```
 
 ### プラグインの組み合わせ例
 
 #### 完全なSEO最適化構成
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
@@ -806,12 +976,14 @@ plugins:
   - jekyll-redirect-from
 
 # SEO設定
+
 title: "サイトタイトル"
 description: "サイトの説明"
 url: "https://username.github.io"
 author: "著者名"
 
 # ソーシャルメディア設定
+
 twitter:
   username: your_twitter_username
   card: summary_large_image
@@ -821,11 +993,14 @@ social:
   links:
     - https://twitter.com/your_twitter_username
     - https://github.com/your_github_username
+
 ```
 
 #### ブログサイト向け構成
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-paginate
   - jekyll-feed
@@ -835,18 +1010,23 @@ plugins:
   - jekyll-gist
 
 # ページネーション設定
+
 paginate: 5
 paginate_path: "/page:num/"
 
 # フィード設定
+
 feed:
   path: atom.xml
   excerpt_only: true
+
 ```
 
 #### ドキュメントサイト向け構成
+
 ```yaml
 # _config.yml
+
 plugins:
   - jekyll-default-layout
   - jekyll-optional-front-matter
@@ -857,48 +1037,61 @@ plugins:
   - jekyll-seo-tag
 
 # デフォルトレイアウト設定
+
 jekyll-default-layout:
   path: "_layouts/page.html"
 
 # 見出しからタイトル生成
+
 titles_from_headings:
   enabled: true
   strip_title: true
   collections: true
+
 ```
 
 ### プラグイン使用時の注意点
 
 #### 1. GitHub Pages制限事項
+
 - 上記のプラグインのみが使用可能
 - カスタムプラグインは使用不可
 - プラグインの設定によってはビルドが失敗する場合がある
 
 #### 2. パフォーマンス考慮事項
+
 ```yaml
 # 大量のページがある場合のキャッシュ活用
+
 plugins:
   - jekyll-include-cache
 
 # サイトマップから除外する不要なページ
+
 sitemap:
   exclude:
     - "/assets/"
     - "/404.html"
+
 ```
 
 #### 3. ローカル開発とGitHub Pagesの差異
+
 ```bash
 # ローカルでGitHub Pages環境を再現
+
 gem "github-pages", group: :jekyll_plugins
 
 # 本番環境でのテスト
+
 JEKYLL_ENV=production bundle exec jekyll build
+
 ```
 
 ### カスタムプラグインの作成
 
 #### _plugins/custom_filter.rb
+
 ```ruby
 module Jekyll
   module CustomFilter
@@ -912,11 +1105,14 @@ module Jekyll
 end
 
 Liquid::Template.register_filter(Jekyll::CustomFilter)
+
 ```
 
 #### 使用例
+
 ```liquid
 {{ content | reading_time }}
+
 ```
 
 ## パフォーマンス最適化
@@ -924,6 +1120,7 @@ Liquid::Template.register_filter(Jekyll::CustomFilter)
 ### 1. 画像最適化
 
 #### レスポンシブ画像
+
 ```liquid
 {% assign image_path = "/assets/images/" | append: page.image %}
 <picture>
@@ -931,46 +1128,60 @@ Liquid::Template.register_filter(Jekyll::CustomFilter)
   <source media="(max-width: 1200px)" srcset="{{ image_path | append: "-medium.webp" }}">
   <img src="{{ image_path }}" alt="{{ page.title }}" loading="lazy">
 </picture>
+
 ```
 
 #### 画像の遅延読み込み
+
 ```html
 <img src="{{ image_path }}" alt="{{ page.title }}" loading="lazy">
+
 ```
 
 ### 2. CSS・JavaScript の最適化
 
 #### アセットの圧縮
+
 ```yaml
 # _config.yml
+
 sass:
   style: compressed
 
 # 本番環境でのminify
+
 {% if jekyll.environment == "production" %}
   {% assign css_href = "/assets/css/style.css" %}
 {% else %}
   {% assign css_href = "/assets/css/style.css" %}
 {% endif %}
+
 ```
 
 #### 重要でないリソースの遅延読み込み
+
 ```html
 <link rel="preload" href="/assets/css/critical.css" as="style">
 <link rel="stylesheet" href="/assets/css/non-critical.css" media="print" onload="this.media='all'">
+
 ```
 
 ### 3. ビルド時間の最適化
 
 #### インクリメンタルビルド
+
 ```bash
 # 開発時のみ使用
+
 bundle exec jekyll serve --incremental
+
 ```
 
 #### 不要ファイルの除外
+
 ```yaml
 # _config.yml
+
 exclude:
   - node_modules/
   - .sass-cache/
@@ -979,6 +1190,7 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor/
+
 ```
 
 ## トラブルシューティング
@@ -988,67 +1200,91 @@ exclude:
 #### 1. ビルドエラー
 
 **問題**: Gem の依存関係エラー
+
 ```bash
 # 解決方法
+
 bundle update
 bundle install
+
 ```
 
 **問題**: 文字エンコーディングエラー
+
 ```yaml
 # _config.yml に追加
+
 encoding: utf-8
+
 ```
 
 #### 2. GitHub Pages でのビルド失敗
 
 **問題**: サポートされていないプラグイン
+
 ```yaml
 # GitHub Pages でサポートされているプラグインのみ使用
+
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
+
 ```
 
 **問題**: 相対パスの問題
+
 ```yaml
 # _config.yml でベースURLを正しく設定
+
 baseurl: "/repository-name"
 url: "https://username.github.io"
+
 ```
 
 #### 3. パフォーマンス問題
 
 **問題**: ビルド時間が長い
+
 ```bash
 # --profile オプションでボトルネックを特定
+
 bundle exec jekyll build --profile
+
 ```
 
 **問題**: 大量のファイル
+
 ```yaml
 # limit プラグインを使用
+
 {% for post in site.posts limit:10 %}
   <!-- ここに投稿の表示内容 -->
 {% endfor %}
+
 ```
 
 ### デバッグ方法
 
 #### 開発サーバーでのライブリロード
+
 ```bash
 bundle exec jekyll serve --livereload --drafts
+
 ```
 
 #### ログレベルの設定
+
 ```bash
 bundle exec jekyll build --verbose
+
 ```
 
 #### 設定の確認
+
 ```bash
 bundle exec jekyll doctor
+
 ```
 
 ## ベストプラクティス
@@ -1056,7 +1292,9 @@ bundle exec jekyll doctor
 ### 1. コンテンツ管理
 
 #### ディレクトリ構造のベストプラクティス
+
 ```
+
 content/
 ├── _posts/           # ブログ記事
 ├── _pages/           # 固定ページ
@@ -1065,35 +1303,44 @@ content/
     ├── images/       # 画像
     ├── documents/    # PDF等
     └── downloads/    # ダウンロードファイル
+
 ```
 
 #### ファイル命名規則
+
 ```
 # 投稿ファイル
+
 2023-12-01-clear-descriptive-title.md
 
 # ページファイル
+
 about.md
 contact.md
 privacy-policy.md
 
 # 画像ファイル
+
 2023-12-01-post-thumbnail.jpg
 about-hero-image.png
+
 ```
 
 ### 2. SEO最適化
 
 #### メタタグの設定
+
 ```html
 <!-- _includes/head.html -->
 <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
 <meta property="og:title" content="{{ page.title | default: site.title | escape }}">
 <meta property="og:description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
 <meta property="og:image" content="{{ page.image | default: site.image | absolute_url }}">
+
 ```
 
 #### 構造化データの追加
+
 ```html
 <script type="application/ld+json">
 {
@@ -1107,11 +1354,13 @@ about-hero-image.png
   }
 }
 </script>
+
 ```
 
 ### 3. アクセシビリティ
 
 #### セマンティックHTML
+
 ```html
 <article class="post">
   <header>
@@ -1122,28 +1371,35 @@ about-hero-image.png
     {{ content }}
   </main>
 </article>
+
 ```
 
 #### ALTテキストの設定
+
 ```liquid
 {% if page.image %}
   <img src="{{ page.image }}" alt="{{ page.image_alt | default: page.title }}">
 {% endif %}
+
 ```
 
 ### 4. セキュリティ
 
 #### セキュアなリンク
+
 ```html
 <a href="{{ external_url }}" target="_blank" rel="noopener noreferrer">
+
 ```
 
 #### フォームのセキュリティ
+
 ```html
 <form method="post" action="https://formspree.io/your-email">
   <input type="hidden" name="_subject" value="Contact from Jekyll site">
   <input type="hidden" name="_next" value="{{ site.url }}/thank-you">
 </form>
+
 ```
 
 ## 実用的な例
@@ -1151,6 +1407,7 @@ about-hero-image.png
 ### 1. ブログサイトの作成
 
 #### _config.yml
+
 ```yaml
 title: "Tech Blog"
 description: "技術ブログ"
@@ -1177,9 +1434,11 @@ defaults:
     values:
       layout: "post"
       comments: true
+
 ```
 
 #### index.html
+
 ```html
 ---
 layout: default
@@ -1206,7 +1465,7 @@ layout: default
       {% if paginator.previous_page %}
         <a href="{{ paginator.previous_page_path | relative_url }}">&laquo; 前へ</a>
       {% endif %}
-      
+
       {% for page in (1..paginator.total_pages) %}
         {% if page == paginator.page %}
           <span class="current">{{ page }}</span>
@@ -1216,18 +1475,20 @@ layout: default
           <a href="{{ site.paginate_path | relative_url | replace: ':num', page }}">{{ page }}</a>
         {% endif %}
       {% endfor %}
-      
+
       {% if paginator.next_page %}
         <a href="{{ paginator.next_page_path | relative_url }}">次へ &raquo;</a>
       {% endif %}
     </div>
   {% endif %}
 </div>
+
 ```
 
 ### 2. ポートフォリオサイトの作成
 
 #### _data/projects.yml
+
 ```yaml
 - name: "プロジェクト1"
   description: "Web アプリケーション開発"
@@ -1240,9 +1501,11 @@ layout: default
   image: "/assets/images/project2.jpg"
   url: "https://github.com/username/project2"
   tech: ["React Native", "TypeScript"]
+
 ```
 
 #### portfolio.html
+
 ```html
 ---
 layout: page
@@ -1252,7 +1515,7 @@ permalink: /portfolio/
 
 <div class="portfolio">
   <h1>作品集</h1>
-  
+
   <div class="projects-grid">
     {% for project in site.data.projects %}
       <div class="project-card">
@@ -1269,11 +1532,13 @@ permalink: /portfolio/
     {% endfor %}
   </div>
 </div>
+
 ```
 
 ### 3. ドキュメントサイトの作成
 
 #### _data/navigation.yml
+
 ```yaml
 - title: "ホーム"
   url: "/"
@@ -1288,9 +1553,11 @@ permalink: /portfolio/
   url: "/api/"
 - title: "FAQ"
   url: "/faq/"
+
 ```
 
 #### _includes/navigation.html
+
 ```html
 <nav class="main-nav">
   <ul>
@@ -1308,6 +1575,7 @@ permalink: /portfolio/
     {% endfor %}
   </ul>
 </nav>
+
 ```
 
 これで Jekyll の包括的なリファレンスと GitHub Pages での運用におけるベストプラクティスが完成しました。このドキュメントは初心者から上級者まで幅広く活用できる内容となっています。
