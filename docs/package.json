@@ -1,0 +1,14 @@
+{
+  "name": "docs-search",
+  "version": "1.0.0",
+  "description": "Search functionality for Jekyll documentation site",
+  "scripts": {
+    "build": "bundle exec jekyll build && pagefind --site _site",
+    "serve": "bundle exec jekyll serve",
+    "search-index": "pagefind --site _site"
+  },
+  "devDependencies": {
+    "pagefind": "^1.1.0"
+  },
+  "private": true
+}

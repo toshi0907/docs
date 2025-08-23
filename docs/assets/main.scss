@@ -1,0 +1,99 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
+@import "minima";
+
+/* Search container styling */
+.search-container {
+  display: inline-block;
+  margin-right: 15px;
+  vertical-align: middle;
+}
+
+/* Responsive search styling */
+@media screen and (max-width: 600px) {
+  .search-container {
+    width: 100%;
+    margin: 10px 0;
+    display: block;
+  }
+}
+
+/* Search input styling */
+#search input {
+  padding: 8px 12px;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 200px;
+  background-color: #fff;
+}
+
+#search input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Search results styling */
+.pagefind-ui__results {
+  background: white;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.pagefind-ui__result {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pagefind-ui__result:hover {
+  background-color: #f8f9fa;
+}
+
+.pagefind-ui__result-title {
+  color: #007bff;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pagefind-ui__result-excerpt {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Mobile responsive adjustments */
+@media screen and (max-width: 600px) {
+  #search input {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .pagefind-ui__results {
+    position: fixed;
+    top: 60px;
+    left: 10px;
+    right: 10px;
+    z-index: 1000;
+  }
+}
+
+/* Integration with existing header */
+.site-nav .trigger {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media screen and (max-width: 600px) {
+  .site-nav .trigger {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

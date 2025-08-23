@@ -53,6 +53,20 @@
       });
     </script>
 
+    <!-- Pagefind Search -->
+    <script src="{{ "/pagefind/pagefind-ui.js" | relative_url }}"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', (event) => {
+        new PagefindUI({ 
+          element: "#search",
+          showSubResults: true,
+          showImages: false,
+          excerptLength: 15,
+          resetStyles: false
+        });
+      });
+    </script>
+
   </body>
 
 </html>
