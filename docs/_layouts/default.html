@@ -54,16 +54,79 @@
     </script>
 
     <!-- Pagefind Search -->
-    <script src="{{ "/pagefind/pagefind-ui.js" | relative_url }}"></script>
-    <script>
-      window.addEventListener('DOMContentLoaded', (event) => {
-        new PagefindUI({ 
-          element: "#search",
-          showSubResults: true,
-          showImages: false,
-          excerptLength: 15,
-          resetStyles: false
-        });
+    <script type="module">
+      window.addEventListener('DOMContentLoaded', async () => {
+        try {
+          // Use hardcoded paths that work in the current context
+          const pagefind = await import("/pagefind/pagefind.js");
+          
+          console.log("Pagefind loaded successfully!");
+          
+          // Create search interface
+          const searchContainer = document.getElementById('search');
+          if (searchContainer) {
+            searchContainer.innerHTML = `
+              <input type="text" id="search-input" placeholder="検索..." style="padding: 8px 12px; border: 1px solid #e1e1e1; border-radius: 4px; font-size: 14px; width: 200px;">
+              <div id="search-results" style="background: white; border: 1px solid #e1e1e1; border-radius: 4px; margin-top: 5px; max-height: 400px; overflow-y: auto; display: none; position: absolute; z-index: 1000; width: 300px;"></div>
+            `;
+            
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            
+            searchInput.addEventListener('input', async (e) => {
+              const query = e.target.value.trim();
+              if (query.length > 2) {
+                try {
+                  const results = await pagefind.search(query);
+                  searchResults.style.display = 'block';
+                  searchResults.innerHTML = '';
+                  
+                  if (results.results.length > 0) {
+                    for (const result of results.results.slice(0, 5)) { // Limit to 5 results
+                      const data = await result.data();
+                      const resultEl = document.createElement('div');
+                      resultEl.style.cssText = 'padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer;';
+                      resultEl.innerHTML = \`
+                        <div style="color: #007bff; font-weight: 600; margin-bottom: 4px;">\${data.meta.title}</div>
+                        <div style="color: #666; font-size: 14px;">\${data.excerpt}</div>
+                      \`;
+                      resultEl.addEventListener('click', () => {
+                        window.location.href = data.url;
+                      });
+                      resultEl.addEventListener('mouseenter', () => {
+                        resultEl.style.backgroundColor = '#f8f9fa';
+                      });
+                      resultEl.addEventListener('mouseleave', () => {
+                        resultEl.style.backgroundColor = 'white';
+                      });
+                      searchResults.appendChild(resultEl);
+                    }
+                  } else {
+                    searchResults.innerHTML = '<div style="padding: 12px; color: #666;">検索結果が見つかりませんでした</div>';
+                  }
+                } catch (searchError) {
+                  console.error('Search error:', searchError);
+                  searchResults.innerHTML = '<div style="padding: 12px; color: #dc3545;">検索エラーが発生しました</div>';
+                }
+              } else {
+                searchResults.style.display = 'none';
+              }
+            });
+            
+            // Hide results when clicking outside
+            document.addEventListener('click', (e) => {
+              if (!searchContainer.contains(e.target)) {
+                searchResults.style.display = 'none';
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Pagefind loading error:', error);
+          const searchContainer = document.getElementById('search');
+          if (searchContainer) {
+            searchContainer.innerHTML = '<input type="text" placeholder="検索機能エラー" disabled style="padding: 8px 12px; border: 1px solid #dc3545; border-radius: 4px; font-size: 14px; width: 200px; background-color: #f8d7da;">';
+          }
+        }
       });
     </script>
 
