@@ -93,7 +93,7 @@ toc: false
 document.addEventListener('DOMContentLoaded', function() {
   const headings = document.querySelectorAll('h2, h3, h4');
   const toc = document.getElementById('toc');
-  
+
   if (headings.length > 0 && toc) {
     const tocList = document.createElement('ul');
     headings.forEach(function(heading, index) {
@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
     toc.appendChild(tocList);
   }
 });
+
 ```
 
 ## 📊 表の例

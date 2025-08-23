@@ -66,6 +66,7 @@ let big = 123n;              // BigInt（ES2020+）
 let arr = [1, 2, 3];         // Array
 let obj = { name: "太郎" };  // Object
 let func = function() {};    // Function
+
 ```
 
 ### 文字列操作
@@ -101,6 +102,7 @@ let multiLine = `
     複数行の
     文字列です
 `;
+
 ```
 
 ### 配列
@@ -150,6 +152,7 @@ fruits.sort(); // ["apple", "banana", "orange"]
 
 let nums = [3, 1, 4, 1, 5];
 nums.sort((a, b) => a - b); // [1,1,3,4,5] (数値ソート)
+
 ```
 
 ### オブジェクト
@@ -214,6 +217,7 @@ let car = {
 // デストラクチャリング代入
 let { name: userName, age: userAge } = user;
 console.log(userName, userAge); // "太郎" 25
+
 ```
 
 ## 関数
@@ -266,6 +270,7 @@ const arr2 = [4, 5, 6];
 const combined = [...arr1, ...arr2]; // [1,2,3,4,5,6]
 
 console.log(Math.max(...arr1)); // 3
+
 ```
 
 ### スコープとクロージャ
@@ -277,7 +282,7 @@ let globalVar = "グローバル";
 function outerFunction() {
     // 関数スコープ
     let outerVar = "外側";
-    
+
     function innerFunction() {
         // クロージャ
         let innerVar = "内側";
@@ -285,7 +290,7 @@ function outerFunction() {
         console.log(outerVar);  // アクセス可能
         console.log(innerVar);  // アクセス可能
     }
-    
+
     return innerFunction;
 }
 
@@ -295,7 +300,7 @@ closure(); // クロージャが実行される
 // 実用的なクロージャの例
 function createCounter() {
     let count = 0;
-    
+
     return {
         increment: () => ++count,
         decrement: () => --count,
@@ -322,6 +327,7 @@ function varExample() {
     }
     console.log(varVariable); // アクセス可能（ホイスティング）
 }
+
 ```
 
 ## DOM操作
@@ -346,6 +352,7 @@ const elements2 = document.querySelectorAll(".myClass"); // 全ての要素
 // 複雑なセレクタの例
 const navLinks = document.querySelectorAll("nav ul li a");
 const firstParagraph = document.querySelector("article p:first-child");
+
 ```
 
 ### 要素の操作
@@ -385,6 +392,7 @@ Object.assign(box.style, {
     height: "200px",
     border: "2px solid black"
 });
+
 ```
 
 ### 要素の作成と追加
@@ -420,6 +428,7 @@ const oldElement = document.querySelector(".old");
 const newElement = document.createElement("div");
 newElement.textContent = "新しい要素";
 oldElement.replaceWith(newElement);
+
 ```
 
 ## イベント処理
@@ -457,6 +466,7 @@ button.addEventListener("click", handleClick, { once: true });
 
 // イベントリスナーの削除
 button.removeEventListener("click", handleClick);
+
 ```
 
 ### よく使用するイベント
@@ -514,6 +524,7 @@ document.addEventListener("DOMContentLoaded", e => {
     console.log("DOM読み込み完了");
     // ここに初期化コードを記述
 });
+
 ```
 
 ### イベント委譲
@@ -539,6 +550,7 @@ function addButton(text) {
 addButton("新しいボタン1");
 addButton("新しいボタン2");
 // これらのボタンも自動的にイベントが適用される
+
 ```
 
 ## 非同期処理
@@ -603,6 +615,7 @@ fetchUser(1)
     .catch(error => {
         console.log("エラー:", error);
     });
+
 ```
 
 ### async/await
@@ -613,10 +626,10 @@ async function getUserData(id) {
     try {
         const user = await fetchUser(id);
         console.log("ユーザー取得:", user);
-        
+
         const posts = await fetchUserPosts(user.id);
         console.log("投稿取得:", posts);
-        
+
         return { user, posts };
     } catch (error) {
         console.log("エラー:", error);
@@ -638,7 +651,7 @@ async function fetchMultipleUsers() {
             fetchUser(2),
             fetchUser(3)
         ]);
-        
+
         console.log("全ユーザー取得完了:", { user1, user2, user3 });
     } catch (error) {
         console.log("いずれかでエラー:", error);
@@ -652,7 +665,7 @@ async function fetchWithErrors() {
         Promise.reject("エラーのテスト"),
         fetchUser(3)
     ]);
-    
+
     results.forEach((result, index) => {
         if (result.status === "fulfilled") {
             console.log(`結果${index}:`, result.value);
@@ -661,6 +674,7 @@ async function fetchWithErrors() {
         }
     });
 }
+
 ```
 
 ### Fetch API
@@ -670,11 +684,11 @@ async function fetchWithErrors() {
 async function fetchData() {
     try {
         const response = await fetch("https://jsonplaceholder.typicode.com/posts/1");
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log("取得データ:", data);
         return data;
@@ -693,7 +707,7 @@ async function createPost(postData) {
             },
             body: JSON.stringify(postData)
         });
-        
+
         const result = await response.json();
         console.log("作成結果:", result);
         return result;
@@ -713,13 +727,13 @@ createPost({
 async function uploadFile(file) {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     try {
         const response = await fetch("/upload", {
             method: "POST",
             body: formData
         });
-        
+
         const result = await response.json();
         console.log("アップロード完了:", result);
     } catch (error) {
@@ -730,10 +744,10 @@ async function uploadFile(file) {
 // AbortController でリクエストをキャンセル
 async function cancellableRequest() {
     const controller = new AbortController();
-    
+
     // 5秒後にキャンセル
     setTimeout(() => controller.abort(), 5000);
-    
+
     try {
         const response = await fetch("https://httpbin.org/delay/10", {
             signal: controller.signal
@@ -748,6 +762,7 @@ async function cancellableRequest() {
         }
     }
 }
+
 ```
 
 ## モダンJavaScript（ES6+）
@@ -805,6 +820,7 @@ function greetUser({ name, age = 0 }) {
 }
 
 console.log(greetUser({ name: "花子", age: 25 })); // "こんにちは、花子さん（25歳）"
+
 ```
 
 ### モジュール
@@ -848,6 +864,7 @@ async function loadMathModule() {
     const mathModule = await import('./math.js');
     console.log(mathModule.add(1, 2)); // 3
 }
+
 ```
 
 ### クラス
@@ -860,17 +877,17 @@ class Person {
         this.name = name;
         this.age = age;
     }
-    
+
     // メソッド
     greet() {
         return `こんにちは、私は${this.name}です`;
     }
-    
+
     // ゲッター
     get info() {
         return `${this.name}（${this.age}歳）`;
     }
-    
+
     // セッター
     set age(value) {
         if (value < 0) {
@@ -878,11 +895,11 @@ class Person {
         }
         this._age = value;
     }
-    
+
     get age() {
         return this._age;
     }
-    
+
     // 静的メソッド
     static createAdult(name) {
         return new Person(name, 20);
@@ -903,11 +920,11 @@ class Student extends Person {
         super(name, age); // 親クラスのコンストラクタを呼び出し
         this.school = school;
     }
-    
+
     greet() {
         return `${super.greet()}、${this.school}の学生です`;
     }
-    
+
     study() {
         return `${this.name}は勉強しています`;
     }
@@ -920,19 +937,19 @@ console.log(student.study());   // "次郎は勉強しています"
 // プライベートフィールド（ES2022+）
 class BankAccount {
     #balance = 0; // プライベートフィールド
-    
+
     constructor(initialBalance) {
         this.#balance = initialBalance;
     }
-    
+
     deposit(amount) {
         this.#balance += amount;
     }
-    
+
     getBalance() {
         return this.#balance;
     }
-    
+
     // プライベートメソッド
     #calculateInterest() {
         return this.#balance * 0.01;
@@ -943,6 +960,7 @@ const account = new BankAccount(1000);
 account.deposit(500);
 console.log(account.getBalance()); // 1500
 // console.log(account.#balance); // エラー: プライベートフィールドにはアクセス不可
+
 ```
 
 ## エラーハンドリング
@@ -1008,11 +1026,11 @@ try {
 async function fetchUserData(id) {
     try {
         const response = await fetch(`/api/users/${id}`);
-        
+
         if (!response.ok) {
             throw new Error(`ユーザー取得失敗: ${response.status}`);
         }
-        
+
         const userData = await response.json();
         return userData;
     } catch (error) {
@@ -1029,6 +1047,7 @@ function logError(error) {
         timestamp: new Date().toISOString()
     });
 }
+
 ```
 
 ## ブラウザAPI
@@ -1067,6 +1086,7 @@ window.addEventListener("storage", function(e) {
 
 // セッションストレージ（タブを閉じると削除される）
 sessionStorage.setItem("temporary", "一時的なデータ");
+
 ```
 
 ### Geolocation API
@@ -1105,6 +1125,7 @@ const watchId = navigator.geolocation.watchPosition(
 
 // 監視の停止
 // navigator.geolocation.clearWatch(watchId);
+
 ```
 
 ### Notification API
@@ -1123,7 +1144,7 @@ async function requestNotificationPermission() {
 // 通知の表示
 async function showNotification(title, options = {}) {
     const hasPermission = await requestNotificationPermission();
-    
+
     if (hasPermission) {
         const notification = new Notification(title, {
             body: options.body || "",
@@ -1131,13 +1152,13 @@ async function showNotification(title, options = {}) {
             tag: options.tag || "default",
             ...options
         });
-        
+
         notification.onclick = function() {
             console.log("通知がクリックされました");
             window.focus();
             this.close();
         };
-        
+
         // 自動で閉じる
         setTimeout(() => notification.close(), 5000);
     }
@@ -1149,6 +1170,7 @@ showNotification("新しいメッセージ", {
     icon: "/message-icon.png",
     tag: "message"
 });
+
 ```
 
 ## 実践的なコード例
@@ -1161,22 +1183,22 @@ class FormValidator {
         this.form = form;
         this.errors = {};
         this.rules = {};
-        
+
         this.init();
     }
-    
+
     init() {
         this.form.addEventListener("submit", (e) => {
             e.preventDefault();
             this.validate();
         });
-        
+
         // リアルタイムバリデーション
         this.form.addEventListener("input", (e) => {
             this.validateField(e.target);
         });
     }
-    
+
     addRule(fieldName, rule) {
         if (!this.rules[fieldName]) {
             this.rules[fieldName] = [];
@@ -1184,13 +1206,13 @@ class FormValidator {
         this.rules[fieldName].push(rule);
         return this;
     }
-    
+
     validateField(field) {
         const rules = this.rules[field.name];
         if (!rules) return true;
-        
+
         this.clearError(field.name);
-        
+
         for (const rule of rules) {
             const result = rule.test(field.value);
             if (!result.valid) {
@@ -1199,79 +1221,79 @@ class FormValidator {
                 return false;
             }
         }
-        
+
         this.showSuccess(field.name);
         return true;
     }
-    
+
     validate() {
         this.errors = {};
         let isValid = true;
-        
+
         const fields = this.form.querySelectorAll("[name]");
-        
+
         fields.forEach(field => {
             if (!this.validateField(field)) {
                 isValid = false;
             }
         });
-        
+
         if (isValid) {
             this.onSuccess();
         } else {
             this.onError();
         }
-        
+
         return isValid;
     }
-    
+
     addError(fieldName, message) {
         if (!this.errors[fieldName]) {
             this.errors[fieldName] = [];
         }
         this.errors[fieldName].push(message);
     }
-    
+
     clearError(fieldName) {
         delete this.errors[fieldName];
         this.hideError(fieldName);
     }
-    
+
     showError(fieldName) {
         const field = this.form.querySelector(`[name="${fieldName}"]`);
         const errorContainer = field.parentNode.querySelector(".error-message");
-        
+
         if (errorContainer) {
             errorContainer.textContent = this.errors[fieldName][0];
             errorContainer.style.display = "block";
         }
-        
+
         field.classList.add("error");
         field.classList.remove("success");
     }
-    
+
     hideError(fieldName) {
         const field = this.form.querySelector(`[name="${fieldName}"]`);
         const errorContainer = field.parentNode.querySelector(".error-message");
-        
+
         if (errorContainer) {
             errorContainer.style.display = "none";
         }
-        
+
         field.classList.remove("error");
     }
-    
+
     showSuccess(fieldName) {
         const field = this.form.querySelector(`[name="${fieldName}"]`);
         field.classList.add("success");
         field.classList.remove("error");
     }
-    
+
     onSuccess() {
         console.log("フォームバリデーション成功");
         // フォーム送信処理
     }
-    
+
     onError() {
         console.log("フォームバリデーションエラー:", this.errors);
     }
@@ -1285,21 +1307,21 @@ const rules = {
             message
         })
     }),
-    
+
     email: (message = "有効なメールアドレスを入力してください") => ({
         test: (value) => ({
             valid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
             message
         })
     }),
-    
+
     minLength: (min, message) => ({
         test: (value) => ({
             valid: value.length >= min,
             message: message || `${min}文字以上で入力してください`
         })
     }),
-    
+
     phone: (message = "有効な電話番号を入力してください") => ({
         test: (value) => ({
             valid: /^[\d-]+$/.test(value),
@@ -1319,6 +1341,7 @@ validator
     .addRule("phone", rules.phone())
     .addRule("message", rules.required())
     .addRule("message", rules.minLength(10));
+
 ```
 
 ### シンプルなSPA（Single Page Application）
@@ -1328,12 +1351,12 @@ class SimpleRouter {
     constructor() {
         this.routes = {};
         this.currentRoute = "";
-        
+
         // ブラウザの戻る/進むボタン対応
         window.addEventListener("popstate", (e) => {
             this.handleRoute();
         });
-        
+
         // リンククリック時の処理
         document.addEventListener("click", (e) => {
             if (e.target.matches("[data-route]")) {
@@ -1342,34 +1365,34 @@ class SimpleRouter {
                 this.navigate(route);
             }
         });
-        
+
         // 初期ルート処理
         this.handleRoute();
     }
-    
+
     addRoute(path, handler) {
         this.routes[path] = handler;
         return this;
     }
-    
+
     navigate(path) {
         window.history.pushState({}, "", path);
         this.handleRoute();
     }
-    
+
     handleRoute() {
         const path = window.location.pathname;
         this.currentRoute = path;
-        
+
         const handler = this.routes[path] || this.routes["*"];
-        
+
         if (handler) {
             handler();
         } else {
             this.show404();
         }
     }
-    
+
     show404() {
         document.querySelector("#app").innerHTML = `
             <h1>404 - ページが見つかりません</h1>
@@ -1388,7 +1411,7 @@ const pages = {
         </nav>
         <p>ようこそ、私たちのサイトへ！</p>
     `,
-    
+
     about: () => `
         <h1>会社概要</h1>
         <nav>
@@ -1397,7 +1420,7 @@ const pages = {
         </nav>
         <p>私たちは革新的なソリューションを提供する会社です。</p>
     `,
-    
+
     contact: () => `
         <h1>お問い合わせ</h1>
         <nav>
@@ -1431,13 +1454,14 @@ router
     })
     .addRoute("/contact", () => {
         document.querySelector("#app").innerHTML = pages.contact();
-        
+
         // お問い合わせフォームのイベント設定
         document.querySelector("#contactForm").addEventListener("submit", (e) => {
             e.preventDefault();
             alert("お問い合わせありがとうございます！");
         });
     });
+
 ```
 
 ## デバッグとテスト
@@ -1491,6 +1515,7 @@ try {
     console.log("エラーメッセージ:", error.message);
     console.log("スタックトレース:", error.stack);
 }
+
 ```
 
 ### 簡単なテストフレームワーク
@@ -1503,12 +1528,12 @@ class SimpleTest {
         this.passed = 0;
         this.failed = 0;
     }
-    
+
     test(description, testFunction) {
         this.tests.push({ description, testFunction });
         return this;
     }
-    
+
     assertEqual(actual, expected, message) {
         if (actual === expected) {
             console.log(`✅ ${message || 'Test passed'}`);
@@ -1518,18 +1543,18 @@ class SimpleTest {
             this.failed++;
         }
     }
-    
+
     assertTrue(value, message) {
         this.assertEqual(value, true, message);
     }
-    
+
     assertFalse(value, message) {
         this.assertEqual(value, false, message);
     }
-    
+
     run() {
         console.log("🚀 テスト開始");
-        
+
         this.tests.forEach(({ description, testFunction }) => {
             console.log(`\n📝 ${description}`);
             try {
@@ -1539,7 +1564,7 @@ class SimpleTest {
                 this.failed++;
             }
         });
-        
+
         console.log(`\n📊 結果: ${this.passed} passed, ${this.failed} failed`);
     }
 }
@@ -1568,6 +1593,7 @@ test
         this.assertEqual(multiply(0, 5), 0, "0 * 5 = 0");
     })
     .run();
+
 ```
 
 ## パフォーマンス最適化
@@ -1676,6 +1702,7 @@ const fibonacci = memoize(function(n) {
 });
 
 console.log(fibonacci(40)); // 大幅に高速化される
+
 ```
 
 ## 参考資料

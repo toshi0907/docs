@@ -49,41 +49,54 @@ HTMLは以下の3つの主要な役割を担います：
     <p>段落のテキストです。</p>
 </body>
 </html>
+
 ```
 
 ### 必須要素の説明
 
 #### DOCTYPE宣言
+
 ```html
 <!DOCTYPE html>
+
 ```
+
 - HTML5文書であることを宣言
 - ブラウザに正しい解釈モードを指示
 
 #### html要素
+
 ```html
 <html lang="ja">
+
 ```
+
 - 文書全体を囲む最上位要素
 - `lang`属性で言語を指定（日本語の場合は"ja"）
 
 #### head要素
+
 ```html
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ページタイトル</title>
 </head>
+
 ```
+
 - ページのメタデータを定義
 - ブラウザには表示されない情報
 
 #### body要素
+
 ```html
 <body>
     <!-- 実際のページ内容 -->
 </body>
+
 ```
+
 - ブラウザに表示される実際のコンテンツ
 
 ## 基本的なタグ
@@ -97,6 +110,7 @@ HTMLは以下の3つの主要な役割を担います：
 <h4>4番目に重要な見出し</h4>
 <h5>5番目に重要な見出し</h5>
 <h6>最も重要度の低い見出し</h6>
+
 ```
 
 **使用のポイント:**
@@ -111,6 +125,7 @@ HTMLは以下の3つの主要な役割を担います：
 
 <p>これは別の段落です。<br>
 途中で改行したい場合はbrタグを使用します。</p>
+
 ```
 
 ### テキストの強調
@@ -120,29 +135,35 @@ HTMLは以下の3つの主要な役割を担います：
 <em>強調されたテキスト（斜体で表示）</em>
 <mark>ハイライトされたテキスト</mark>
 <small>小さいテキスト</small>
+
 ```
 
 ### リスト
 
 #### 順序なしリスト（箇条書き）
+
 ```html
 <ul>
     <li>項目1</li>
     <li>項目2</li>
     <li>項目3</li>
 </ul>
+
 ```
 
 #### 順序ありリスト（番号付き）
+
 ```html
 <ol>
     <li>最初の項目</li>
     <li>2番目の項目</li>
     <li>3番目の項目</li>
 </ol>
+
 ```
 
 #### 定義リスト
+
 ```html
 <dl>
     <dt>HTML</dt>
@@ -150,6 +171,7 @@ HTMLは以下の3つの主要な役割を担います：
     <dt>CSS</dt>
     <dd>Cascading Style Sheets</dd>
 </dl>
+
 ```
 
 ## リンクと画像
@@ -171,6 +193,7 @@ HTMLは以下の3つの主要な役割を担います：
 
 <!-- 電話番号へのリンク -->
 <a href="tel:03-1234-5678">電話をかける</a>
+
 ```
 
 **リンク属性:**
@@ -185,11 +208,12 @@ HTMLは以下の3つの主要な役割を担います：
 <img src="image.jpg" alt="画像の説明">
 
 <!-- より詳細な画像設定 -->
-<img src="photo.jpg" 
-     alt="美しい夕日の写真" 
-     width="800" 
+<img src="photo.jpg"
+     alt="美しい夕日の写真"
+     width="800"
      height="600"
      loading="lazy">
+
 ```
 
 **重要な属性:**
@@ -224,6 +248,7 @@ HTMLは以下の3つの主要な役割を担います：
         </tr>
     </tbody>
 </table>
+
 ```
 
 ### 複雑なテーブル
@@ -249,6 +274,7 @@ HTMLは以下の3つの主要な役割を担います：
         </tr>
     </tbody>
 </table>
+
 ```
 
 ## フォーム
@@ -259,15 +285,16 @@ HTMLは以下の3つの主要な役割を担います：
 <form action="/submit" method="post">
     <label for="name">お名前:</label>
     <input type="text" id="name" name="name" required>
-    
+
     <label for="email">メールアドレス:</label>
     <input type="email" id="email" name="email" required>
-    
+
     <label for="message">メッセージ:</label>
     <textarea id="message" name="message" rows="4" cols="50"></textarea>
-    
+
     <button type="submit">送信</button>
 </form>
+
 ```
 
 ### 様々な入力タイプ
@@ -307,6 +334,7 @@ HTMLは以下の3つの主要な役割を担います：
     <option value="tokyo">東京都</option>
     <option value="osaka">大阪府</option>
 </select>
+
 ```
 
 ## セマンティックHTML
@@ -330,22 +358,22 @@ HTMLは以下の3つの主要な役割を担います：
             <h1>記事のタイトル</h1>
             <p>投稿日: <time datetime="2024-01-15">2024年1月15日</time></p>
         </header>
-        
+
         <section>
             <h2>セクション1</h2>
             <p>記事の内容...</p>
         </section>
-        
+
         <section>
             <h2>セクション2</h2>
             <p>記事の内容...</p>
         </section>
-        
+
         <footer>
             <p>著者: 田中太郎</p>
         </footer>
     </article>
-    
+
     <aside>
         <h2>関連記事</h2>
         <ul>
@@ -358,6 +386,7 @@ HTMLは以下の3つの主要な役割を担います：
 <footer>
     <p>&copy; 2024 My Website. All rights reserved.</p>
 </footer>
+
 ```
 
 ### セマンティック要素の説明
@@ -393,6 +422,7 @@ HTMLは以下の3つの主要な役割を担います：
 
 <!-- style: インラインスタイル -->
 <p style="color: red; font-weight: bold;">赤い太字</p>
+
 ```
 
 ### アクセシビリティ属性
@@ -410,6 +440,7 @@ HTMLは以下の3つの主要な役割を担います：
 
 <!-- tabindex: タブ順序の制御 -->
 <div tabindex="0">フォーカス可能な要素</div>
+
 ```
 
 ## メタデータとSEO
@@ -420,37 +451,38 @@ HTMLは以下の3つの主要な役割を担います：
 <head>
     <!-- 文字エンコーディング -->
     <meta charset="UTF-8">
-    
+
     <!-- ビューポート（レスポンシブ対応） -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- ページの説明 -->
     <meta name="description" content="Webサイトの説明文。検索結果に表示されます。">
-    
+
     <!-- キーワード（現在はSEO効果低） -->
     <meta name="keywords" content="HTML, CSS, JavaScript">
-    
+
     <!-- 著者情報 -->
     <meta name="author" content="作成者名">
-    
+
     <!-- ロボット制御 -->
     <meta name="robots" content="index, follow">
-    
+
     <!-- Open Graph（SNS共有用） -->
     <meta property="og:title" content="ページタイトル">
     <meta property="og:description" content="ページの説明">
     <meta property="og:image" content="https://example.com/image.jpg">
     <meta property="og:url" content="https://example.com/page">
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ページタイトル">
     <meta name="twitter:description" content="ページの説明">
-    
+
     <!-- ファビコン -->
     <link rel="icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
+
 ```
 
 ## HTML5の新機能
@@ -472,6 +504,7 @@ HTMLは以下の3つの主要な役割を担います：
 
 <!-- 電話番号入力 -->
 <input type="tel" placeholder="03-1234-5678">
+
 ```
 
 ### マルチメディア要素
@@ -492,12 +525,13 @@ HTMLは以下の3つの主要な役割を担います：
 </audio>
 
 <!-- 外部コンテンツの埋め込み -->
-<iframe src="https://www.youtube.com/embed/VIDEO_ID" 
-        width="560" 
-        height="315" 
-        frameborder="0" 
+<iframe src="https://www.youtube.com/embed/VIDEO_ID"
+        width="560"
+        height="315"
+        frameborder="0"
         allowfullscreen>
 </iframe>
+
 ```
 
 ### 図表要素
@@ -520,6 +554,7 @@ HTMLは以下の3つの主要な役割を担います：
 
 <!-- 測定値 -->
 <meter value="6" min="0" max="10">10点中6点</meter>
+
 ```
 
 ## ベストプラクティス
@@ -544,7 +579,7 @@ HTMLは以下の3つの主要な役割を担います：
             </ul>
         </nav>
     </header>
-    
+
     <main>
         <article>
             <h2>記事タイトル</h2>
@@ -553,6 +588,7 @@ HTMLは以下の3つの主要な役割を担います：
     </main>
 </body>
 </html>
+
 ```
 
 ### SEO対策
@@ -588,6 +624,7 @@ HTMLは以下の3つの主要な役割を担います：
 <!-- 正しい例 -->
 <p>段落のテキスト</p>
 <p>次の段落</p>
+
 ```
 
 ### 推奨されない書き方
@@ -602,6 +639,7 @@ HTMLは以下の3つの主要な役割を担います：
 <strong>重要</strong>
 <em>強調</em>
 <mark>ハイライト</mark>
+
 ```
 
 ## 開発ツール

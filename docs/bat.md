@@ -14,9 +14,11 @@ Windowsバッチファイル（.bat/.cmd）の基本的な使い方とコマン�
 ## 基本概念
 
 ### バッチファイルとは
+
 バッチファイルは、Windowsのコマンドプロンプトで実行される一連のコマンドを記述したテキストファイルです。拡張子は`.bat`または`.cmd`を使用します。
 
 ### 基本的な特徴
+
 - テキストエディタで編集可能
 - コマンドプロンプトのコマンドを自動実行
 - システム管理やファイル操作の自動化に使用
@@ -31,6 +33,7 @@ Windowsバッチファイル（.bat/.cmd）の基本的な使い方とコマン�
 rem これはコメントです
 echo Hello, World!
 pause
+
 ```
 
 **ファイルの保存:**
@@ -38,12 +41,16 @@ pause
 - 文字コードはShift_JISまたはUTF-8（BOM付き）で保存
 
 **実行方法:**
+
 ```batch
 # コマンドプロンプトから実行
+
 sample.bat
 
 # ダブルクリックで実行
+
 # またはエクスプローラーから右クリック → 開く
+
 ```
 
 ### 基本的なコマンド
@@ -55,6 +62,7 @@ echo 文字列        rem 文字列を表示
 pause              rem キー入力待ち
 cls                rem 画面をクリア
 exit               rem バッチファイルを終了
+
 ```
 
 ## 変数
@@ -72,6 +80,7 @@ rem 変数の表示
 echo 名前: %name%
 echo 年齢: %age%歳
 echo パス: %path_dir%
+
 ```
 
 ### ユーザー入力による変数設定
@@ -83,6 +92,7 @@ set /p password="パスワードを入力してください: "
 
 echo 入力されたユーザー名: %username%
 echo パスワードの文字数: %password%
+
 ```
 
 ### 環境変数
@@ -99,6 +109,7 @@ echo 現在の時刻: %TIME%
 rem 環境変数の設定（セッション中のみ有効）
 set MY_VAR=値
 echo %MY_VAR%
+
 ```
 
 ### 遅延環境変数
@@ -118,6 +129,7 @@ for /l %%i in (1,1,5) do (
     echo 通常の展開: %count%        rem 常に0が表示される
     echo 遅延展開: !count!          rem 正しく1,2,3,4,5が表示される
 )
+
 ```
 
 #### 遅延環境変数の構文
@@ -133,6 +145,7 @@ set message=Hello
 set message=World
 echo 通常の展開: %message%    rem Hello が表示される
 echo 遅延展開: !message!      rem World が表示される
+
 ```
 
 #### 実用的な例
@@ -157,6 +170,7 @@ for /l %%i in (1,1,3) do (
 for /l %%i in (1,1,3) do (
     echo !item%%i!
 )
+
 ```
 
 ## 出力とユーザー入力
@@ -175,6 +189,7 @@ echo 続きのテキスト
 rem ファイルへの出力
 echo テキスト内容 > output.txt          rem 上書き
 echo 追加内容 >> output.txt             rem 追記
+
 ```
 
 ### 文字色の変更
@@ -189,6 +204,7 @@ color 0C    rem 黒背景に明るい赤文字
 echo 赤色のテキスト
 
 color       rem デフォルトに戻す
+
 ```
 
 ## 条件分岐
@@ -204,6 +220,7 @@ if %num% == 10 (
 ) else (
     echo 入力された数字は10ではありません
 )
+
 ```
 
 ### ファイル・フォルダの存在確認
@@ -223,6 +240,7 @@ if exist "C:\temp\" (
 ) else (
     echo フォルダが存在しません
 )
+
 ```
 
 ### 文字列比較
@@ -240,6 +258,7 @@ if /i "%input%" == "yes" (
 )
 
 rem /i オプション: 大文字小文字を区別しない
+
 ```
 
 ## ループ
@@ -257,6 +276,7 @@ rem 特定の拡張子のファイルのみ処理
 for %%f in (*.txt) do (
     echo テキストファイル: %%f
 )
+
 ```
 
 ### for文（数値範囲）
@@ -272,6 +292,7 @@ rem 開始値、増分、終了値の指定
 for /l %%i in (0,2,10) do (
     echo 偶数: %%i
 )
+
 ```
 
 ### for文（ディレクトリ処理）
@@ -287,6 +308,7 @@ rem ディレクトリのみ処理
 for /d %%d in (*) do (
     echo ディレクトリ: %%d
 )
+
 ```
 
 ### while風ループ（goto使用）
@@ -303,6 +325,7 @@ goto loop
 
 :end
 echo ループ終了
+
 ```
 
 ## ファイル・ディレクトリ操作
@@ -325,6 +348,7 @@ del /q "sample.txt"
 
 rem 複数ファイルの削除
 del *.tmp
+
 ```
 
 ### ディレクトリ操作
@@ -346,6 +370,7 @@ cd "C:\Users\Public"
 
 rem 現在のディレクトリを表示
 cd
+
 ```
 
 ### ファイル・ディレクトリの一覧
@@ -361,6 +386,7 @@ dir /s          rem サブディレクトリも含む
 rem ツリー表示
 tree
 tree /f         rem ファイルも含む
+
 ```
 
 ## よく使用されるコマンド
@@ -379,6 +405,7 @@ findstr "正規表現" "sample.txt"
 rem ファイルの先頭/末尾表示（PowerShellコマンドを使用）
 powershell "Get-Content sample.txt | Select-Object -First 10"
 powershell "Get-Content sample.txt | Select-Object -Last 10"
+
 ```
 
 ### システム情報
@@ -397,6 +424,7 @@ sc query
 rem ネットワーク情報
 ipconfig
 ipconfig /all
+
 ```
 
 ### 日付・時刻操作
@@ -414,6 +442,7 @@ rem タイムスタンプ付きファイル名
 set timestamp=%DATE:~0,4%%DATE:~5,2%%DATE:~8,2%_%TIME:~0,2%%TIME:~3,2%%TIME:~6,2%
 set timestamp=%timestamp: =0%
 echo backup_%timestamp%.txt
+
 ```
 
 ## エラーハンドリング
@@ -431,6 +460,7 @@ if %errorlevel% == 0 (
 ) else (
     echo コピー失敗（エラーレベル: %errorlevel%）
 )
+
 ```
 
 ### エラー出力の制御
@@ -445,6 +475,7 @@ command > all_output.txt 2>&1
 
 rem エラー出力を無視
 command 2>nul
+
 ```
 
 ## 実用的な例
@@ -477,6 +508,7 @@ if %errorlevel% == 0 (
 )
 
 pause
+
 ```
 
 ### ログ削除スクリプト
@@ -495,6 +527,7 @@ powershell "Get-ChildItem '%log_dir%\*.log' | Where-Object {$_.LastWriteTime -lt
 
 echo 古いログファイルの削除が完了しました
 pause
+
 ```
 
 ### システム情報収集スクリプト
@@ -524,6 +557,7 @@ tasklist >> %report_file%
 
 echo レポートが作成されました: %report_file%
 pause
+
 ```
 
 ### 環境設定スクリプト
@@ -551,6 +585,7 @@ echo PROJECT_PATH: %PROJECT_PATH%
 echo TOOLS_PATH: %TOOLS_PATH%
 
 pause
+
 ```
 
 このリファレンスを参考に、効率的なバッチファイルを作成してください。

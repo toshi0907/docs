@@ -36,16 +36,16 @@ title: "API リファレンス"
 async function getWeatherForecast(city, days = 3) {
     const apiKey = 'YOUR_API_KEY'; // 実際のAPIキーに置き換えてください
     const baseUrl = 'http://api.weatherapi.com/v1/forecast.json';
-    
+
     try {
         const response = await fetch(
             `${baseUrl}?key=${apiKey}&q=${city}&days=${days}&aqi=no&alerts=no`
         );
-        
+
         if (!response.ok) {
             throw new Error(`HTTP エラー! ステータス: ${response.status}`);
         }
-        
+
         const data = await response.json();
         return data;
     } catch (error) {
@@ -62,6 +62,7 @@ getWeatherForecast('東京', 3)
             console.log('予報:', data.forecast);
         }
     });
+
 ```
 
 ### APIキーの取得方法
@@ -98,7 +99,7 @@ class YahooWeatherAPI {
         this.clientId = clientId;
         this.baseUrl = 'https://map.yahooapis.jp/weather/V1/place';
     }
-    
+
     /**
      * 座標を指定して天気情報を取得
      * @param {number} longitude - 経度
@@ -107,16 +108,16 @@ class YahooWeatherAPI {
      */
     async getWeatherByCoordinates(longitude, latitude) {
         const coordinates = `${longitude},${latitude}`;
-        
+
         try {
             const response = await fetch(
                 `${this.baseUrl}?coordinates=${coordinates}&appid=${this.clientId}&output=json`
             );
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP エラー! ステータス: ${response.status}`);
             }
-            
+
             const data = await response.json();
             return data;
         } catch (error) {
@@ -124,7 +125,7 @@ class YahooWeatherAPI {
             return null;
         }
     }
-    
+
     /**
      * 天気データを読みやすい形式に整形
      * @param {Object} weatherData - APIレスポンス
@@ -134,10 +135,10 @@ class YahooWeatherAPI {
         if (!weatherData || !weatherData.Feature) {
             return null;
         }
-        
+
         const feature = weatherData.Feature[0];
         const weather = feature.Property.WeatherList.Weather[0];
-        
+
         return {
             地域: feature.Name,
             天気: weather.Type,
@@ -158,6 +159,7 @@ yahooWeather.getWeatherByCoordinates(139.7671, 35.6812)
             console.log('Yahoo! 天気情報:', formatted);
         }
     });
+
 ```
 
 ### APIキーの取得方法
@@ -178,21 +180,21 @@ async function safeApiRequest(url, options = {}) {
         timeout: 10000, // 10秒のタイムアウト
         retries: 3     // 3回までリトライ
     };
-    
+
     const config = { ...defaultOptions, ...options };
-    
+
     for (let attempt = 1; attempt <= config.retries; attempt++) {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), config.timeout);
-            
+
             const response = await fetch(url, {
                 signal: controller.signal,
                 ...config.fetchOptions
             });
-            
+
             clearTimeout(timeoutId);
-            
+
             if (!response.ok) {
                 if (response.status === 429) {
                     // レート制限の場合は待機してリトライ
@@ -202,22 +204,23 @@ async function safeApiRequest(url, options = {}) {
                 }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
+
             return await response.json();
-            
+
         } catch (error) {
             if (attempt === config.retries) {
                 throw error; // 最後の試行で失敗した場合は例外を投げる
             }
-            
+
             console.warn(`API リクエスト失敗 (試行 ${attempt}/${config.retries}):`, error.message);
-            
+
             // エラーの種類に応じて待機時間を調整
             const waitTime = error.name === 'AbortError' ? 2000 : 1000;
             await new Promise(resolve => setTimeout(resolve, waitTime));
         }
     }
 }
+
 ```
 
 ### セキュリティのベストプラクティス

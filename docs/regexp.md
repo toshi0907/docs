@@ -35,7 +35,9 @@ title: "正規表現 リファレンス"
 
 ```regex
 hello
+
 ```
+
 - 文字列 "hello" に完全一致
 
 ### メタ文字
@@ -44,13 +46,16 @@ hello
 
 ```regex
 . ^ $ * + ? { } [ ] \ | ( )
+
 ```
 
 ### ドット（.）- 任意の一文字
 
 ```regex
 h.llo
+
 ```
+
 - "hello", "hallo", "h3llo" などにマッチ
 - 改行文字以外の任意の一文字
 
@@ -65,6 +70,7 @@ h.llo
 [0-9]        # 数字一文字
 [a-zA-Z]     # アルファベット一文字
 [a-zA-Z0-9]  # 英数字一文字
+
 ```
 
 #### 否定文字クラス
@@ -72,6 +78,7 @@ h.llo
 ```regex
 [^abc]       # a, b, c 以外の文字
 [^0-9]       # 数字以外の文字
+
 ```
 
 #### 定義済み文字クラス
@@ -83,6 +90,7 @@ h.llo
 \W    # 単語文字以外 [^a-zA-Z0-9_]
 \s    # 空白文字（スペース、タブ、改行など）
 \S    # 空白文字以外
+
 ```
 
 ## 量詞（Quantifiers）
@@ -96,6 +104,7 @@ h.llo
 {n}    # ちょうどn回
 {n,}   # n回以上
 {n,m}  # n回以上m回以下
+
 ```
 
 ### 実用例
@@ -106,6 +115,7 @@ h.llo
 \d{2,4}       # 2～4桁の数字
 colou?r       # "color" または "colour"
 ab*c          # "ac", "abc", "abbc", "abbbc" など
+
 ```
 
 ### 貪欲（Greedy）と非貪欲（Non-greedy）
@@ -114,16 +124,20 @@ ab*c          # "ac", "abc", "abbc", "abbbc" など
 .*      # 貪欲：可能な限り長くマッチ
 .*?     # 非貪欲：最短でマッチ
 .+?     # 非貪欲：1回以上の最短マッチ
+
 ```
 
 **例：**
+
 ```html
 <div>Hello</div><div>World</div>
+
 ```
 
 ```regex
 <div>.*</div>     # "<div>Hello</div><div>World</div>" 全体
 <div>.*?</div>    # "<div>Hello</div>" のみ
+
 ```
 
 ## アンカー
@@ -137,6 +151,7 @@ $      # 行の終了
 \Z     # 文字列の終了
 \b     # 単語境界
 \B     # 単語境界以外
+
 ```
 
 ### 実用例
@@ -146,6 +161,7 @@ $      # 行の終了
 World$     # 行の末尾の "World"
 \bcat\b    # 独立した単語としての "cat"
 ^\d+$      # 行全体が数字のみ
+
 ```
 
 ## グループ化とキャプチャ
@@ -156,6 +172,7 @@ World$     # 行の末尾の "World"
 (abc)          # グループ化とキャプチャ
 (?:abc)        # グループ化のみ（非キャプチャ）
 (a|b|c)        # いずれか一つ（OR演算）
+
 ```
 
 ### 後方参照
@@ -163,6 +180,7 @@ World$     # 行の末尾の "World"
 ```regex
 (hello) \1     # "hello hello" にマッチ
 (\w+) \1       # 同じ単語の繰り返し
+
 ```
 
 ### 名前付きキャプチャ
@@ -170,6 +188,7 @@ World$     # 行の末尾の "World"
 ```regex
 (?<name>\w+)   # 名前付きキャプチャ（言語により記法が異なる）
 (?P<name>\w+)  # Python式の名前付きキャプチャ
+
 ```
 
 ## 先読み・後読み
@@ -179,12 +198,15 @@ World$     # 行の末尾の "World"
 ```regex
 (?=...)        # 正の先読み
 (?!...)        # 負の先読み
+
 ```
 
 **例：**
+
 ```regex
 \d+(?=円)      # "円" が後に続く数字
 \d+(?!円)      # "円" が後に続かない数字
+
 ```
 
 ### 後読み（Lookbehind）
@@ -192,12 +214,15 @@ World$     # 行の末尾の "World"
 ```regex
 (?<=...)       # 正の後読み
 (?<!...)       # 負の後読み
+
 ```
 
 **例：**
+
 ```regex
 (?<=\$)\d+     # "$" が前にある数字
 (?<!\$)\d+     # "$" が前にない数字
+
 ```
 
 ## 実用的なパターン集
@@ -206,63 +231,82 @@ World$     # 行の末尾の "World"
 
 ```regex
 # 固定電話
+
 0\d{1,4}-\d{1,4}-\d{4}
 
 # 携帯電話
+
 0[789]0-\d{4}-\d{4}
 
 # 一般的な形式
+
 0\d{1,4}-?\d{1,4}-?\d{4}
+
 ```
 
 ### メールアドレス
 
 ```regex
 # 簡単な形式
+
 [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}
 
 # より厳密な形式
+
 ^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$
+
 ```
 
 ### URL
 
 ```regex
 # HTTP/HTTPS URL
+
 https?://[^\s/$.?#].[^\s]*
 
 # より詳細
+
 ^https?://(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$
+
 ```
 
 ### 日付
 
 ```regex
 # YYYY/MM/DD
+
 \d{4}/\d{1,2}/\d{1,2}
 
 # YYYY-MM-DD
+
 \d{4}-\d{2}-\d{2}
 
 # DD/MM/YYYY または MM/DD/YYYY
+
 \d{1,2}/\d{1,2}/\d{4}
+
 ```
 
 ### IPアドレス
 
 ```regex
 # 簡単な形式
+
 \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}
 
 # より厳密な形式（0-255の範囲をチェック）
+
 ^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$
+
 ```
 
 ### パスワード強度
 
 ```regex
 # 最低8文字、大文字小文字数字記号を含む
+
 ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
+
 ```
 
 ## 言語・ツール別の使用例
@@ -275,15 +319,18 @@ import re
 text = "電話番号: 090-1234-5678, 03-1234-5678"
 
 # 検索
+
 pattern = r'\d{2,4}-\d{4}-\d{4}'
 matches = re.findall(pattern, text)
 print(matches)  # ['090-1234-5678', '03-1234-5678']
 
 # 置換
+
 masked = re.sub(r'\d{3}-\d{4}-\d{4}', 'XXX-XXXX-XXXX', text)
 print(masked)
 
 # マッチオブジェクトの使用
+
 match = re.search(r'(\d{3})-(\d{4})-(\d{4})', text)
 if match:
     print(f"全体: {match.group(0)}")
@@ -292,9 +339,11 @@ if match:
     print(f"番号2: {match.group(3)}")
 
 # コンパイル済みパターン
+
 pattern = re.compile(r'\d+')
 numbers = pattern.findall("価格は1000円、税込み1100円です")
 print(numbers)  # ['1000', '1100']
+
 ```
 
 ### JavaScript
@@ -325,6 +374,7 @@ if (match) {
     console.log(`ホスト: ${match[2]}`);
     console.log(`パス: ${match[3] || '/'}`);
 }
+
 ```
 
 ### コマンドラインツール
@@ -333,42 +383,55 @@ if (match) {
 
 ```bash
 # ファイル内の検索
+
 grep -E '\d{3}-\d{4}-\d{4}' file.txt
 
 # IPアドレスの検索
+
 grep -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' access.log
 
 # 大文字小文字を区別しない検索
+
 grep -iE 'error|warning' log.txt
 
 # 行番号付きで表示
+
 grep -nE 'function\s+\w+' script.js
+
 ```
 
 #### sed
 
 ```bash
 # 電話番号をマスク
+
 sed -E 's/[0-9]{3}-[0-9]{4}-[0-9]{4}/XXX-XXXX-XXXX/g' file.txt
 
 # HTMLタグの除去
+
 sed -E 's/<[^>]*>//g' html_file.txt
 
 # 複数の空白を一つに
+
 sed -E 's/[[:space:]]+/ /g' file.txt
 
 # 行の先頭の空白を除去
+
 sed -E 's/^[[:space:]]*//' file.txt
+
 ```
 
 #### awk
 
 ```bash
 # パターンマッチした行の処理
+
 awk '/[0-9]{4}-[0-9]{2}-[0-9]{2}/ {print "日付:", $0}' file.txt
 
 # フィールドの抽出
+
 awk '$1 ~ /^[0-9]+$/ {print "数字:", $1}' data.txt
+
 ```
 
 ### Vim/Neovim
@@ -385,6 +448,7 @@ awk '$1 ~ /^[0-9]+$/ {print "数字:", $1}' data.txt
 
 " 単語境界を使った検索
 /\<word\>
+
 ```
 
 ## デバッグとテスト
@@ -398,6 +462,7 @@ awk '$1 ~ /^[0-9]+$/ {print "数字:", $1}' data.txt
 ### デバッグのコツ
 
 1. **小さなパターンから始める**
+
    ```regex
    # 段階的に構築
    \d           # 数字一文字
@@ -405,18 +470,23 @@ awk '$1 ~ /^[0-9]+$/ {print "数字:", $1}' data.txt
    \d{3}        # 3桁の数字
    \d{3}-       # 3桁の数字とハイフン
    \d{3}-\d{4}  # 最終形
+
    ```
 
 2. **キャプチャグループを使った確認**
+
    ```regex
    # デバッグ用
    (\d{3})-(\d{4})-(\d{4})
+
    ```
 
 3. **フラグを活用**
+
    ```regex
    # 大文字小文字を区別しない（言語により記法が異なる）
    /pattern/i
+
    ```
 
 ## パフォーマンスの考慮事項
@@ -425,24 +495,31 @@ awk '$1 ~ /^[0-9]+$/ {print "数字:", $1}' data.txt
 
 ```regex
 # Good: 具体的
+
 ^(https?|ftp)://
 
 # Bad: 非効率
+
 ^(h|f).*(s|p)://
 
 # Good: 非キャプチャグループ
+
 (?:abc|def)+
 
 # Bad: 不要なキャプチャ
+
 (abc|def)+
+
 ```
 
 ### 回避すべきパターン
 
 ```regex
 # 破滅的バックトラッキング（避ける）
+
 (a+)+b
 (a*)*
+
 ```
 
 ## よくある間違いと対策
@@ -451,31 +528,40 @@ awk '$1 ~ /^[0-9]+$/ {print "数字:", $1}' data.txt
 
 ```regex
 # Wrong: ドット文字をリテラルとして扱いたい場合
+
 example.com
 
 # Correct: エスケープが必要
+
 example\.com
+
 ```
 
 ### 量詞の適用範囲
 
 ```regex
 # Wrong: "ab" の繰り返しを意図している場合
+
 ab+
 
 # Correct: グループ化が必要
+
 (ab)+
+
 ```
 
 ### 文字クラス内での特殊文字
 
 ```regex
 # Wrong: ハイフンを文字として扱いたい場合
+
 [a-z-A-Z]
 
 # Correct: ハイフンは最初か最後に配置
+
 [-a-zA-Z]
 [a-zA-Z-]
+
 ```
 
 ## 実際の使用例
@@ -484,13 +570,17 @@ ab+
 
 ```bash
 # Apacheアクセスログの解析
+
 grep -E '^[0-9.]+.*"GET /api/' access.log
 
 # エラーログの抽出
+
 grep -E '(ERROR|FATAL|CRITICAL)' application.log
 
 # IPアドレス別アクセス数
+
 grep -oE '^[0-9.]+' access.log | sort | uniq -c | sort -nr
+
 ```
 
 ### データクリーニング
@@ -501,17 +591,19 @@ import re
 def clean_phone_number(phone):
     # 数字以外を除去
     digits = re.sub(r'[^\d]', '', phone)
-    
+
     # 11桁の携帯電話番号の場合
     if len(digits) == 11 and digits.startswith('0'):
         return f"{digits[:3]}-{digits[3:7]}-{digits[7:]}"
-    
+
     return phone
 
 # テストデータ
+
 phones = ["090-1234-5678", "090 1234 5678", "09012345678", "(090)1234-5678"]
 for phone in phones:
     print(f"{phone} -> {clean_phone_number(phone)}")
+
 ```
 
 ### バリデーション
@@ -524,17 +616,18 @@ function validateForm(data) {
         zipcode: /^\d{3}-\d{4}$/,
         password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
     };
-    
+
     const errors = {};
-    
+
     for (const [field, pattern] of Object.entries(patterns)) {
         if (data[field] && !pattern.test(data[field])) {
             errors[field] = `Invalid ${field} format`;
         }
     }
-    
+
     return errors;
 }
+
 ```
 
 ## 参考情報

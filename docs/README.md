@@ -32,6 +32,7 @@ title: "GitHub Pagesセットアップガイド"
 cd docs
 bundle install
 bundle exec jekyll serve
+
 ```
 
 ローカルでは `http://localhost:4000/docs/` でサイトを確認できます。
