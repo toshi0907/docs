@@ -19,6 +19,7 @@ header_pages:
   - api.md
   - git.md
   - github.md
+  - gdb.md
   - html.md
   - css.md
   - javascript.md
