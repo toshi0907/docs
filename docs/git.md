@@ -1690,6 +1690,286 @@ git tag -d v1.0.0
 
 ```
 
+### git-new-workdir
+
+`git-new-workdir`は、同一リポジトリの複数の作業ディレクトリを作成するGitのユーティリティスクリプトです。同じリポジトリで複数のブランチを同時に作業したい場合に非常に便利です。
+
+#### git-new-workdirとは
+
+通常、一つのリポジトリでは一度に一つのブランチしかチェックアウトできませんが、`git-new-workdir`を使用することで、同じリポジトリのデータを共有しながら複数の作業ディレクトリを持つことができます。
+
+#### インストールと設定
+
+```bash
+# Git本体のcontribスクリプトから取得（Ubuntu/Debian）
+sudo apt-get install git-core
+
+# 手動でスクリプトを取得
+curl -o /usr/local/bin/git-new-workdir \
+  https://raw.githubusercontent.com/git/git/master/contrib/workdir/git-new-workdir
+chmod +x /usr/local/bin/git-new-workdir
+
+# macOSの場合（Homebrewでのインストール後）
+# /usr/local/share/git-core/contrib/workdir/git-new-workdir が利用可能
+```
+
+#### 基本的な使用方法
+
+```bash
+# 基本構文
+git-new-workdir <リポジトリパス> <新しい作業ディレクトリ> [ブランチ名]
+
+# 例：現在のリポジトリから新しい作業ディレクトリを作成
+git-new-workdir . ../my-project-feature feature-branch
+
+# 異なるリポジトリから作業ディレクトリを作成
+git-new-workdir /path/to/main/repo /path/to/new/workdir develop
+
+# ブランチを指定せずに作成（HEADブランチを使用）
+git-new-workdir . ../my-project-hotfix
+```
+
+#### 実用的な使用例
+
+```bash
+# メインプロジェクトディレクトリ
+cd ~/projects/my-app
+
+# 機能開発用の作業ディレクトリを作成
+git-new-workdir . ../my-app-feature feature/new-ui
+
+# バグ修正用の作業ディレクトリを作成
+git-new-workdir . ../my-app-hotfix hotfix/critical-bug
+
+# レビュー用の作業ディレクトリを作成
+git-new-workdir . ../my-app-review review-branch
+
+# 作業ディレクトリを切り替えて同時作業
+cd ../my-app-feature
+# 機能開発作業...
+
+cd ../my-app-hotfix
+# バグ修正作業...
+
+cd ../my-app
+# メインブランチでの作業...
+```
+
+#### Windows環境での考慮事項
+
+Windows環境では、シンボリックリンクの制限により、`git-new-workdir`の動作に注意が必要です。
+
+**シンボリックリンクが使用できない場合の問題：**
+
+```bash
+# Windows（管理者権限なし）では、以下のようなエラーが発生する可能性があります
+git-new-workdir . ../new-workdir
+# エラー: シンボリックリンクの作成に失敗しました
+```
+
+**Windows環境での対処法：**
+
+1. **管理者権限でコマンドプロンプトを実行**
+```cmd
+# 管理者として実行し、開発者モードを有効にする
+# Windows 10/11では設定 > 更新とセキュリティ > 開発者向け > 開発者モード
+```
+
+2. **Git for Windowsの設定を確認**
+```bash
+# シンボリックリンクサポートを有効化
+git config --global core.symlinks true
+```
+
+3. **代替手段：git worktree（推奨）**
+```bash
+# Git 2.5以降で利用可能な公式機能
+git worktree add ../my-project-feature feature-branch
+
+# 作業ディレクトリの一覧表示
+git worktree list
+
+# 作業ディレクトリの削除
+git worktree remove ../my-project-feature
+```
+
+#### git worktreeとの比較
+
+現在は、`git-new-workdir`よりも公式の`git worktree`コマンドの使用が推奨されています：
+
+```bash
+# git-new-workdir（従来の方法）
+git-new-workdir . ../new-workdir feature-branch
+
+# git worktree（推奨される方法）
+git worktree add ../new-workdir feature-branch
+
+# 利点：
+# - 公式サポート
+# - Windows環境での安定性
+# - より安全な実装
+# - 統合された管理機能
+```
+
+#### 注意事項
+
+- リポジトリサイズに応じて共有される`.git`ディレクトリが複数の作業ディレクトリから参照される
+- 同じブランチを複数の作業ディレクトリでチェックアウトすることは避ける
+- 作業ディレクトリを削除する際は、適切にクリーンアップを行う
+- Windows環境では`git worktree`の使用を推奨
+
+### diff-highlight
+
+`diff-highlight`は、Gitの差分表示をより読みやすくするためのツールです。変更された行内で、実際に変更された部分のみをハイライト表示します。
+
+#### diff-highlightとは
+
+通常のGitの差分表示では、行全体が変更されたように表示されますが、`diff-highlight`を使用することで、行内の実際に変更された部分のみが強調表示され、コードレビューや変更内容の確認が格段に効率的になります。
+
+#### インストール方法
+
+```bash
+# Git本体に含まれているスクリプトを使用（Ubuntu/Debian）
+sudo apt-get install git
+
+# diff-highlightスクリプトの場所を確認
+find /usr -name "diff-highlight" 2>/dev/null
+
+# 一般的な場所
+# /usr/share/git-core/contrib/diff-highlight/diff-highlight
+# /usr/local/share/git-core/contrib/diff-highlight/diff-highlight
+
+# 実行可能にして、PATHに追加
+sudo chmod +x /usr/share/git-core/contrib/diff-highlight/diff-highlight
+sudo ln -s /usr/share/git-core/contrib/diff-highlight/diff-highlight /usr/local/bin/
+
+# macOSの場合（Homebrewでのインストール後）
+ls /usr/local/share/git-core/contrib/diff-highlight/
+chmod +x /usr/local/share/git-core/contrib/diff-highlight/diff-highlight
+```
+
+#### 手動インストール
+
+```bash
+# Gitリポジトリから直接取得
+curl -o ~/bin/diff-highlight \
+  https://raw.githubusercontent.com/git/git/master/contrib/diff-highlight/diff-highlight
+chmod +x ~/bin/diff-highlight
+
+# PATHに~/binが含まれていることを確認
+echo $PATH
+```
+
+#### Gitとの統合設定
+
+```bash
+# diff-highlightをGitのページャーとして設定
+git config --global core.pager 'diff-highlight | less'
+
+# または、より詳細な設定
+git config --global pager.log 'diff-highlight | less'
+git config --global pager.show 'diff-highlight | less'
+git config --global pager.diff 'diff-highlight | less'
+
+# インタラクティブな差分でも使用
+git config --global interactive.diffFilter 'diff-highlight'
+```
+
+#### 使用例
+
+```bash
+# 通常のdiffコマンドで自動的にハイライトが適用される
+git diff
+
+# ログ表示時にもハイライトが適用される
+git log -p
+
+# 特定のコミットの変更をハイライト表示
+git show commit-hash
+
+# ブランチ間の差分をハイライト表示
+git diff main..feature-branch
+
+# ファイル指定での差分ハイライト
+git diff HEAD~1 -- filename.txt
+```
+
+#### 色の設定カスタマイズ
+
+```bash
+# ハイライト色をカスタマイズ
+git config --global color.diff-highlight.oldNormal 'red bold'
+git config --global color.diff-highlight.oldHighlight 'red bold 52'
+git config --global color.diff-highlight.newNormal 'green bold'
+git config --global color.diff-highlight.newHighlight 'green bold 22'
+
+# デフォルト色の確認
+git config --get-regexp color.diff-highlight
+```
+
+#### 高度な設定例
+
+```bash
+# lessのオプションと組み合わせた設定
+git config --global core.pager 'diff-highlight | less -R'
+
+# 複数のツールとの組み合わせ
+git config --global core.pager 'diff-highlight | diff-so-fancy | less --tabs=4 -RFX'
+
+# エイリアスとして設定
+git config --global alias.dh '!git diff --color=always "$@" | diff-highlight'
+
+# 使用例：エイリアスを使った差分表示
+git dh HEAD~1
+```
+
+#### 動作確認とテスト
+
+```bash
+# diff-highlightが正しく動作するかテスト
+echo "before text here" > test.txt
+git add test.txt
+git commit -m "初期テキスト"
+
+echo "after text modified here" > test.txt
+git diff
+
+# 期待される結果：
+# - 行内の変更部分のみがハイライト表示される
+# - "before"が赤でハイライト、"after"と"modified"が緑でハイライト
+```
+
+#### トラブルシューティング
+
+```bash
+# diff-highlightが見つからない場合
+which diff-highlight
+
+# スクリプトの権限を確認
+ls -la $(which diff-highlight)
+
+# 設定を確認
+git config --get core.pager
+
+# 設定をリセット（必要に応じて）
+git config --global --unset core.pager
+git config --global --unset pager.diff
+
+# シンプルな設定で動作確認
+git config --global core.pager 'diff-highlight | less'
+```
+
+#### 他のツールとの組み合わせ
+
+```bash
+# delta（より高機能な差分表示ツール）と組み合わせ
+git config --global core.pager 'delta'
+git config --global interactive.diffFilter 'delta --color-only'
+
+# diff-so-fancyとの組み合わせ
+git config --global core.pager 'diff-so-fancy | less --tabs=4 -RFX'
+```
+
 ## フック
 
 ### フックとは
