@@ -1818,6 +1818,296 @@ git worktree add ../new-workdir feature-branch
 - 作業ディレクトリを削除する際は、適切にクリーンアップを行う
 - Windows環境では`git worktree`の使用を推奨
 
+### git worktree
+
+`git worktree`は、Git 2.5以降で導入された公式機能で、一つのリポジトリから複数の作業ディレクトリを管理することができます。同じリポジトリで複数のブランチを同時に作業する際に非常に便利です。
+
+#### git worktreeとは
+
+`git worktree`を使用することで、同一リポジトリの異なるブランチを別々のディレクトリで同時に作業できます。従来の`git-new-workdir`とは異なり、Git本体に組み込まれた公式機能のため、より安全で安定した動作が期待できます。
+
+#### 基本的な概念
+
+- **メインワークツリー**: 通常の`.git`ディレクトリを含むリポジトリ
+- **リンクワークツリー**: メインワークツリーから作成される追加の作業ディレクトリ
+- **共有**: `.git`ディレクトリの大部分がメインワークツリーと共有される
+- **独立性**: 各ワークツリーで異なるブランチを独立してチェックアウト可能
+
+#### 基本的な使用方法
+
+```bash
+# 基本構文
+git worktree add <パス> [<ブランチ名>]
+
+# 既存のブランチから新しいワークツリーを作成
+git worktree add ../feature-work feature-branch
+
+# 新しいブランチを作成して同時にワークツリーを作成
+git worktree add -b new-feature ../new-feature-work
+
+# 特定のコミットからワークツリーを作成
+git worktree add ../hotfix-work abc1234
+
+# HEADから新しいワークツリーを作成
+git worktree add ../review-work
+```
+
+#### 実用的な使用例
+
+```bash
+# 現在のプロジェクトディレクトリ
+cd ~/projects/my-app
+
+# 機能開発用のワークツリーを作成
+git worktree add ../my-app-feature feature/user-authentication
+
+# バグ修正用のワークツリーを作成  
+git worktree add ../my-app-bugfix -b hotfix/login-issue
+
+# レビュー用のワークツリーを作成（特定のPRをチェックアウト）
+git worktree add ../my-app-review origin/pull/123/head
+
+# 実験用のワークツリーを作成
+git worktree add ../my-app-experiment -b experiment/new-architecture
+
+# 並行作業の例
+cd ../my-app-feature
+# 新機能の開発作業...
+git add .
+git commit -m "認証機能を追加"
+
+cd ../my-app-bugfix  
+# バグ修正作業...
+git add .
+git commit -m "ログイン問題を修正"
+
+cd ../my-app
+# メインブランチでの他の作業...
+```
+
+#### ワークツリーの管理
+
+```bash
+# 現在のワークツリー一覧を表示
+git worktree list
+# 出力例:
+# /home/user/projects/my-app         abc1234 [main]
+# /home/user/projects/my-app-feature def5678 [feature/user-authentication]
+# /home/user/projects/my-app-bugfix  ghi9012 [hotfix/login-issue]
+
+# 詳細情報付きでワークツリー一覧を表示
+git worktree list --verbose
+# 出力例:
+# /home/user/projects/my-app         abc1234 [main]
+# /home/user/projects/my-app-feature def5678 [feature/user-authentication]
+# /home/user/projects/my-app-bugfix  ghi9012 [hotfix/login-issue] prunable
+
+# ワークツリーの削除
+git worktree remove ../my-app-feature
+
+# 強制削除（未保存の変更がある場合）
+git worktree remove --force ../my-app-feature
+
+# 古いワークツリーのクリーンアップ（削除されたディレクトリの参照を除去）
+git worktree prune
+
+# 詳細なpruning情報を表示
+git worktree prune --verbose
+
+# dry-run（実際には削除せずに何が削除されるかを確認）
+git worktree prune --dry-run
+```
+
+#### 高度な使用方法
+
+```bash
+# リモートブランチから直接ワークツリーを作成
+git worktree add ../feature-review origin/feature/new-api
+
+# 特定のコミットからワークツリーを作成してブランチ名を指定
+git worktree add -b review-v1.0 ../review-v1.0 v1.0.0
+
+# detached HEADでワークツリーを作成
+git worktree add --detach ../investigation abc1234
+
+# ワークツリー作成時にブランチのトラッキング設定
+git worktree add --track -b local-feature ../feature-work origin/feature
+
+# 異なるコミットからの複数ワークツリー管理
+git worktree add ../release-1.0 v1.0.0
+git worktree add ../release-1.1 v1.1.0  
+git worktree add ../main-branch main
+```
+
+#### ワークフロー例：並行開発
+
+```bash
+# プロジェクトのセットアップ
+cd ~/projects/web-app
+
+# 1. 機能A開発用のワークツリー
+git worktree add ../web-app-feature-a -b feature/shopping-cart
+
+# 2. 機能B開発用のワークツリー
+git worktree add ../web-app-feature-b -b feature/user-profile
+
+# 3. バグ修正用のワークツリー
+git worktree add ../web-app-hotfix -b hotfix/payment-issue
+
+# 4. 各ワークツリーで並行作業
+cd ../web-app-feature-a
+# ショッピングカート機能の開発...
+echo "shopping cart feature" > cart.js
+git add cart.js
+git commit -m "ショッピングカート機能を追加"
+
+cd ../web-app-feature-b
+# ユーザープロフィール機能の開発...
+echo "user profile feature" > profile.js
+git add profile.js
+git commit -m "ユーザープロフィール機能を追加"
+
+cd ../web-app-hotfix
+# 緊急バグ修正...
+echo "payment fix" > payment.js
+git add payment.js
+git commit -m "決済バグを緊急修正"
+
+# 5. メインブランチに変更をマージ
+cd ../web-app
+git checkout main
+
+# ホットフィックスを最初にマージ（緊急性が高いため）
+git merge hotfix/payment-issue
+
+# 機能AとBを順次マージ
+git merge feature/shopping-cart
+git merge feature/user-profile
+
+# 6. 完了したワークツリーを削除
+git worktree remove ../web-app-hotfix
+git worktree remove ../web-app-feature-a
+git worktree remove ../web-app-feature-b
+
+# ブランチも削除（必要に応じて）
+git branch -d hotfix/payment-issue
+git branch -d feature/shopping-cart
+git branch -d feature/user-profile
+```
+
+#### 注意事項とベストプラクティス
+
+**注意事項：**
+
+```bash
+# 同じブランチを複数のワークツリーでチェックアウトすることはできない
+git worktree add ../duplicate main
+# エラー: fatal: 'main' is already checked out at '/home/user/projects/my-app'
+
+# ワークツリーが存在しない場合のエラー
+git worktree remove ../non-existent
+# エラー: fatal: '../non-existent' is not a working tree
+
+# 未保存の変更があるワークツリーの削除
+git worktree remove ../modified-work
+# エラー: fatal: '../modified-work' contains modified or untracked files, use --force to delete it
+```
+
+**ベストプラクティス：**
+
+```bash
+# 1. 定期的なクリーンアップ
+git worktree prune --dry-run  # 削除対象を確認
+git worktree prune           # 実際に削除
+
+# 2. 意味のあるディレクトリ名を使用
+git worktree add ../myapp-feature-auth feature/authentication
+git worktree add ../myapp-bugfix-123 hotfix/issue-123
+git worktree add ../myapp-review-pr456 origin/pull/456/head
+
+# 3. ワークツリーの状態を定期的に確認
+git worktree list
+
+# 4. 不要になったワークツリーは速やかに削除
+git worktree remove ../completed-feature
+
+# 5. ワークツリー間での作業状況の把握
+cd ~/projects
+find . -name ".git" -type f -exec dirname {} \; | sort
+# 各ワークツリーのディレクトリを一覧表示
+```
+
+#### パフォーマンスと容量の考慮事項
+
+```bash
+# ワークツリーが使用する容量を確認
+du -sh ../my-app*
+# 出力例:
+# 45M    ../my-app
+# 12M    ../my-app-feature  (ワークファイルのみ、.gitは共有)
+# 8M     ../my-app-bugfix
+
+# 全体のリポジトリサイズを確認
+git count-objects -v -H
+# 詳細なオブジェクトサイズ情報
+
+# ワークツリー固有のファイルサイズ
+git worktree list | while read path commit branch; do
+    echo "ワークツリー: $path"
+    du -sh "$path" 2>/dev/null || echo "  (アクセス不可)"
+done
+```
+
+#### git-new-workdirとの比較
+
+```bash
+# git-new-workdir（非推奨の方法）
+git-new-workdir . ../old-way feature-branch
+
+# git worktree（推奨される方法）
+git worktree add ../new-way feature-branch
+
+# 主な違い:
+# 1. 公式サポート vs サードパーティスクリプト
+# 2. より安全な実装 vs シンボリンクベース
+# 3. 統合された管理コマンド vs 手動管理
+# 4. Windows環境での安定性 vs 制限あり
+# 5. Git本体と同期した機能更新 vs 独立したメンテナンス
+```
+
+#### トラブルシューティング
+
+```bash
+# 1. ワークツリーの参照が破損している場合
+git worktree list  # エラーが表示される場合
+git worktree prune --verbose  # 壊れた参照を削除
+
+# 2. ワークツリーのディレクトリが存在しない場合
+git worktree list
+# /path/to/missing-worktree abc1234 [feature-branch] prunable
+
+git worktree prune  # 存在しないワークツリーの参照を削除
+
+# 3. 手動でディレクトリを削除してしまった場合
+rm -rf ../my-feature-work  # ワークツリーを手動削除（非推奨）
+git worktree prune  # Gitの管理情報をクリーンアップ
+
+# 4. ワークツリーの場所を移動したい場合
+git worktree move ../old-location ../new-location
+
+# 5. ワークツリーの情報を修復
+git worktree repair        # 全てのワークツリーを修復
+git worktree repair ../specific-worktree  # 特定のワークツリーを修復
+
+# 6. デバッグ情報の取得
+GIT_TRACE=1 git worktree list  # 詳細なトレース情報
+
+# 7. ワークツリーのロック状態確認と解除
+git worktree list  # locked状態のワークツリーを確認
+git worktree unlock ../locked-worktree  # ロックを解除
+git worktree lock ../worktree-to-lock   # ワークツリーをロック
+```
+
 ### diff-highlight
 
 `diff-highlight`は、Gitの差分表示をより読みやすくするためのツールです。変更された行内で、実際に変更された部分のみをハイライト表示します。
