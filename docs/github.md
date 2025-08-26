@@ -361,6 +361,7 @@ steps:
 
 **secrets (シークレット使用)**
 
+{% raw %}
 ```yaml
 - name: Deploy
   env:
@@ -368,9 +369,11 @@ steps:
     DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 ```
+{% endraw %}
 
 **outputs (出力設定)**
 
+{% raw %}
 ```yaml
 jobs:
   build:
@@ -381,6 +384,7 @@ jobs:
       run: echo "version=1.0.0" >> $GITHUB_OUTPUT
 
 ```
+{% endraw %}
 
 ### セットアップ方法
 
@@ -428,6 +432,7 @@ jobs:
 
 #### 2. 複数環境でのテスト
 
+{% raw %}
 ```yaml
 # .github/workflows/multi-env-test.yml
 
@@ -453,6 +458,7 @@ jobs:
     - run: npm test
 
 ```
+{% endraw %}
 
 ### デプロイメントワークフロー
 
@@ -506,6 +512,7 @@ jobs:
 
 #### Docker イメージのビルドとプッシュ
 
+{% raw %}
 ```yaml
 # .github/workflows/docker.yml
 
@@ -551,9 +558,11 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
 
 ```
+{% endraw %}
 
 #### 本番環境へのSSHデプロイメント
 
+{% raw %}
 ```yaml
 # .github/workflows/deploy-production.yml
 
@@ -636,6 +645,7 @@ jobs:
         EOF
 
 ```
+{% endraw %}
 
 **必要なシークレット設定:**
 
@@ -665,6 +675,7 @@ cat ~/.ssh/id_rsa
 
 #### 複数サーバーへの並列デプロイ
 
+{% raw %}
 ```yaml
 # .github/workflows/deploy-multiple-servers.yml
 
@@ -710,9 +721,11 @@ jobs:
         EOF
 
 ```
+{% endraw %}
 
 #### セキュアなSSH接続の追加設定
 
+{% raw %}
 ```yaml
 # より安全なSSH接続の例
 
@@ -781,6 +794,7 @@ jobs:
     DEPLOY_SCRIPT
 
 ```
+{% endraw %}
 
 ### ベストプラクティス
 
@@ -788,6 +802,7 @@ jobs:
 
 **Secrets の適切な使用**
 
+{% raw %}
 ```yaml
 # 秘匿情報は Secrets に保存
 
@@ -797,6 +812,7 @@ jobs:
          https://api.example.com/data
 
 ```
+{% endraw %}
 
 **最小権限の原則**
 
@@ -811,6 +827,7 @@ permissions:
 
 **キャッシュの活用**
 
+{% raw %}
 ```yaml
 - name: 依存関係のキャッシュ
   uses: actions/cache@v3
@@ -821,6 +838,7 @@ permissions:
       ${{ runner.os }}-node-
 
 ```
+{% endraw %}
 
 **並列実行**
 
@@ -854,6 +872,7 @@ jobs:
 
 **再利用可能なワークフロー**
 
+{% raw %}
 ```yaml
 # .github/workflows/reusable-test.yml
 
@@ -878,6 +897,7 @@ jobs:
     - run: npm test
 
 ```
+{% endraw %}
 
 ```yaml
 # .github/workflows/main.yml
@@ -927,6 +947,7 @@ on:
 
 3. **環境変数とシークレット**
 
+{% raw %}
 ```yaml
 env:
   # 環境変数の設定
@@ -942,6 +963,7 @@ steps:
     TOKEN: ${{ secrets.MY_TOKEN }}
 
 ```
+{% endraw %}
 
 ### 実用的な活用例
 
@@ -1002,6 +1024,7 @@ jobs:
 
 #### 3. リリース自動化
 
+{% raw %}
 ```yaml
 name: リリース自動化
 
@@ -1034,5 +1057,6 @@ jobs:
         prerelease: false
 
 ```
+{% endraw %}
 
 このガイドを参考に、プロジェクトの要件に応じてGitHub CopilotとGitHub Actionsを効果的に活用してください。
