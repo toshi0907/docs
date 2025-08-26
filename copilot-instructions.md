@@ -125,6 +125,45 @@ chmod +x script.sh
 - **画像とリソース**: 適切なパスでの画像配置とAlt textの設定
 - **SEO対応**: 適切なメタデータとタイトル構造で検索エンジン最適化を図る
 
+### 9. レイアウト崩れの防止（重要）
+
+#### テンプレート構文の競合回避
+GitHub Actions、Docker Compose、その他のテンプレート構文を文書化する際は、Jekyll のLiquidテンプレートエンジンとの競合を防ぐ必要があります。
+
+**問題となる構文例:**
+- `${{ secrets.VARIABLE }}` (GitHub Actions)
+- `${{ hashFiles('**/*.json') }}` (GitHub Actions)
+- `{{ .Values.config }}` (Helm)
+- `${VARIABLE}` (Docker Compose等)
+
+**対策方法:**
+
+1. **{% raw %}ブロックの使用（推奨）**
+```markdown
+{% raw %}
+```yaml
+steps:
+  - name: Deploy
+    run: echo "${{ secrets.API_KEY }}"
+```
+{% endraw %}
+```
+
+2. **HTMLエンティティによるエスケープ**
+```markdown
+```yaml
+# $&#123;&#123; secrets.API_KEY &#125;&#125; の形式でエスケープ
+```
+
+3. **変数名の一般化**
+```markdown
+```yaml
+# 具体的な変数名の代わりに説明的な名前を使用
+steps:
+  - name: Deploy
+    run: echo "${{ secrets.YOUR_API_KEY }}"
+```
+
 ## 特記事項
 
 ### GitHub Pages向けドキュメント作成の必須要件
@@ -155,12 +194,14 @@ chmod +x script.sh
 - [ ] **kramdown互換**: GitHub Pagesで正しく表示される形式
 - [ ] **config更新**: 新規にファイル追加時は、configファイルのheader_pages:に項目を追加すること
 - [ ] **項目順序**: header_pages:の項目の並び順は、index.mdのドキュメント一覧の順序と揃えること
+- [ ] **テンプレート構文保護**: GitHub Actions等のテンプレート構文は`{% raw %}{% endraw %}`で囲むこと
 
 ### 推奨項目
 - [ ] **YAML Front Matter**: Jekyll用メタデータの追加
 - [ ] **レスポンシブ配慮**: 長い行の適切な改行
 - [ ] **コードブロック**: 適切な言語指定とコメント
 - [ ] **リンク検証**: 相対パスの正確性確認
+- [ ] **Liquid競合チェック**: `{{ }}` や `${{ }}` 構文がある場合は適切にエスケープ
 
 ### 品質確認
 - [ ] **可読性**: 段階的で理解しやすい構成
