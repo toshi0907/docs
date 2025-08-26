@@ -128,6 +128,347 @@ pkg install zip unzip tar gzip
 
 ```
 
+## ショートカットキー
+
+### ターミナルショートカット
+
+```bash
+# 基本的なターミナルショートカット
+
+Ctrl+C    # プロセス中断
+Ctrl+Z    # プロセス一時停止（バックグラウンド実行）
+Ctrl+D    # EOF（ファイル終端）、ログアウト
+Ctrl+L    # 画面クリア
+Ctrl+A    # 行の先頭に移動
+Ctrl+E    # 行の末尾に移動
+Ctrl+U    # カーソルから行頭まで削除
+Ctrl+K    # カーソルから行末まで削除
+Ctrl+W    # 前の単語を削除
+Ctrl+Y    # 削除したテキストを貼り付け
+
+# 履歴操作
+
+Ctrl+R    # コマンド履歴を逆方向検索
+Ctrl+P    # 前のコマンド（↑キーと同じ）
+Ctrl+N    # 次のコマンド（↓キーと同じ）
+
+```
+
+### Termux 固有のショートカット
+
+```bash
+# 音量キーショートカット（Termux設定で有効化が必要）
+
+音量上げ + Q    # Ctrl+キーの入力
+音量上げ + W    # ↑キー
+音量上げ + A    # ←キー  
+音量上げ + S    # ↓キー
+音量上げ + D    # →キー
+音量上げ + T    # Tab キー
+音量上げ + L    # | パイプ記号
+音量上げ + H    # ~ ホームディレクトリ記号
+音量上げ + U    # _ アンダースコア
+音量上げ + P    # Page Up
+音量上げ + N    # Page Down
+音量上げ + .    # Ctrl+\ (SIGQUIT)
+
+# 画面タッチジェスチャー
+
+長押し          # テキスト選択・コピー・ペーストメニュー
+ピンチイン/アウト  # フォントサイズ変更
+2本指上下スワイプ  # ページスクロール
+
+```
+
+### セッション管理ショートカット
+
+```bash
+# tmux セッションショートカット（tmux インストール後）
+
+Ctrl+B, C       # 新しいウィンドウ作成
+Ctrl+B, N       # 次のウィンドウ
+Ctrl+B, P       # 前のウィンドウ
+Ctrl+B, D       # セッションからデタッチ
+Ctrl+B, %       # 縦分割
+Ctrl+B, "       # 横分割
+
+# screen セッションショートカット（screen インストール後）
+
+Ctrl+A, C       # 新しいウィンドウ作成
+Ctrl+A, N       # 次のウィンドウ
+Ctrl+A, P       # 前のウィンドウ
+Ctrl+A, D       # セッションからデタッチ
+
+```
+
+### Android 統合ショートカット
+
+```bash
+# Termux:API が必要な機能
+
+termux-open     # ファイルを既定のアプリで開く
+termux-share    # ファイルを他のアプリに共有
+
+# 例：ファイルを共有
+echo "Hello" | termux-share
+
+# 例：URLをブラウザで開く
+termux-open-url "https://example.com"
+
+# 例：ファイルを既定のアプリで開く
+termux-open example.pdf
+
+```
+
+## Android ホームスクリーンショートカット
+
+### .shortcut フォルダーによるショートカット作成
+
+Termux では、ホームディレクトリに `.shortcut` フォルダーを作成し、その中にスクリプトファイルを配置することで、Android のホーム画面からTermux コマンドを直接実行できるショートカットを作成できます。
+
+```bash
+# .shortcut フォルダーの作成
+mkdir -p ~/.shortcut
+
+# フォルダーの確認
+ls -la ~/.shortcut
+
+```
+
+### ショートカットファイルの作成
+
+```bash
+# 基本的なショートカットファイルの例
+
+# 1. SSH サーバー起動ショートカット
+cat > ~/.shortcut/start-ssh << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+sshd
+echo "SSH サーバーが起動しました"
+sleep 2
+EOF
+
+# 2. システム情報表示ショートカット
+cat > ~/.shortcut/system-info << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+clear
+echo "=== Termux システム情報 ==="
+echo "日時: $(date)"
+echo "ユーザー: $(whoami)"
+echo "ホスト: $(hostname)"
+echo "CPU情報: $(cat /proc/cpuinfo | grep "model name" | head -1 | cut -d: -f2)"
+echo "メモリ情報:"
+free -h
+echo "ディスク使用量:"
+df -h $HOME
+echo "IP アドレス:"
+ifconfig wlan0 2>/dev/null | grep inet | head -1
+read -p "エンターキーで終了..."
+EOF
+
+# 3. パッケージアップデート ショートカット
+cat > ~/.shortcut/update-packages << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+echo "パッケージリストを更新中..."
+pkg update
+echo "パッケージをアップグレード中..."
+pkg upgrade
+echo "アップデート完了"
+sleep 3
+EOF
+
+# 4. Gemini CLI ショートカット（設定済みの場合）
+cat > ~/.shortcut/gemini-chat << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+source ~/gemini-env/bin/activate 2>/dev/null
+echo "Gemini AI との対話を開始します"
+echo "質問を入力してください（'exit' で終了）:"
+while true; do
+    read -p "> " question
+    if [ "$question" = "exit" ]; then
+        break
+    fi
+    if [ -n "$question" ]; then
+        gemini "$question"
+    fi
+done
+EOF
+
+# すべてのショートカットファイルに実行権限を付与
+chmod +x ~/.shortcut/*
+
+```
+
+### 高度なショートカット例
+
+```bash
+# 5. 開発環境セットアップショートカット
+cat > ~/.shortcut/dev-setup << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+echo "開発環境をセットアップ中..."
+
+# 必要なパッケージのインストール
+pkg install -y git vim tmux nodejs python
+
+# Git 設定（初回のみ）
+if [ ! -f ~/.gitconfig ]; then
+    echo "Git 設定を行います"
+    read -p "Git ユーザー名: " git_name
+    read -p "Git メールアドレス: " git_email
+    git config --global user.name "$git_name"
+    git config --global user.email "$git_email"
+fi
+
+# SSH キーの生成（初回のみ）
+if [ ! -f ~/.ssh/id_rsa ]; then
+    echo "SSH キーを生成します"
+    ssh-keygen -t rsa -b 4096 -C "$git_email" -f ~/.ssh/id_rsa -N ""
+    echo "公開鍵:"
+    cat ~/.ssh/id_rsa.pub
+fi
+
+echo "開発環境のセットアップが完了しました"
+read -p "エンターキーで終了..."
+EOF
+
+# 6. ファイルバックアップショートカット
+cat > ~/.shortcut/backup-files << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+backup_dir="~/storage/shared/termux-backup-$(date +%Y%m%d)"
+mkdir -p "$backup_dir"
+
+echo "ファイルバックアップを開始します..."
+echo "バックアップ先: $backup_dir"
+
+# 重要なファイルのバックアップ
+cp -r ~/.ssh "$backup_dir/" 2>/dev/null
+cp -r ~/.shortcut "$backup_dir/" 2>/dev/null
+cp ~/.bashrc "$backup_dir/" 2>/dev/null
+cp ~/.gitconfig "$backup_dir/" 2>/dev/null
+
+echo "バックアップが完了しました"
+ls -la "$backup_dir"
+read -p "エンターキーで終了..."
+EOF
+
+# 7. ネットワーク診断ショートカット
+cat > ~/.shortcut/network-check << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+echo "=== ネットワーク診断 ==="
+
+echo "1. ネットワーク接続状態:"
+ping -c 3 8.8.8.8
+
+echo -e "\n2. WiFi 情報:"
+termux-wifi-connectioninfo 2>/dev/null || echo "termux-api が必要です"
+
+echo -e "\n3. IP アドレス情報:"
+ifconfig
+
+echo -e "\n4. DNS 解決テスト:"
+nslookup google.com
+
+echo -e "\n5. HTTP 接続テスト:"
+curl -I https://www.google.com
+
+read -p "エンターキーで終了..."
+EOF
+
+# すべてのショートカットファイルに実行権限を付与
+chmod +x ~/.shortcut/*
+
+```
+
+### ショートカットの確認と管理
+
+```bash
+# 作成済みショートカットの一覧表示
+ls -la ~/.shortcut/
+
+# ショートカット内容の確認
+cat ~/.shortcut/ショートカット名
+
+# ショートカットのテスト実行
+~/.shortcut/ショートカット名
+
+# ショートカットの編集
+vim ~/.shortcut/ショートカット名
+
+# ショートカットの削除
+rm ~/.shortcut/ショートカット名
+
+```
+
+### Android ホーム画面での表示
+
+```bash
+# ショートカットが Android ホーム画面に表示される流れ：
+
+# 1. ~/.shortcut フォルダーにスクリプトファイルを配置
+# 2. ファイルに実行権限を付与（chmod +x）
+# 3. Termux アプリを一度再起動またはリフレッシュ
+# 4. Android のホーム画面で長押し → ウィジェット → Termux
+# 5. 作成したショートカットが選択肢に表示される
+# 6. ホーム画面に配置してタップで実行
+
+# Termux の設定確認
+echo "Termux バージョン: $(termux-info | grep "Termux version" || echo "不明")"
+
+```
+
+### ショートカットのカスタマイズ
+
+```bash
+# アイコン付きショートカット例（Android 8.0以降）
+cat > ~/.shortcut/custom-shortcut << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+
+# カスタムタイトル設定
+echo -e "\033]0;マイカスタムショートカット\007"
+
+# カラー出力
+echo -e "\033[1;32m=== カスタムショートカットが実行されました ===\033[0m"
+echo -e "\033[1;34m現在時刻: $(date)\033[0m"
+
+# 実行したい処理をここに記述
+echo "カスタム処理を実行中..."
+
+# 処理完了の通知
+termux-notification --title "ショートカット実行完了" --content "カスタムショートカットが正常に完了しました" 2>/dev/null
+
+read -p "エンターキーで終了..."
+EOF
+
+chmod +x ~/.shortcut/custom-shortcut
+
+```
+
+### トラブルシューティング
+
+```bash
+# ショートカットが表示されない場合
+
+# 1. 権限確認
+ls -la ~/.shortcut/
+
+# 2. ファイル形式確認（実行可能ファイルである必要がある）
+file ~/.shortcut/*
+
+# 3. Termux の再起動
+# Android のアプリ履歴からTermux を完全に終了し、再起動
+
+# 4. shebang の確認（ファイルの最初の行）
+head -1 ~/.shortcut/*
+
+# 5. ファイル名の確認（特殊文字や空白は避ける）
+# 正しい例: start-ssh, system-info, backup-files
+# 避ける例: "start ssh", "システム情報"
+
+# 6. Termux のストレージ権限確認
+termux-setup-storage
+
+```
+
 ## SSH 接続の設定
 
 ### SSH サーバーの設定
