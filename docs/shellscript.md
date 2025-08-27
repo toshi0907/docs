@@ -282,6 +282,28 @@ esac
 
 ```
 
+### case文（複数条件の指定）
+
+パイプ文字（`|`）を使用することで、複数の条件を同じ処理にまとめることができます。
+
+```bash
+#!/bin/bash
+fruit="grape"
+
+case "$fruit" in
+    "apple" | "orange" | "grape")
+        echo "丸い果物です"
+        ;;
+    "banana" | "cucumber")
+        echo "細長い果物です"
+        ;;
+    *)
+        echo "その他の形です"
+        ;;
+esac
+
+```
+
 ## ループ
 
 ### for文
