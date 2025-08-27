@@ -2103,9 +2103,25 @@ git worktree repair ../specific-worktree  # 特定のワークツリーを修復
 GIT_TRACE=1 git worktree list  # 詳細なトレース情報
 
 # 7. ワークツリーのロック状態確認と解除
-git worktree list  # locked状態のワークツリーを確認
-git worktree unlock ../locked-worktree  # ロックを解除
-git worktree lock ../worktree-to-lock   # ワークツリーをロック
+
+# ワークツリーのロック機能とは：
+# - ワークツリーを誤って削除されることから保護する機能
+# - ロックされたワークツリーは`git worktree remove`で削除できない
+# - 自動的な`git worktree prune`処理からも除外される
+# - 一時的に使用しないが保持したいワークツリーの保護に有効
+
+git worktree list  # locked状態のワークツリーを確認（locked列に表示）
+
+# ワークツリーをロックする（保護する）
+git worktree lock ../worktree-to-lock
+# ロック理由を指定する場合
+git worktree lock --reason "作業中断中のため削除禁止" ../important-work
+
+# ワークツリーのロックを解除する
+git worktree unlock ../locked-worktree
+
+# ロック状態の詳細確認
+git worktree list --verbose  # ロック理由も表示される
 ```
 
 ### diff-highlight
