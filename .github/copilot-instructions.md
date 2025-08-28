@@ -254,4 +254,9 @@ export PATH="$PATH:/home/runner/.local/share/gem/ruby/3.2.0/bin"
 
 GitHub Pagesは、メインブランチに変更がプッシュされると自動的にサイトをビルドしてデプロイします。手動のデプロイ手順は必要ありません。
 
+## コミットコメント
+
+コメントは日本語で記載
+適切にprefixを記述すること
+
 ライブサイトは以下で利用可能です: https://toshi0907.github.io/docs/
