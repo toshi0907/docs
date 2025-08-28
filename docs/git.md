@@ -2276,6 +2276,185 @@ git config --global interactive.diffFilter 'delta --color-only'
 git config --global core.pager 'diff-so-fancy | less --tabs=4 -RFX'
 ```
 
+### カスタムGitコマンドの作成
+
+#### カスタムGitコマンドとは
+
+Gitでは、`git-` で始まる実行可能ファイルを作成することで、独自のGitサブコマンドを作成できます。これにより、頻繁に使用するコマンドの組み合わせを簡単に呼び出したり、プロジェクト固有の操作を自動化したりできます。
+
+#### 基本的な作成方法
+
+```bash
+# 1. スクリプトファイルを作成（例：git-origcmd）
+sudo nano /usr/local/bin/git-origcmd
+
+# 2. 実行権限を付与
+sudo chmod +x /usr/local/bin/git-origcmd
+
+# 3. 使用方法
+git origcmd  # git-origcmd スクリプトが実行される
+```
+
+#### 実用的な例
+
+##### git-origcmd（オリジナルコマンドの例）
+
+```bash
+#!/bin/bash
+# /usr/local/bin/git-origcmd
+
+# 使用方法を表示
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    echo "使用方法: git origcmd [オプション]"
+    echo "オプション:"
+    echo "  status     - 詳細なステータス表示"
+    echo "  clean      - 作業ディレクトリをクリーンアップ"
+    echo "  backup     - 現在の状態をバックアップ"
+    echo "  --help     - このヘルプを表示"
+    exit 0
+fi
+
+case "$1" in
+    "status")
+        echo "=== Git Status ==="
+        git status --porcelain
+        echo ""
+        echo "=== Branch Info ==="
+        git branch -vv
+        echo ""
+        echo "=== Recent Commits ==="
+        git log --oneline -5
+        ;;
+    "clean")
+        echo "作業ディレクトリをクリーンアップしています..."
+        git clean -fd
+        git checkout -- .
+        echo "クリーンアップ完了"
+        ;;
+    "backup")
+        timestamp=$(date +"%Y%m%d_%H%M%S")
+        branch_name=$(git rev-parse --abbrev-ref HEAD)
+        stash_message="backup_${branch_name}_${timestamp}"
+        git stash save "$stash_message"
+        echo "バックアップ完了: $stash_message"
+        ;;
+    *)
+        echo "エラー: 不明なオプション '$1'"
+        echo "使用方法: git origcmd --help"
+        exit 1
+        ;;
+esac
+```
+
+##### その他の便利なカスタムコマンド例
+
+```bash
+# git-sync（リモートとの同期コマンド）
+#!/bin/bash
+# /usr/local/bin/git-sync
+
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+echo "現在のブランチ: $current_branch"
+
+# リモートから最新を取得
+git fetch origin
+
+# メインブランチ（main または master）に切り替えて更新
+if git show-ref --verify --quiet refs/heads/main; then
+    main_branch="main"
+elif git show-ref --verify --quiet refs/heads/master; then
+    main_branch="master"
+else
+    echo "エラー: メインブランチが見つかりません"
+    exit 1
+fi
+
+git checkout "$main_branch"
+git pull origin "$main_branch"
+
+# 元のブランチに戻る
+if [[ "$current_branch" != "$main_branch" ]]; then
+    git checkout "$current_branch"
+    echo "$main_branch ブランチを更新しました"
+    echo "現在のブランチを $main_branch にリベースしますか？ (y/N)"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        git rebase "$main_branch"
+    fi
+fi
+```
+
+```bash
+# git-weekly（週次レポートコマンド）
+#!/bin/bash
+# /usr/local/bin/git-weekly
+
+author_name=$(git config user.name)
+start_date=$(date -d "last monday" +"%Y-%m-%d")
+end_date=$(date +"%Y-%m-%d")
+
+echo "=== 今週のコミット履歴 ($start_date から $end_date) ==="
+echo "作成者: $author_name"
+echo ""
+
+git log --author="$author_name" \
+        --since="$start_date" \
+        --until="$end_date" \
+        --pretty=format:"%h - %s (%cd)" \
+        --date=short
+
+echo ""
+echo ""
+echo "=== 今週の統計 ==="
+commits=$(git log --author="$author_name" --since="$start_date" --until="$end_date" --oneline | wc -l)
+echo "コミット数: $commits"
+
+if [[ $commits -gt 0 ]]; then
+    echo "変更されたファイル:"
+    git log --author="$author_name" --since="$start_date" --until="$end_date" --name-only --pretty=format: | sort | uniq -c | sort -nr
+fi
+```
+
+#### インストールと管理
+
+```bash
+# 個人用ディレクトリにインストール（推奨）
+mkdir -p ~/bin
+# ~/bin/git-origcmd を作成
+chmod +x ~/bin/git-origcmd
+
+# PATHに追加（~/.bashrc または ~/.zshrc に追加）
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# システム全体にインストール
+sudo cp git-origcmd /usr/local/bin/
+sudo chmod +x /usr/local/bin/git-origcmd
+```
+
+#### 注意事項とベストプラクティス
+
+```bash
+# カスタムコマンドの一覧表示
+ls -la ~/bin/git-* 2>/dev/null || ls -la /usr/local/bin/git-*
+
+# コマンドが正しく認識されているか確認
+git --exec-path
+which git-origcmd
+
+# シェルスクリプト以外の言語でも作成可能
+# Python例：#!/usr/bin/env python3
+# Ruby例：#!/usr/bin/env ruby
+```
+
+**ベストプラクティス：**
+
+- 必ず `--help` オプションを実装する
+- エラーハンドリングを適切に行う
+- 実行前に確認を求める（破壊的操作の場合）
+- ログや進捗表示を適切に行う
+- 既存のGitコマンドと名前が重複しないようにする
+
 ## フック
 
 ### フックとは
