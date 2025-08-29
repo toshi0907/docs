@@ -2815,6 +2815,21 @@ git rev-parse main
 git rev-parse v1.0.0
 # 出力例: b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0a1
 
+# フックスディレクトリのパスを取得
+
+git rev-parse --git-path hooks
+# 出力例: .git/hooks
+
+# ワーキングツリー内にいるかを確認
+
+git rev-parse --is-inside-work-tree
+# 出力例: true
+
+# ベアリポジトリかどうかを確認
+
+git rev-parse --is-bare-repository
+# 出力例: false
+
 ```
 
 ## 実用的な例
