@@ -2943,6 +2943,346 @@ git rev-parse --until="last week"
 
 ```
 
+## Git コマンド一覧
+
+以下は Git に組み込まれている主なコマンドをカテゴリ別に列挙したものです。最新版の全コマンドは `git help -a` でご確認いただけます。
+
+### 基本的な Porcelain コマンド
+
+これらは日常的に使用される高レベルなGitコマンドです。
+
+```bash
+# ファイルをステージングエリアに追加
+git add [file]
+
+# パッチシリーズをメールボックスから適用
+git am [mbox]
+
+# ファイルの各行がいつ誰によって変更されたかを表示
+git annotate [file]  # git blame のエイリアス
+
+# パッチを適用
+git apply [patch]
+
+# プロジェクトのアーカイブを作成
+git archive [branch]
+
+# バイナリサーチを使用してバグを導入したコミットを特定
+git bisect
+
+# ブランチの作成、一覧表示、削除
+git branch
+
+# リポジトリをバンドルファイルに変換
+git bundle
+
+# ブランチの切り替えやファイルの復元
+git checkout
+
+# ワーキングツリーの特定のファイルを選択的に適用
+git cherry-pick
+
+# Gitのグラフィカルインターフェース（Tcl/Tkが必要）
+git citool
+
+# 追跡されていないファイルを削除
+git clean
+
+# リポジトリのクローンを作成
+git clone
+
+# 変更をリポジトリにコミット
+git commit
+
+# リポジトリオブジェクトから人間が読める名前を生成
+git describe
+
+# コミット間の差分を表示
+git diff
+
+# リモートリポジトリから更新をダウンロード
+git fetch
+
+# 電子メール送信用のパッチを準備
+git format-patch
+
+# オブジェクトデータベースの検証
+git fsck
+
+# 不要なファイルをクリーンアップしてリポジトリを最適化
+git gc
+
+# ファイル内容を検索
+git grep
+
+# Gitのグラフィカルインターフェース
+git gui
+
+# 新しいリポジトリを初期化
+git init
+
+# コミット履歴を表示
+git log
+
+# 複数の開発履歴を統合
+git merge
+
+# ファイルやディレクトリの移動/名前変更
+git mv
+
+# リモートリポジトリから変更を取得してマージ
+git pull
+
+# ローカルの変更をリモートリポジトリに送信
+git push
+
+# コミットを他のベースの上に再適用
+git rebase
+
+# 参照ログを管理
+git reflog
+
+# リモートリポジトリの管理
+git remote
+
+# コミットを取り消し
+git reset
+
+# コミットを逆転
+git revert
+
+# ファイルをワーキングツリーとインデックスから削除
+git rm
+
+# オブジェクトの内容や情報を表示
+git show
+
+# コミット履歴を1行で要約表示
+git shortlog
+
+# ワーキングツリーの状態を表示
+git status
+
+# 変更を一時的に保存
+git stash
+
+# サブモジュールの初期化、更新、管理
+git submodule
+
+# ブランチの切り替え（Git 2.23以降）
+git switch
+
+# タグの作成、一覧表示、削除、検証
+git tag
+
+# 複数のワーキングツリーを管理
+git worktree
+
+# ファイルをワーキングツリーで復元（Git 2.23以降）
+git restore
+```
+
+### 低レベル（Plumbing）コマンド
+
+これらは Git の内部動作を直接操作する低レベルなコマンドです。主にスクリプトや高度な操作で使用されます。
+
+```bash
+# オブジェクトの内容や情報を表示
+git cat-file
+
+# ファイルの属性を確認
+git check-attr
+
+# ファイルがignoreされているかを確認
+git check-ignore
+
+# 参照名の形式をチェック
+git check-ref-format
+
+# コミットオブジェクトを作成
+git commit-tree
+
+# オブジェクトデータベース内のオブジェクト数をカウント
+git count-objects
+
+# 認証情報の管理
+git credential
+
+# Gitデーモンを起動
+git daemon
+
+# 参照の説明を取得
+git describe-ref
+
+# リモートリポジトリからパックファイルを取得
+git fetch-pack
+
+# マージメッセージをフォーマット
+git fmt-merge-msg
+
+# ファイルからオブジェクトを作成
+git hash-object
+
+# パックファイルのインデックスを作成
+git index-pack
+
+# Gitリポジトリを初期化（init のエイリアス）
+git init-db
+
+# インデックスのファイルを一覧表示
+git ls-files
+
+# リモート参照を一覧表示
+git ls-remote
+
+# ツリーオブジェクトの内容を一覧表示
+git ls-tree
+
+# メール情報を抽出
+git mailinfo
+
+# 軽量タグオブジェクトを作成
+git mktag
+
+# ツリーオブジェクトを作成
+git mktree
+
+# オブジェクトをパックファイルに変換
+git pack-objects
+
+# 参照をパックファイルに保存
+git pack-refs
+
+# 冗長なパックファイルを特定
+git pack-redundant
+
+# 到達不可能なオブジェクトを削除
+git prune
+
+# パックされたオブジェクトの不要なファイルを削除
+git prune-packed
+
+# ツリーオブジェクトをインデックスに読み込み
+git read-tree
+
+# プッシュされたオブジェクトを受信
+git receive-pack
+
+# オブジェクトの置換を管理
+git replace
+
+# オブジェクトをリモートリポジトリに送信
+git send-pack
+
+# パックファイルのインデックスを表示
+git show-index
+
+# シンボリック参照を管理
+git symbolic-ref
+
+# パックファイルからオブジェクトを展開
+git unpack-objects
+
+# インデックスを更新
+git update-index
+
+# 参照を更新
+git update-ref
+
+# Git内部変数を表示
+git var
+
+# パックファイルを検証
+git verify-pack
+
+# タグの署名を検証
+git verify-tag
+
+# ツリーオブジェクトを作成
+git write-tree
+```
+
+### ネットワーク・サーバ向けコマンド
+
+リモートリポジトリとの通信やサーバー機能に関するコマンドです。
+
+```bash
+# Gitデーモンを起動（サーバーモード）
+git daemon
+
+# HTTP経由でオブジェクトを取得
+git http-fetch
+
+# HTTP経由でオブジェクトをプッシュ
+git http-push
+
+# アーカイブをアップロード
+git upload-archive
+
+# パックファイルをアップロード
+git upload-pack
+
+# プッシュされたオブジェクトを受信
+git receive-pack
+
+# オブジェクトをリモートに送信
+git send-pack
+```
+
+### ヘルプ・設定・ユーティリティ
+
+設定管理やヘルプ機能に関するコマンドです。
+
+```bash
+# Gitのヘルプを表示
+git help
+
+# 設定の表示・変更
+git config
+
+# Gitのバージョンを表示
+git version
+
+# コマンドエイリアスの管理
+git alias
+
+# 認証情報を入力
+git credential-fill
+
+# リポジトリのメンテナンス
+git maintenance
+
+# コミットメッセージトレーラーの解釈
+git interpret-trailers
+
+# コミットにノートを追加
+git notes
+
+# コミット範囲の比較
+git range-diff
+
+# 競合解決の記録と再利用
+git rerere
+
+# ウェブブラウザでGitリポジトリを開く
+git web-browse
+```
+
+### 全コマンド確認方法
+
+```bash
+# インストールされている全てのGitコマンドを表示
+git help -a
+
+# 特定のコマンドの詳細ヘルプを表示
+git help [command]
+
+# 簡潔なヘルプを表示
+git [command] -h
+```
+
+**注意**: 上記は主要コマンドの一覧です。サードパーティ製プラグインやエイリアスを含めるとさらに多数存在します。実際の環境にある全コマンドは `git help -a` で確認できます。
+
 ## 実用的な例
 
 ### 新しい機能の開発フロー
