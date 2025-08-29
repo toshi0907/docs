@@ -2830,6 +2830,117 @@ git rev-parse --is-inside-work-tree
 git rev-parse --is-bare-repository
 # 出力例: false
 
+# 現在のディレクトリのリポジトリルートからの相対パスを取得
+
+git rev-parse --show-prefix
+# 出力例: src/components/
+# リポジトリルートにいる場合は空文字
+
+# リポジトリルートへの相対パスを取得
+
+git rev-parse --show-cdup
+# 出力例: ../../
+# リポジトリルートにいる場合は空文字
+
+# .gitディレクトリの絶対パスを取得
+
+git rev-parse --absolute-git-dir
+# 出力例: /home/user/my-project/.git
+
+# gitディレクトリ内にいるかを確認
+
+git rev-parse --is-inside-git-dir
+# 出力例: false
+
+# 浅いクローン（shallow repository）かどうかを確認
+
+git rev-parse --is-shallow-repository
+# 出力例: false
+
+# 参照の完全なシンボリック名を取得
+
+git rev-parse --symbolic-full-name HEAD
+# 出力例: refs/heads/main
+
+# 上流ブランチの完全名を取得
+
+git rev-parse --symbolic-full-name @{u}
+# 出力例: refs/remotes/origin/main
+
+# 上流ブランチのコミットハッシュを取得
+
+git rev-parse @{u}
+# 出力例: b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0a1
+
+# 参照が存在するかを検証
+
+git rev-parse --verify HEAD
+# 出力例: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
+# 存在しない場合はエラーを出力
+
+git rev-parse --verify refs/heads/nonexistent 2>/dev/null || echo "ブランチが存在しません"
+
+# 相対的なコミット参照を解決
+
+git rev-parse HEAD~1
+# 出力例: c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0a1b2
+# 1つ前のコミット
+
+git rev-parse HEAD^
+# 出力例: c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0a1b2
+# 親コミット（HEAD~1と同じ）
+
+git rev-parse HEAD~3
+# 出力例: e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0a1b2c3d4
+# 3つ前のコミット
+
+# 特定のGitディレクトリ内のパスを取得
+
+git rev-parse --git-path config
+# 出力例: .git/config
+
+git rev-parse --git-path objects
+# 出力例: .git/objects
+
+git rev-parse --git-path refs
+# 出力例: .git/refs
+
+git rev-parse --git-path logs/HEAD
+# 出力例: .git/logs/HEAD
+
+# 全てのブランチ参照を一覧表示
+
+git rev-parse --branches
+# 出力例: 各ブランチのコミットハッシュ
+
+# 全てのタグ参照を一覧表示
+
+git rev-parse --tags
+# 出力例: 各タグのコミットハッシュ
+
+# 全てのリモート参照を一覧表示
+
+git rev-parse --remotes
+# 出力例: 各リモートブランチのコミットハッシュ
+
+# 全ての参照を一覧表示
+
+git rev-parse --all
+# 出力例: 全ての参照（ブランチ、タグ、リモート）のコミットハッシュ
+
+# 引数をシェル用にクォート
+
+git rev-parse --sq-quote "file with spaces.txt" "another file.txt"
+# 出力例: 'file with spaces.txt' 'another file.txt'
+
+# 日付文字列を解析
+
+git rev-parse --since="2023-01-01"
+# 日付文字列をGitが理解できる形式に変換
+
+git rev-parse --until="last week"
+# 相対的な日付表現を解析
+
 ```
 
 ## 実用的な例
