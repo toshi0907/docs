@@ -450,6 +450,80 @@ git config --global gui.encoding utf-8            # GUI使用時のエンコー�
 
 ```
 
+### エンコーディング設定
+
+```bash
+# 国際化とエンコーディングの設定
+git config --global i18n.commitEncoding utf-8     # コミットメッセージのエンコーディング
+git config --global i18n.logOutputEncoding utf-8  # ログ出力時のエンコーディング
+
+# ファイルパスの表示設定
+git config --global core.quotePath false          # 日本語ファイル名を正しく表示
+# true: 日本語文字をエスケープして表示（デフォルト）
+# false: 日本語文字をそのまま表示
+
+# Unicode正規化設定（macOS）
+git config --global core.precomposeUnicode true   # macOSでのUnicode正規化を有効
+# macOSのファイルシステム（HFS+/APFS）でのUnicode合成文字の問題を解決
+
+# エンコーディング検出と変換
+git config --global gui.encoding utf-8            # GUI使用時のエンコーディング
+git config --global svn.pathnameencoding utf-8    # Git-SVN使用時のパス名エンコーディング
+
+# gitk（Git GUI）の設定
+git config --global guitool.gitk.encoding utf-8   # gitkのエンコーディング設定
+
+# エディタのエンコーディング設定
+git config --global core.editor "vim -c 'set encoding=utf-8'"  # Vimの場合
+git config --global core.editor "code --wait"     # VS Codeの場合（UTF-8がデフォルト）
+git config --global core.editor "subl -n -w"      # Sublime Textの場合
+
+# ページャーのエンコーディング設定
+git config --global core.pager "less -R"          # lessでのカラー表示を有効
+# LESSCHARSET環境変数も設定可能: export LESSCHARSET=utf-8
+
+# Git attributes でのエンコーディング指定
+echo "*.txt text eol=lf encoding=utf-8" >> .gitattributes
+echo "*.md text eol=lf encoding=utf-8" >> .gitattributes
+echo "*.py text eol=lf encoding=utf-8" >> .gitattributes
+
+# ログメッセージのエンコーディング変換
+git config --global log.mailmap true              # mailmapを使用してエンコーディング変換
+
+# 日本語の表示確認
+git config --global alias.log-ja "log --pretty=format:'%h - %s (%an, %ar)'"
+# 日本語文字が正しく表示されるかテスト
+
+# ファイル内容のエンコーディング設定
+git config --global diff.textconv "iconv -f shift_jis -t utf-8"  # Shift_JISファイルをUTF-8で表示
+
+# 特定のファイルタイプのエンコーディング設定
+git config --global diff.sjis.textconv "iconv -f shift_jis -t utf-8"
+# 使用例: .gitattributes で "*.txt diff=sjis"
+
+# エンコーディング関連の環境変数
+# ~/.bashrc または ~/.zshrc に追加
+# export LANG=ja_JP.UTF-8
+# export LC_ALL=ja_JP.UTF-8
+# export LESSCHARSET=utf-8
+
+# Windows環境でのエンコーディング設定
+git config --global core.autocrlf true            # WindowsでCRLF変換を有効
+git config --global gui.encoding utf-8            # Windows GUI でのエンコーディング
+# Windows の場合、システムロケールも確認: chcp 65001 (UTF-8)
+
+# エンコーディングの確認コマンド
+# ファイルのエンコーディングを確認
+# file -bi filename.txt
+# nkf -g filename.txt (日本語環境の場合)
+
+# Git設定の確認
+git config --get i18n.commitEncoding              # コミットエンコーディングの確認
+git config --get i18n.logOutputEncoding           # ログ出力エンコーディングの確認
+git config --get core.quotePath                   # パス表示設定の確認
+
+```
+
 ### URL書き換えとリダイレクト設定
 
 ```bash
