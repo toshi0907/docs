@@ -163,6 +163,202 @@ git config --global pull.rebase true
 
 ```
 
+### ブランチとマージの詳細設定
+
+```bash
+# ブランチの自動追跡設定
+git config --global branch.autosetupmerge always  # 新しいブランチで自動的に上流ブランチを設定
+git config --global branch.autosetuprebase always # 新しいブランチでプル時に自動的にrebaseを使用
+
+# ブランチの表示順序
+git config --global branch.sort "-committerdate"  # コミット日時の降順でブランチを表示
+# その他のオプション: "refname"（名前順）, "version:refname"（バージョン順）
+
+# マージ時の競合表示スタイル
+git config --global merge.conflictStyle diff3     # 競合時に3way diff形式で表示
+# diff3: オリジナル、自分の変更、相手の変更を全て表示
+# merge: 自分の変更と相手の変更のみ表示（デフォルト）
+# zdiff3: diff3の改良版（Git 2.35+）
+
+# マージ時のfast-forward設定
+git config --global merge.ff only                 # fast-forwardのみ許可
+# true: fast-forwardを優先（デフォルト）
+# false: 必ずマージコミットを作成
+# only: fast-forward可能な場合のみマージを許可
+
+# マージ時のコミット署名検証
+git config --global merge.verifySignatures true   # マージ時にGPG署名を検証
+
+# マージツールの終了コード処理
+git config --global mergetool.keepBackup false    # マージ後に.origファイルを保持しない
+git config --global mergetool.prompt false        # マージツール起動時の確認を省略
+
+```
+
+### リベースの詳細設定
+
+```bash
+# インタラクティブリベース時の自動squash
+git config --global rebase.autoSquash true        # fixup!/squash!コミットを自動的に整理
+
+# リベース時の自動stash
+git config --global rebase.autoStash true         # リベース前に自動的にstash、後で復元
+
+# リベース時の指示フォーマット
+git config --global rebase.instructionFormat "%s [%an]"  # 作業者名を含める
+
+# リベース時の短縮SHA表示桁数
+git config --global rebase.abbreviateCommands true # pick → p のように短縮形を使用
+
+# リベース後のフック実行
+git config --global rebase.updateRefs true        # リベース後に参照を更新
+
+```
+
+### フェッチとプルの詳細設定
+
+```bash
+# フェッチ時の枝刈り設定
+git config --global fetch.prune true              # フェッチ時に削除されたリモートブランチをローカルからも削除
+git config --global fetch.pruneTags true          # フェッチ時に削除されたリモートタグもローカルから削除
+
+# サブモジュールの再帰的フェッチ
+git config --global fetch.recurseSubmodules true  # フェッチ時にサブモジュールも同時に更新
+
+# プル時のfast-forward設定
+git config --global pull.ff only                  # fast-forwardのみ許可
+# true: fast-forwardを優先
+# false: 必ずマージコミットを作成
+# only: fast-forward可能な場合のみプルを許可
+
+# プル時のタグの取得
+git config --global pull.twohead ort              # プル時のマージ戦略
+
+```
+
+### リモートとプッシュの詳細設定
+
+```bash
+# デフォルトのリモート設定
+git config --global remote.pushDefault origin     # プッシュ先のデフォルトリモート
+
+# プッシュ時のリモート追跡
+git config --global push.autoSetupRemote true     # 初回プッシュ時に自動的にリモート追跡を設定
+
+# プッシュ時のGPG署名
+git config --global push.gpgSign if-asked         # 要求された場合のみGPG署名
+# true: 常にGPG署名
+# false: GPG署名しない
+# if-asked: サーバーが要求した場合のみ署名
+
+# プッシュ時のフック実行
+git config --global push.recurseSubmodules check  # サブモジュールの変更をチェック
+# check: サブモジュールの未プッシュ変更をチェック
+# on-demand: 必要に応じてサブモジュールもプッシュ
+# no: サブモジュールを無視（デフォルト）
+
+```
+
+### 差分表示の詳細設定
+
+```bash
+# 差分アルゴリズム
+git config --global diff.algorithm patience       # より読みやすい差分を生成
+# myers: デフォルトアルゴリズム
+# minimal: 最小限の差分
+# patience: 大きな変更に対してより読みやすい差分
+# histogram: patienceの改良版
+
+# 移動された行の検出
+git config --global diff.colorMoved zebra         # 移動された行を色分け表示
+# no: 移動検出なし（デフォルト）
+# default: 基本的な移動検出
+# plain: シンプルな移動検出
+# blocks: ブロック単位の移動検出
+# zebra: ブロック単位でストライプ表示
+# dimmed-zebra: 薄いストライプ表示
+
+# 差分の圧縮ヒューリスティック
+git config --global diff.compactionHeuristic true # より読みやすい差分境界を選択
+
+# 空白の変更を無視
+git config --global diff.ignoreSpaceChange true   # 空白の変更を無視
+git config --global diff.ignoreSpaceAtEol true    # 行末の空白変更を無視
+
+# バイナリファイルの差分
+git config --global diff.tool vimdiff             # バイナリファイル用の差分ツール
+
+# 差分のコンテキスト行数
+git config --global diff.context 5                # 差分表示時のコンテキスト行数（デフォルト: 3）
+
+```
+
+### ログ表示の詳細設定
+
+```bash
+# ログの日付フォーマット
+git config --global log.date iso                  # ISO 8601形式で日付表示
+# relative: 相対時間（2 days ago）
+# local: ローカル時間
+# iso: ISO 8601形式
+# iso-strict: 厳密なISO 8601形式
+# rfc: RFC 2822形式
+# short: YYYY-MM-DD形式
+# raw: Unix時間
+
+# ログの装飾
+git config --global log.decorate short            # ブランチ/タグ名を短縮形で表示
+# full: フルパス表示
+# short: 短縮形表示
+# no: 装飾なし
+
+# ファイル名変更の追跡
+git config --global log.follow true               # ファイル名変更を追跡してログ表示
+
+# グラフ表示の設定
+git config --global log.graphColors "red,green,yellow,blue,magenta,cyan"  # グラフの色設定
+
+```
+
+### ステータス表示の詳細設定
+
+```bash
+# ステータス表示形式
+git config --global status.branch true            # ブランチ情報を表示
+git config --global status.short false            # 短縮形式を使用しない
+
+# 未追跡ファイルの表示
+git config --global status.showUntrackedFiles normal  # 未追跡ファイルの表示レベル
+# no: 未追跡ファイルを表示しない
+# normal: 未追跡ファイルとディレクトリを表示
+# all: 未追跡ディレクトリ内の個別ファイルも表示
+
+# サブモジュールの概要表示
+git config --global status.submoduleSummary true  # サブモジュールの変更概要を表示
+
+# 相対パス表示
+git config --global status.relativePaths true     # 相対パスでファイルを表示
+
+```
+
+### タグの詳細設定
+
+```bash
+# タグの並び順
+git config --global tag.sort "-version:refname"   # バージョン番号の降順でタグを表示
+# refname: タグ名順
+# version:refname: バージョン番号順
+# creatordate: 作成日時順
+# taggerdate: タガー日時順
+
+# 注釈付きタグの強制署名
+git config --global tag.forceSignAnnotated true   # 注釈付きタグを常にGPG署名
+
+# タグのGPG署名
+git config --global tag.gpgSign true              # タグ作成時に自動的にGPG署名
+
+```
+
 ### エイリアス（ショートカット）の設定
 
 ```bash
@@ -185,6 +381,264 @@ git config --global alias.plog "log --graph --pretty='format:%C(red)%d%C(reset) 
 # エイリアスの確認
 
 git config --get-regexp alias
+
+```
+
+### セキュリティとパフォーマンスの詳細設定
+
+```bash
+# HTTP/HTTPSの設定
+git config --global http.sslVerify true           # SSL証明書の検証を有効
+git config --global http.sslBackend openssl       # SSL/TLSライブラリを指定
+git config --global http.timeout 30               # HTTP接続のタイムアウト（秒）
+git config --global http.lowSpeedLimit 1000       # 低速度接続の判定値（バイト/秒）
+git config --global http.lowSpeedTime 10          # 低速度接続のタイムアウト（秒）
+
+# プロキシ設定
+git config --global http.proxy http://proxy.example.com:8080
+git config --global https.proxy https://proxy.example.com:8080
+# プロキシ認証が必要な場合
+# git config --global http.proxy http://username:password@proxy.example.com:8080
+
+# 転送時のオブジェクト検証
+git config --global transfer.fsckObjects true     # 転送時にオブジェクトの整合性をチェック
+git config --global receive.fsckObjects true      # 受信時にオブジェクトの整合性をチェック
+git config --global fetch.fsckObjects true        # フェッチ時にオブジェクトの整合性をチェック
+
+# パック関連の設定
+git config --global pack.threads 4                # パック処理で使用するスレッド数
+git config --global pack.windowMemory 512m        # パック時のメモリウィンドウサイズ
+git config --global pack.packSizeLimit 2g         # パックファイルの最大サイズ
+
+# インデックス関連の設定
+git config --global core.preloadindex true        # インデックスの並列読み込み
+git config --global index.threads 4               # インデックス処理のスレッド数
+
+# ファイルシステム関連
+git config --global core.protectNTFS true         # NTFSファイルシステムの保護（Windows）
+git config --global core.protectHFS true          # HFSファイルシステムの保護（macOS）
+
+```
+
+### 空白文字とテキスト処理の設定
+
+```bash
+# 空白文字の検出設定
+git config --global core.whitespace "blank-at-eol,blank-at-eof,space-before-tab,tab-in-indent"
+# blank-at-eol: 行末の空白を検出
+# blank-at-eof: ファイル末尾の空行を検出
+# space-before-tab: タブの前の空白を検出
+# tab-in-indent: インデントでのタブ使用を検出
+# trailing-space: 末尾の空白（blank-at-eol + blank-at-eof）
+# cr-at-eol: 行末のCRを検出
+
+# 空白エラーの修正設定
+git config --global apply.whitespace fix          # パッチ適用時に空白エラーを修正
+# nowarn: 警告を表示しない
+# warn: 警告を表示（デフォルト）
+# fix: 自動修正
+# error: エラーとして扱う
+# error-all: 全ての空白エラーをエラーとして扱う
+
+# テキストファイルの検出
+git config --global core.autocrlf input           # 改行コードの自動変換
+git config --global core.eol lf                   # 標準的な改行コード（LF）
+git config --global core.safecrlf warn            # 不可逆的な改行変換時に警告
+
+# ファイルエンコーディング
+git config --global gui.encoding utf-8            # GUI使用時のエンコーディング
+
+```
+
+### エンコーディング設定
+
+```bash
+# 国際化とエンコーディングの設定
+git config --global i18n.commitEncoding utf-8     # コミットメッセージのエンコーディング
+git config --global i18n.logOutputEncoding utf-8  # ログ出力時のエンコーディング
+
+# ファイルパスの表示設定
+git config --global core.quotePath false          # 日本語ファイル名を正しく表示
+# true: 日本語文字をエスケープして表示（デフォルト）
+# false: 日本語文字をそのまま表示
+
+# Unicode正規化設定（macOS）
+git config --global core.precomposeUnicode true   # macOSでのUnicode正規化を有効
+# macOSのファイルシステム（HFS+/APFS）でのUnicode合成文字の問題を解決
+
+# エンコーディング検出と変換
+git config --global gui.encoding utf-8            # GUI使用時のエンコーディング
+git config --global svn.pathnameencoding utf-8    # Git-SVN使用時のパス名エンコーディング
+
+# gitk（Git GUI）の設定
+git config --global guitool.gitk.encoding utf-8   # gitkのエンコーディング設定
+
+# エディタのエンコーディング設定
+git config --global core.editor "vim -c 'set encoding=utf-8'"  # Vimの場合
+git config --global core.editor "code --wait"     # VS Codeの場合（UTF-8がデフォルト）
+git config --global core.editor "subl -n -w"      # Sublime Textの場合
+
+# ページャーのエンコーディング設定
+git config --global core.pager "less -R"          # lessでのカラー表示を有効
+# LESSCHARSET環境変数も設定可能: export LESSCHARSET=utf-8
+
+# Git attributes でのエンコーディング指定
+echo "*.txt text eol=lf encoding=utf-8" >> .gitattributes
+echo "*.md text eol=lf encoding=utf-8" >> .gitattributes
+echo "*.py text eol=lf encoding=utf-8" >> .gitattributes
+
+# ログメッセージのエンコーディング変換
+git config --global log.mailmap true              # mailmapを使用してエンコーディング変換
+
+# 日本語の表示確認
+git config --global alias.log-ja "log --pretty=format:'%h - %s (%an, %ar)'"
+# 日本語文字が正しく表示されるかテスト
+
+# ファイル内容のエンコーディング設定
+git config --global diff.textconv "iconv -f shift_jis -t utf-8"  # Shift_JISファイルをUTF-8で表示
+
+# 特定のファイルタイプのエンコーディング設定
+git config --global diff.sjis.textconv "iconv -f shift_jis -t utf-8"
+# 使用例: .gitattributes で "*.txt diff=sjis"
+
+# エンコーディング関連の環境変数
+# ~/.bashrc または ~/.zshrc に追加
+# export LANG=ja_JP.UTF-8
+# export LC_ALL=ja_JP.UTF-8
+# export LESSCHARSET=utf-8
+
+# Windows環境でのエンコーディング設定
+git config --global core.autocrlf true            # WindowsでCRLF変換を有効
+git config --global gui.encoding utf-8            # Windows GUI でのエンコーディング
+# Windows の場合、システムロケールも確認: chcp 65001 (UTF-8)
+
+# エンコーディングの確認コマンド
+# ファイルのエンコーディングを確認
+# file -bi filename.txt
+# nkf -g filename.txt (日本語環境の場合)
+
+# Git設定の確認
+git config --get i18n.commitEncoding              # コミットエンコーディングの確認
+git config --get i18n.logOutputEncoding           # ログ出力エンコーディングの確認
+git config --get core.quotePath                   # パス表示設定の確認
+
+```
+
+### URL書き換えとリダイレクト設定
+
+```bash
+# HTTPSからSSHへの自動変換
+git config --global url."git@github.com:".insteadOf "https://github.com/"
+git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
+
+# 特定の組織用のURL書き換え
+git config --global url."git@github-work:company/".insteadOf "https://github.com/company/"
+
+# プッシュ時のURL書き換え（フェッチとプッシュで異なるURLを使用）
+git config --global url."git@github.com:".pushInsteadOf "https://github.com/"
+
+# 内部リポジトリへのリダイレクト
+git config --global url."https://internal-git.company.com/".insteadOf "https://github.com/company/"
+
+```
+
+### メンテナンスとガベージコレクション設定
+
+```bash
+# 自動ガベージコレクション
+git config --global gc.auto 6700                  # オブジェクト数がこの値を超えると自動GC
+git config --global gc.autopacklimit 50           # パックファイル数がこの値を超えると自動GC
+git config --global gc.autoDetach true            # GCをバックグラウンドで実行
+
+# ガベージコレクションの動作
+git config --global gc.pruneExpire "2.weeks.ago"  # この期間より古い未参照オブジェクトを削除
+git config --global gc.worktreePruneExpire "3.months.ago"  # 作業ツリーの削除期間
+git config --global gc.reflogExpire "90.days"     # reflogの保持期間
+git config --global gc.reflogExpireUnreachable "30.days"  # 到達不可能reflogの保持期間
+
+# リパック設定
+git config --global repack.useDeltaBaseOffset true  # デルタベースオフセットを使用
+git config --global pack.useSparse true           # スパースパッキングを使用
+
+```
+
+### フックとテンプレート設定
+
+```bash
+# フックの設定
+git config --global init.templateDir ~/.git-templates  # 新規リポジトリのテンプレートディレクトリ
+git config --global core.hooksPath ~/.git-hooks   # カスタムフックディレクトリ
+
+# コミットテンプレート
+git config --global commit.template ~/.gitmessage  # コミットメッセージのテンプレートファイル
+
+# 除外ファイル
+git config --global core.excludesFile ~/.gitignore_global  # グローバル.gitignoreファイル
+
+```
+
+### サブモジュール設定
+
+```bash
+# サブモジュールの再帰的操作
+git config --global submodule.recurse true        # サブモジュールを再帰的に処理
+
+# サブモジュールの更新戦略
+git config --global submodule.fetchJobs 4         # サブモジュールフェッチの並列数
+
+# サブモジュールの自動更新
+git config --global status.submoduleSummary true  # statusでサブモジュール概要を表示
+git config --global diff.submodule log            # サブモジュールの差分をログ形式で表示
+
+```
+
+### その他の有用な設定
+
+```bash
+# 大きなファイル処理
+git config --global core.bigFileThreshold 512m    # 大きなファイルの閾値
+
+# ファイルモード
+git config --global core.filemode true            # ファイルの実行権限を追跡
+
+# シンボリックリンク
+git config --global core.symlinks true            # シンボリックリンクを有効
+
+# 大文字小文字の区別
+git config --global core.ignoreCase false         # ファイル名の大文字小文字を区別
+
+# ロック機能
+git config --global core.filesRefLockTimeout 10000  # ファイル参照ロックのタイムアウト（ミリ秒）
+
+# 進捗表示
+git config --global progress.enabled true         # 進捗バーを表示
+
+# 実験的機能
+git config --global feature.experimental true     # 実験的機能を有効（Git 2.28+）
+git config --global feature.manyFiles true        # 大量ファイル処理の最適化
+
+```
+
+### 設定の表示と管理
+
+```bash
+# 現在の設定を包括的に確認
+git config --list --show-origin --show-scope      # 設定値、出力元、スコープを表示
+
+# 特定のセクションの設定を確認
+git config --get-regexp "core\."                  # coreセクションの設定を確認
+git config --get-regexp "branch\."                # branchセクションの設定を確認
+git config --get-regexp "merge\."                 # mergeセクションの設定を確認
+
+# 設定の優先度を確認
+git config --list --show-origin user.email        # 特定の設定の出力元を確認
+
+# 設定のリセット
+git config --global --unset-all user.name         # 特定の設定を全て削除
+git config --global --remove-section "alias"      # セクション全体を削除
+
+# システム全体の設定（管理者権限が必要）
+sudo git config --system core.autocrlf input      # システム全体の設定
 
 ```
 
