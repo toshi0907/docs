@@ -3492,8 +3492,28 @@ git rev-parse --until="last week"
 
 - **diff** - 変更の差分を表示  
   ```bash
-  git diff
-  git diff HEAD~1
+  # 基本的な使用法
+  git diff                        # ワーキングディレクトリとステージングエリアの差分
+  git diff HEAD~1                 # 直前のコミットとの差分
+  git diff --cached               # ステージングエリアとHEADの差分
+  
+  # 終了コードを利用（CI/CDでの差分チェックに便利）
+  git diff --exit-code            # 差分があれば終了コード1、なければ0で終了
+  git diff --quiet                # --exit-codeと同じ（出力なし）
+  
+  # 出力形式の制御
+  git diff --name-only            # 変更されたファイル名のみ表示
+  git diff --stat                 # 統計情報を表示（追加/削除行数）
+  git diff --numstat              # 数値形式の統計情報
+  git diff --name-status          # ファイル名と変更ステータス（A/M/D）
+  
+  # 比較対象の指定
+  git diff branch1..branch2       # ブランチ間の差分
+  git diff --no-index file1 file2 # Git管理外ファイルの比較
+  
+  # 差分の詳細制御
+  git diff -w                     # 空白の違いを無視
+  git diff --word-diff            # 単語レベルの差分表示
   ```
 
 - **fetch** - リモートリポジトリから変更を取得  

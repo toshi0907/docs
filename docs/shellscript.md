@@ -89,6 +89,75 @@ echo "PID: $$"
 
 ```
 
+### パラメータ展開
+
+```bash
+# 基本的なパラメータ展開
+
+name="太郎"
+echo "${name}"              # 通常の変数展開
+
+# デフォルト値の設定
+
+echo "${undefined:-default}"    # 変数が未定義または空の場合にデフォルト値を使用
+echo "${name:-default}"         # 変数が定義されている場合は変数の値を使用
+
+echo "${undefined:=default}"    # 変数が未定義または空の場合にデフォルト値を設定して使用
+echo "${name:+alternative}"     # 変数が定義され非空の場合に代替値を使用
+
+# エラーメッセージ付きのチェック
+
+echo "${undefined:?Error: variable not set}"  # 変数が未定義または空の場合にエラーメッセージを表示
+
+# 文字列の長さ
+
+text="Hello World"
+echo "${#text}"             # 文字列の長さを取得（11）
+
+# 部分文字列の抽出
+
+echo "${text:6}"            # 6文字目以降を抽出（"World"）
+echo "${text:0:5}"          # 0文字目から5文字を抽出（"Hello"）
+echo "${text: -5}"          # 後ろから5文字を抽出（"World"）
+
+# 前方一致での削除（接頭辞の削除）
+
+filepath="/home/user/document.txt"
+echo "${filepath#*/}"       # 最初の / までを削除（"home/user/document.txt"）
+echo "${filepath##*/}"      # 最後の / までを削除（"document.txt"）
+
+# 後方一致での削除（接尾辞の削除）
+
+echo "${filepath%/*}"       # 最後の / 以降を削除（"/home/user"）
+echo "${filepath%%/*}"      # 最初の / 以降を削除（""）
+
+# 拡張子の操作
+
+filename="document.pdf"
+echo "${filename%.*}"       # 拡張子を削除（"document"）
+echo "${filename##*.}"      # 拡張子のみ取得（"pdf"）
+
+# 文字列の置換
+
+text="apple apple orange"
+echo "${text/apple/grape}"      # 最初のappleをgrapeに置換
+echo "${text//apple/grape}"     # 全てのappleをgrapeに置換
+
+# パターンによる置換
+
+echo "${text/#apple/grape}"     # 行頭のappleを置換
+echo "${text/%orange/grape}"    # 行末のorangeを置換
+
+# 大文字小文字の変換（Bash 4.0以降）
+
+text="Hello World"
+echo "${text^}"             # 最初の文字を大文字に
+echo "${text^^}"            # 全て大文字に
+echo "${text,}"             # 最初の文字を小文字に
+echo "${text,,}"            # 全て小文字に
+
+```
+
 ### 配列
 
 ```bash
