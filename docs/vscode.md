@@ -697,6 +697,189 @@ VS Codeでは以下の設定ファイルで環境をカスタマイズできま�
 }
 ```
 
+### Vim拡張機能
+
+#### VSCodeVim
+
+VSCodeVimは、Visual Studio CodeでVimエディタの操作を可能にする人気の拡張機能です。
+
+**拡張機能ID**: `vscodevim.vim`
+
+**主な機能**:
+- Vimのキーバインドとモーダル編集
+- Vimコマンドライン（:コマンド）のサポート
+- ビジュアルモードとマルチカーソル
+- テキストオブジェクトと動作コマンド
+- レジスタとマクロ機能
+
+#### Vim設定例
+
+**settings.jsonでの基本設定**:
+
+```json
+{
+  // Vim拡張機能の基本設定
+  "vim.easymotion": true,
+  "vim.incsearch": true,
+  "vim.useSystemClipboard": true,
+  "vim.useCtrlKeys": true,
+  "vim.hlsearch": true,
+  
+  // リーダーキーの設定
+  "vim.leader": "<space>",
+  
+  // 挿入モードでのキーバインド
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["j", "j"],
+      "after": ["<Esc>"]
+    }
+  ],
+  
+  // ノーマルモードでのキーバインド
+  "vim.normalModeKeyBindings": [
+    {
+      "before": ["<leader>", "w"],
+      "commands": ["workbench.action.files.save"]
+    },
+    {
+      "before": ["<leader>", "q"],
+      "commands": ["workbench.action.closeActiveEditor"]
+    },
+    {
+      "before": ["<leader>", "f"],
+      "commands": ["workbench.action.quickOpen"]
+    }
+  ],
+  
+  // ビジュアルモードでのキーバインド
+  "vim.visualModeKeyBindings": [
+    {
+      "before": ["<leader>", "c"],
+      "commands": ["editor.action.commentLine"]
+    }
+  ]
+}
+```
+
+#### よく使用されるVimコマンド
+
+**ファイル操作**:
+```vim
+:w          " ファイル保存
+:q          " エディタを閉じる
+:wq         " 保存して閉じる
+:e filename " ファイルを開く
+:sp         " 水平分割
+:vsp        " 垂直分割
+```
+
+**検索と置換**:
+```vim
+/pattern    " 前方検索
+?pattern    " 後方検索
+:s/old/new/g " 現在行で置換
+:%s/old/new/g " 全体で置換
+```
+
+**移動コマンド**:
+```vim
+gg          " ファイルの先頭に移動
+G           " ファイルの末尾に移動
+0           " 行の先頭に移動
+$           " 行の末尾に移動
+w           " 次の単語に移動
+b           " 前の単語に移動
+```
+
+#### EasyMotion設定
+
+EasyMotionを有効にしてより効率的な移動を実現:
+
+```json
+{
+  "vim.easymotion": true,
+  "vim.easymotionMarkerFontFamily": "Consolas",
+  "vim.easymotionMarkerFontSize": "14",
+  "vim.easymotionMarkerHeight": 20,
+  "vim.easymotionMarkerMargin": 0,
+  "vim.easymotionMarkerWidthPerChar": 8,
+  "vim.easymotionKeys": "hklyuiopnm,qwertzxcvbasdgjf;"
+}
+```
+
+**EasyMotionの使用方法**:
+- `<leader><leader>w`: 単語への移動
+- `<leader><leader>f{char}`: 文字への移動
+- `<leader><leader>j`: 行への移動
+
+#### 高度なVim設定
+
+**カスタムコマンドの設定**:
+
+```json
+{
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": ["<leader>", "n", "t"],
+      "commands": ["workbench.action.terminal.new"]
+    },
+    {
+      "before": ["<leader>", "s", "h"],
+      "commands": ["workbench.action.splitEditorLeft"]
+    },
+    {
+      "before": ["<leader>", "s", "l"],
+      "commands": ["workbench.action.splitEditorRight"]
+    },
+    {
+      "before": ["<leader>", "s", "j"],
+      "commands": ["workbench.action.splitEditorDown"]
+    },
+    {
+      "before": ["<leader>", "s", "k"],
+      "commands": ["workbench.action.splitEditorUp"]
+    }
+  ]
+}
+```
+
+**Surroundプラグインの模倣**:
+
+```json
+{
+  "vim.operatorPendingModeKeyBindings": [
+    {
+      "before": ["i", "n"],
+      "after": ["i", "n"]
+    }
+  ],
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": ["S", "("],
+      "commands": ["editor.action.insertSnippet"],
+      "args": {
+        "snippet": "(${TM_SELECTED_TEXT})"
+      }
+    },
+    {
+      "before": ["S", "["],
+      "commands": ["editor.action.insertSnippet"],
+      "args": {
+        "snippet": "[${TM_SELECTED_TEXT}]"
+      }
+    },
+    {
+      "before": ["S", "{"],
+      "commands": ["editor.action.insertSnippet"],
+      "args": {
+        "snippet": "{${TM_SELECTED_TEXT}}"
+      }
+    }
+  ]
+}
+```
+
 ## ワークスペース設定
 
 ### .vscode/settings.json（プロジェクト固有）
