@@ -270,43 +270,59 @@ private void NewFile_Click(object sender, EventArgs e)
 
 ## Excel ファイルの操作
 
-### EPPlus ライブラリのインストール
+### Microsoft.Office.Interop.Excel の設定
 
-```xml
-<!-- NuGet パッケージマネージャーコンソールで実行 -->
-Install-Package EPPlus
+```csharp
+// プロジェクト参照の追加方法:
+// 1. ソリューションエクスプローラーで「参照」を右クリック
+// 2. 「参照の追加」を選択
+// 3. 「COM」タブを選択
+// 4. 「Microsoft Excel XX.X Object Library」を選択してチェック
+// 5. 「OK」をクリックして参照を追加
+
+// または、NuGetパッケージマネージャーで:
+// Install-Package Microsoft.Office.Interop.Excel
 ```
 
 ### Excel ファイルの読み込み
 
 ```csharp
-using OfficeOpenXml;
-using System.IO;
+using Microsoft.Office.Interop.Excel;
+using System;
+using System.Runtime.InteropServices;
 
 public class ExcelReader
 {
     public void ReadExcelFile(string filePath)
     {
-        // EPPlusの商用利用設定（必要に応じて）
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        Application excelApp = null;
+        Workbook workbook = null;
+        Worksheet worksheet = null;
         
-        FileInfo fileInfo = new FileInfo(filePath);
-        
-        using (ExcelPackage package = new ExcelPackage(fileInfo))
+        try
         {
-            // 最初のワークシートを取得
-            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+            // Excelアプリケーションの起動
+            excelApp = new Application();
+            excelApp.Visible = false; // Excelウィンドウを非表示
+            excelApp.DisplayAlerts = false; // 警告ダイアログを無効
             
-            // セルの範囲を取得
-            int rowCount = worksheet.Dimension.Rows;
-            int colCount = worksheet.Dimension.Columns;
+            // ワークブックを開く
+            workbook = excelApp.Workbooks.Open(filePath);
+            
+            // 最初のワークシートを取得
+            worksheet = (Worksheet)workbook.Worksheets[1];
+            
+            // 使用範囲を取得
+            Range usedRange = worksheet.UsedRange;
             
             // データの読み込み
-            for (int row = 1; row <= rowCount; row++)
+            for (int row = 1; row <= usedRange.Rows.Count; row++)
             {
-                for (int col = 1; col <= colCount; col++)
+                for (int col = 1; col <= usedRange.Columns.Count; col++)
                 {
-                    var cellValue = worksheet.Cells[row, col].Value;
+                    Range cell = (Range)usedRange.Cells[row, col];
+                    var cellValue = cell.Value;
+                    
                     if (cellValue != null)
                     {
                         Console.WriteLine($"行{row}, 列{col}: {cellValue}");
@@ -314,18 +330,67 @@ public class ExcelReader
                 }
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"エラー: {ex.Message}");
+        }
+        finally
+        {
+            // リソースの解放（重要）
+            if (worksheet != null) Marshal.ReleaseComObject(worksheet);
+            if (workbook != null)
+            {
+                workbook.Close(false);
+                Marshal.ReleaseComObject(workbook);
+            }
+            if (excelApp != null)
+            {
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
+        }
     }
     
     // 特定セルのデータ取得
     public string GetCellValue(string filePath, string cellAddress)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        Application excelApp = null;
+        Workbook workbook = null;
+        Worksheet worksheet = null;
+        string result = "";
         
-        using (ExcelPackage package = new ExcelPackage(new FileInfo(filePath)))
+        try
         {
-            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-            return worksheet.Cells[cellAddress].Value?.ToString() ?? "";
+            excelApp = new Application();
+            excelApp.Visible = false;
+            excelApp.DisplayAlerts = false;
+            
+            workbook = excelApp.Workbooks.Open(filePath);
+            worksheet = (Worksheet)workbook.Worksheets[1];
+            
+            Range cell = worksheet.get_Range(cellAddress);
+            result = cell.Value?.ToString() ?? "";
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"エラー: {ex.Message}");
+        }
+        finally
+        {
+            if (worksheet != null) Marshal.ReleaseComObject(worksheet);
+            if (workbook != null)
+            {
+                workbook.Close(false);
+                Marshal.ReleaseComObject(workbook);
+            }
+            if (excelApp != null)
+            {
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
+        }
+        
+        return result;
     }
 }
 ```
@@ -337,18 +402,29 @@ public class ExcelWriter
 {
     public void CreateExcelFile(string filePath)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        Application excelApp = null;
+        Workbook workbook = null;
+        Worksheet worksheet = null;
         
-        using (ExcelPackage package = new ExcelPackage())
+        try
         {
-            // ワークシートの追加
-            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("データシート");
+            // Excelアプリケーションの起動
+            excelApp = new Application();
+            excelApp.Visible = false;
+            excelApp.DisplayAlerts = false;
+            
+            // 新しいワークブックを作成
+            workbook = excelApp.Workbooks.Add();
+            
+            // 最初のワークシートを取得
+            worksheet = (Worksheet)workbook.Worksheets[1];
+            worksheet.Name = "データシート";
             
             // ヘッダーの作成
-            worksheet.Cells[1, 1].Value = "ID";
-            worksheet.Cells[1, 2].Value = "名前";
-            worksheet.Cells[1, 3].Value = "年齢";
-            worksheet.Cells[1, 4].Value = "部署";
+            worksheet.Cells[1, 1] = "ID";
+            worksheet.Cells[1, 2] = "名前";
+            worksheet.Cells[1, 3] = "年齢";
+            worksheet.Cells[1, 4] = "部署";
             
             // サンプルデータの挿入
             var employees = new[]
@@ -361,33 +437,82 @@ public class ExcelWriter
             int row = 2;
             foreach (var emp in employees)
             {
-                worksheet.Cells[row, 1].Value = emp.Id;
-                worksheet.Cells[row, 2].Value = emp.Name;
-                worksheet.Cells[row, 3].Value = emp.Age;
-                worksheet.Cells[row, 4].Value = emp.Department;
+                worksheet.Cells[row, 1] = emp.Id;
+                worksheet.Cells[row, 2] = emp.Name;
+                worksheet.Cells[row, 3] = emp.Age;
+                worksheet.Cells[row, 4] = emp.Department;
                 row++;
             }
             
             // 書式設定
-            worksheet.Cells[1, 1, 1, 4].Style.Font.Bold = true; // ヘッダーを太字
-            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns(); // 列幅自動調整
+            Range headerRange = worksheet.get_Range("A1", "D1");
+            headerRange.Font.Bold = true; // ヘッダーを太字
+            
+            // 列幅の自動調整
+            Range usedRange = worksheet.UsedRange;
+            usedRange.Columns.AutoFit();
             
             // ファイル保存
-            FileInfo fileInfo = new FileInfo(filePath);
-            package.SaveAs(fileInfo);
+            workbook.SaveAs(filePath);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"エラー: {ex.Message}");
+        }
+        finally
+        {
+            if (worksheet != null) Marshal.ReleaseComObject(worksheet);
+            if (workbook != null)
+            {
+                workbook.Close(true);
+                Marshal.ReleaseComObject(workbook);
+            }
+            if (excelApp != null)
+            {
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
         }
     }
     
     // データの更新
     public void UpdateCellValue(string filePath, string cellAddress, object newValue)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        Application excelApp = null;
+        Workbook workbook = null;
+        Worksheet worksheet = null;
         
-        using (ExcelPackage package = new ExcelPackage(new FileInfo(filePath)))
+        try
         {
-            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-            worksheet.Cells[cellAddress].Value = newValue;
-            package.Save();
+            excelApp = new Application();
+            excelApp.Visible = false;
+            excelApp.DisplayAlerts = false;
+            
+            workbook = excelApp.Workbooks.Open(filePath);
+            worksheet = (Worksheet)workbook.Worksheets[1];
+            
+            Range cell = worksheet.get_Range(cellAddress);
+            cell.Value = newValue;
+            
+            workbook.Save();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"エラー: {ex.Message}");
+        }
+        finally
+        {
+            if (worksheet != null) Marshal.ReleaseComObject(worksheet);
+            if (workbook != null)
+            {
+                workbook.Close(true);
+                Marshal.ReleaseComObject(workbook);
+            }
+            if (excelApp != null)
+            {
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
         }
     }
 }
@@ -438,7 +563,7 @@ public partial class ExcelForm : Form
         
         // ファイルダイアログ
         openFileDialog = new OpenFileDialog();
-        openFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+        openFileDialog.Filter = "Excel files (*.xlsx;*.xls)|*.xlsx;*.xls|All files (*.*)|*.*";
         
         saveFileDialog = new SaveFileDialog();
         saveFileDialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
@@ -462,33 +587,60 @@ public partial class ExcelForm : Form
     
     private void LoadExcelData(string filePath)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        Application excelApp = null;
+        Workbook workbook = null;
+        Worksheet worksheet = null;
         
-        using (ExcelPackage package = new ExcelPackage(new FileInfo(filePath)))
+        try
         {
-            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+            excelApp = new Application();
+            excelApp.Visible = false;
+            excelApp.DisplayAlerts = false;
+            
+            workbook = excelApp.Workbooks.Open(filePath);
+            worksheet = (Worksheet)workbook.Worksheets[1];
+            
+            Range usedRange = worksheet.UsedRange;
             
             // DataTableに変換
             System.Data.DataTable dataTable = new System.Data.DataTable();
             
             // 列ヘッダーの追加
-            for (int col = 1; col <= worksheet.Dimension.Columns; col++)
+            for (int col = 1; col <= usedRange.Columns.Count; col++)
             {
-                dataTable.Columns.Add(worksheet.Cells[1, col].Value?.ToString() ?? $"列{col}");
+                Range headerCell = (Range)usedRange.Cells[1, col];
+                string columnName = headerCell.Value?.ToString() ?? $"列{col}";
+                dataTable.Columns.Add(columnName);
             }
             
             // データ行の追加
-            for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+            for (int row = 2; row <= usedRange.Rows.Count; row++)
             {
                 var dataRow = dataTable.NewRow();
-                for (int col = 1; col <= worksheet.Dimension.Columns; col++)
+                for (int col = 1; col <= usedRange.Columns.Count; col++)
                 {
-                    dataRow[col - 1] = worksheet.Cells[row, col].Value;
+                    Range cell = (Range)usedRange.Cells[row, col];
+                    dataRow[col - 1] = cell.Value;
                 }
                 dataTable.Rows.Add(dataRow);
             }
             
             dgvData.DataSource = dataTable;
+        }
+        finally
+        {
+            // リソースの解放
+            if (worksheet != null) Marshal.ReleaseComObject(worksheet);
+            if (workbook != null)
+            {
+                workbook.Close(false);
+                Marshal.ReleaseComObject(workbook);
+            }
+            if (excelApp != null)
+            {
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
         }
     }
     
@@ -512,34 +664,63 @@ public partial class ExcelForm : Form
     
     private void SaveExcelData(string filePath)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        Application excelApp = null;
+        Workbook workbook = null;
+        Worksheet worksheet = null;
         
-        using (ExcelPackage package = new ExcelPackage())
+        try
         {
-            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("データ");
+            excelApp = new Application();
+            excelApp.Visible = false;
+            excelApp.DisplayAlerts = false;
+            
+            workbook = excelApp.Workbooks.Add();
+            worksheet = (Worksheet)workbook.Worksheets[1];
+            worksheet.Name = "データ";
             
             System.Data.DataTable dataTable = (System.Data.DataTable)dgvData.DataSource;
             
-            // 列ヘッダーの書き込み
-            for (int col = 0; col < dataTable.Columns.Count; col++)
+            if (dataTable != null)
             {
-                worksheet.Cells[1, col + 1].Value = dataTable.Columns[col].ColumnName;
-            }
-            
-            // データの書き込み
-            for (int row = 0; row < dataTable.Rows.Count; row++)
-            {
+                // 列ヘッダーの書き込み
                 for (int col = 0; col < dataTable.Columns.Count; col++)
                 {
-                    worksheet.Cells[row + 2, col + 1].Value = dataTable.Rows[row][col];
+                    worksheet.Cells[1, col + 1] = dataTable.Columns[col].ColumnName;
                 }
+                
+                // データの書き込み
+                for (int row = 0; row < dataTable.Rows.Count; row++)
+                {
+                    for (int col = 0; col < dataTable.Columns.Count; col++)
+                    {
+                        worksheet.Cells[row + 2, col + 1] = dataTable.Rows[row][col];
+                    }
+                }
+                
+                // スタイリング
+                Range headerRange = worksheet.get_Range("A1", 
+                    worksheet.Cells[1, dataTable.Columns.Count]);
+                headerRange.Font.Bold = true;
+                
+                Range usedRange = worksheet.UsedRange;
+                usedRange.Columns.AutoFit();
             }
             
-            // スタイリング
-            worksheet.Cells[1, 1, 1, dataTable.Columns.Count].Style.Font.Bold = true;
-            worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
-            
-            package.SaveAs(new FileInfo(filePath));
+            workbook.SaveAs(filePath);
+        }
+        finally
+        {
+            if (worksheet != null) Marshal.ReleaseComObject(worksheet);
+            if (workbook != null)
+            {
+                workbook.Close(true);
+                Marshal.ReleaseComObject(workbook);
+            }
+            if (excelApp != null)
+            {
+                excelApp.Quit();
+                Marshal.ReleaseComObject(excelApp);
+            }
         }
     }
 }
@@ -649,7 +830,7 @@ C#を使ったフォームアプリケーション開発とExcel操作につい�
 **学習のポイント:**
 1. 基本文法をしっかり理解する
 2. Windows Formsの基本操作を習得する
-3. EPPlusライブラリでExcel操作をマスターする
+3. Microsoft.Office.Interop.ExcelでExcel操作をマスターする
 4. エラーハンドリングを適切に実装する
 5. 実際のアプリケーション開発で経験を積む
 
