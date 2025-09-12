@@ -25,6 +25,7 @@ header_pages:
   - javascript.md
   - nodejs.md
   - python.md
+  - csharp.md
   - regexp.md
   - nginx.md
   - shellscript.md
