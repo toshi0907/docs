@@ -1,0 +1,17 @@
+---
+layout: none
+---
+{
+  "docs": [
+    {% for page in site.pages %}
+      {% unless page.url contains '/assets/' or page.url contains '/vendor/' or page.url contains '404' %}
+        {
+          "title": {{ page.title | jsonify }},
+          "url": {{ page.url | relative_url | jsonify }},
+          "content": {{ page.content | strip_html | strip_newlines | jsonify }},
+          "excerpt": {{ page.content | strip_html | truncatewords: 50 | strip_newlines | jsonify }}
+        }{% unless forloop.last %},{% endunless %}
+      {% endunless %}
+    {% endfor %}
+  ]
+}
