@@ -1752,22 +1752,203 @@ git commit -m "機能Bを追加"
 
 ### 履歴の確認
 
+#### 基本的なログ表示
+
 ```bash
 # コミット履歴を表示
-
 git log
 
 # 簡潔な履歴を表示
-
 git log --oneline
 
 # グラフ表示
-
 git log --graph --oneline --all
 
 # 特定のファイルの履歴
-
 git log filename.txt
+
+# 最新のN件のコミットを表示
+git log -n 5
+git log -5
+
+# 詳細な差分も含めて表示
+git log -p
+git log --patch
+
+```
+
+#### 日付とコミット範囲での絞り込み
+
+```bash
+# 特定の日付以降のコミット
+git log --since="2024-01-01"
+git log --after="2024-01-01"
+
+# 特定の日付より前のコミット
+git log --until="2024-12-31"
+git log --before="2024-12-31"
+
+# 日付範囲でのフィルタリング
+git log --since="2024-01-01" --until="2024-12-31"
+
+# 相対的な日付指定
+git log --since="1 week ago"
+git log --since="2 days ago"
+git log --since="1 month ago"
+
+# 特定のコミット間の履歴
+git log commit1..commit2
+git log HEAD~5..HEAD
+
+```
+
+#### 作者とコミッターでの絞り込み
+
+```bash
+# 特定の作者のコミット
+git log --author="John Doe"
+git log --author="john@example.com"
+
+# 部分マッチでの検索
+git log --author="john"
+
+# 特定のコミッターのコミット
+git log --committer="John Doe"
+
+# 複数の作者を指定（正規表現）
+git log --author="John\|Jane"
+
+```
+
+#### コミットメッセージでの検索
+
+```bash
+# コミットメッセージに特定の文字列を含むコミット
+git log --grep="bug fix"
+git log --grep="feature"
+
+# 大文字小文字を区別しない検索
+git log --grep="BUG" --regexp-ignore-case
+
+# 複数のキーワードでの検索（AND条件）
+git log --grep="bug" --grep="fix" --all-match
+
+# 複数のキーワードでの検索（OR条件）
+git log --grep="bug\|fix"
+
+```
+
+#### ファイル変更での絞り込み
+
+```bash
+# 特定のファイルに関連するコミット
+git log -- filename.txt
+git log -- src/main.js
+
+# 複数のファイル
+git log -- file1.txt file2.txt
+
+# ディレクトリ内のファイル
+git log -- src/
+
+# ファイル名変更を追跡
+git log --follow -- filename.txt
+
+# 削除されたファイルの履歴も含む
+git log --full-history -- filename.txt
+
+```
+
+#### 出力フォーマットのカスタマイズ
+
+```bash
+# カスタムフォーマット
+git log --pretty=format:"%h - %an, %ar : %s"
+git log --format="%C(yellow)%h%Creset %C(blue)%an%Creset %C(green)%ar%Creset %s"
+
+# 定義済みのフォーマット
+git log --pretty=oneline
+git log --pretty=short
+git log --pretty=medium
+git log --pretty=full
+git log --pretty=fuller
+
+# 統計情報も表示
+git log --stat
+git log --shortstat
+git log --name-only
+git log --name-status
+
+```
+
+#### 高度なログオプション
+
+```bash
+# マージコミットを除外
+git log --no-merges
+
+# マージコミットのみ表示
+git log --merges
+
+# 特定のブランチのコミット（他のブランチにないもの）
+git log main..feature-branch
+git log ^main feature-branch
+
+# 全ブランチのコミット
+git log --all
+
+# リモートブランチも含む
+git log --all --remotes
+
+# グラフ表示の詳細設定
+git log --graph --all --decorate --oneline
+git log --graph --pretty=format:"%C(red)%h%Creset -%C(yellow)%d%Creset %s %C(green)(%cr) %C(bold blue)<%an>%Creset"
+
+```
+
+#### ページャーの制御
+
+```bash
+# ページャーを無効にして出力
+git --no-pager log
+
+# 一時的にページャーを無効化（他のコマンドでも有効）
+git --no-pager log --oneline -10
+git --no-pager status
+git --no-pager diff
+
+# 環境変数でページャーを無効化
+export GIT_PAGER=cat
+git log
+
+# lessの代わりにcatを使用（スクロールなし）
+git config --global core.pager cat
+
+# ページャー設定を一時的に無効化
+git -c core.pager=cat log
+
+```
+
+#### 実用的なログコマンドの例
+
+```bash
+# 今週の自分のコミット
+git log --author="$(git config user.name)" --since="1 week ago" --oneline
+
+# 今日の全員のコミット
+git log --since="1 day ago" --all --oneline
+
+# 特定の機能に関する変更履歴
+git log --grep="authentication" --oneline
+
+# ファイル変更の詳細履歴
+git log -p --follow -- important-file.txt
+
+# ブランチ間の差分コミット
+git log main..feature --oneline
+
+# 統計情報付きの週次レポート
+git log --since="1 week ago" --stat --oneline
 
 ```
 
@@ -3514,6 +3695,10 @@ git rev-parse --until="last week"
   # 差分の詳細制御
   git diff -w                     # 空白の違いを無視
   git diff --word-diff            # 単語レベルの差分表示
+  
+  # ページャーを無効化（スクリプトや自動化で便利）
+  git --no-pager diff             # ページャーなしで差分表示
+  git --no-pager diff --name-only # ファイル名のみページャーなしで表示
   ```
 
 - **fetch** - リモートリポジトリから変更を取得  
@@ -3561,6 +3746,11 @@ git rev-parse --until="last week"
   git log
   git log --oneline
   git log --graph
+  git log --oneline -10
+  git log --since="1 week ago"
+  git log --author="name"
+  git log --grep="bug fix"
+  git --no-pager log --oneline -5
   ```
 
 - **merge** - ブランチをマージ  
@@ -3636,7 +3826,11 @@ git rev-parse --until="last week"
 - **status** - 作業ディレクトリの状態を表示  
   ```bash
   git status
-  git status -s
+  git status -s                   # 短縮形式で表示
+  git status --porcelain          # スクリプトで処理しやすい形式
+  git status --branch             # ブランチ情報も表示
+  git --no-pager status           # ページャーなしで状態表示
+  git --no-pager status -s        # 短縮形式でページャーなし
   ```
 
 - **stash** - 変更を一時的に保存  
@@ -4001,6 +4195,125 @@ git rev-parse --until="last week"
 ```bash
 git help -a
 ```
+
+## --no-pagerオプションの実用的な使用例
+
+`--no-pager`オプションは、Gitコマンドの出力をページャー（通常は`less`）を使わずに直接表示するために使用します。スクリプトや自動化、CI/CD環境で特に有用です。
+
+### 基本的な使用方法
+
+```bash
+# ページャーなしでログを表示
+git --no-pager log --oneline -10
+
+# ページャーなしで状態確認
+git --no-pager status
+
+# ページャーなしで差分表示
+git --no-pager diff
+
+```
+
+### スクリプトでの活用
+
+```bash
+#!/bin/bash
+
+# スクリプトでgitコマンドの出力を処理する場合
+changes=$(git --no-pager diff --name-only)
+if [ -n "$changes" ]; then
+    echo "変更されたファイル:"
+    git --no-pager diff --name-only
+fi
+
+# 特定の形式で出力を取得
+commit_count=$(git --no-pager log --oneline | wc -l)
+echo "コミット総数: $commit_count"
+
+# ファイルにリダイレクトする場合
+git --no-pager log --oneline --since="1 month ago" > monthly_commits.txt
+
+```
+
+### CI/CD環境での使用
+
+```bash
+# GitHub Actions、Jenkins等でのビルドスクリプト
+echo "=== Git状態確認 ==="
+git --no-pager status --porcelain
+
+echo "=== 最近のコミット ==="
+git --no-pager log --oneline -5
+
+echo "=== 変更されたファイル ==="
+git --no-pager diff --name-only HEAD~1
+
+# 差分の有無を確認（終了コードを利用）
+if git --no-pager diff --quiet; then
+    echo "変更なし"
+else
+    echo "変更あり"
+    git --no-pager diff --stat
+fi
+
+```
+
+### 設定による制御
+
+```bash
+# 環境変数で一時的にページャーを無効化
+export GIT_PAGER=cat
+git log
+git diff
+unset GIT_PAGER
+
+# グローバル設定でページャーを無効化（非推奨）
+git config --global core.pager cat
+
+# 特定のコマンドのみページャーを無効化
+git config --global pager.status false
+git config --global pager.branch false
+
+# 設定の確認と削除
+git config --get core.pager
+git config --unset core.pager
+
+```
+
+### よくある使用場面
+
+```bash
+# 1. コミットハッシュを変数に取得
+latest_commit=$(git --no-pager log -1 --pretty=format:"%H")
+echo "最新コミット: $latest_commit"
+
+# 2. 変更ファイル一覧をループ処理
+for file in $(git --no-pager diff --name-only); do
+    echo "処理中: $file"
+    # ファイルごとの処理...
+done
+
+# 3. ブランチ情報の取得
+current_branch=$(git --no-pager branch --show-current)
+echo "現在のブランチ: $current_branch"
+
+# 4. タグ情報の出力
+git --no-pager tag --list | head -5
+
+# 5. 統計情報のレポート生成
+echo "=== プロジェクト統計 ===" > report.txt
+echo "ブランチ数: $(git --no-pager branch --all | wc -l)" >> report.txt
+echo "タグ数: $(git --no-pager tag | wc -l)" >> report.txt
+echo "今週のコミット数: $(git --no-pager log --oneline --since='1 week ago' | wc -l)" >> report.txt
+
+```
+
+### 注意事項
+
+- `--no-pager`オプションは`git`コマンドの直後に指定する必要があります
+- 大量の出力がある場合、端末がスクロールしてしまう可能性があります
+- 対話的な作業では通常ページャーがある方が便利です
+- スクリプトや自動化でのみ使用することを推奨します
 
 ## 実用的な例
 
