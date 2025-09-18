@@ -3695,6 +3695,10 @@ git rev-parse --until="last week"
   # 差分の詳細制御
   git diff -w                     # 空白の違いを無視
   git diff --word-diff            # 単語レベルの差分表示
+  
+  # ページャーを無効化（スクリプトや自動化で便利）
+  git --no-pager diff             # ページャーなしで差分表示
+  git --no-pager diff --name-only # ファイル名のみページャーなしで表示
   ```
 
 - **fetch** - リモートリポジトリから変更を取得  
@@ -3742,6 +3746,11 @@ git rev-parse --until="last week"
   git log
   git log --oneline
   git log --graph
+  git log --oneline -10
+  git log --since="1 week ago"
+  git log --author="name"
+  git log --grep="bug fix"
+  git --no-pager log --oneline -5
   ```
 
 - **merge** - ブランチをマージ  
@@ -3817,7 +3826,11 @@ git rev-parse --until="last week"
 - **status** - 作業ディレクトリの状態を表示  
   ```bash
   git status
-  git status -s
+  git status -s                   # 短縮形式で表示
+  git status --porcelain          # スクリプトで処理しやすい形式
+  git status --branch             # ブランチ情報も表示
+  git --no-pager status           # ページャーなしで状態表示
+  git --no-pager status -s        # 短縮形式でページャーなし
   ```
 
 - **stash** - 変更を一時的に保存  
@@ -4182,6 +4195,125 @@ git rev-parse --until="last week"
 ```bash
 git help -a
 ```
+
+## --no-pagerオプションの実用的な使用例
+
+`--no-pager`オプションは、Gitコマンドの出力をページャー（通常は`less`）を使わずに直接表示するために使用します。スクリプトや自動化、CI/CD環境で特に有用です。
+
+### 基本的な使用方法
+
+```bash
+# ページャーなしでログを表示
+git --no-pager log --oneline -10
+
+# ページャーなしで状態確認
+git --no-pager status
+
+# ページャーなしで差分表示
+git --no-pager diff
+
+```
+
+### スクリプトでの活用
+
+```bash
+#!/bin/bash
+
+# スクリプトでgitコマンドの出力を処理する場合
+changes=$(git --no-pager diff --name-only)
+if [ -n "$changes" ]; then
+    echo "変更されたファイル:"
+    git --no-pager diff --name-only
+fi
+
+# 特定の形式で出力を取得
+commit_count=$(git --no-pager log --oneline | wc -l)
+echo "コミット総数: $commit_count"
+
+# ファイルにリダイレクトする場合
+git --no-pager log --oneline --since="1 month ago" > monthly_commits.txt
+
+```
+
+### CI/CD環境での使用
+
+```bash
+# GitHub Actions、Jenkins等でのビルドスクリプト
+echo "=== Git状態確認 ==="
+git --no-pager status --porcelain
+
+echo "=== 最近のコミット ==="
+git --no-pager log --oneline -5
+
+echo "=== 変更されたファイル ==="
+git --no-pager diff --name-only HEAD~1
+
+# 差分の有無を確認（終了コードを利用）
+if git --no-pager diff --quiet; then
+    echo "変更なし"
+else
+    echo "変更あり"
+    git --no-pager diff --stat
+fi
+
+```
+
+### 設定による制御
+
+```bash
+# 環境変数で一時的にページャーを無効化
+export GIT_PAGER=cat
+git log
+git diff
+unset GIT_PAGER
+
+# グローバル設定でページャーを無効化（非推奨）
+git config --global core.pager cat
+
+# 特定のコマンドのみページャーを無効化
+git config --global pager.status false
+git config --global pager.branch false
+
+# 設定の確認と削除
+git config --get core.pager
+git config --unset core.pager
+
+```
+
+### よくある使用場面
+
+```bash
+# 1. コミットハッシュを変数に取得
+latest_commit=$(git --no-pager log -1 --pretty=format:"%H")
+echo "最新コミット: $latest_commit"
+
+# 2. 変更ファイル一覧をループ処理
+for file in $(git --no-pager diff --name-only); do
+    echo "処理中: $file"
+    # ファイルごとの処理...
+done
+
+# 3. ブランチ情報の取得
+current_branch=$(git --no-pager branch --show-current)
+echo "現在のブランチ: $current_branch"
+
+# 4. タグ情報の出力
+git --no-pager tag --list | head -5
+
+# 5. 統計情報のレポート生成
+echo "=== プロジェクト統計 ===" > report.txt
+echo "ブランチ数: $(git --no-pager branch --all | wc -l)" >> report.txt
+echo "タグ数: $(git --no-pager tag | wc -l)" >> report.txt
+echo "今週のコミット数: $(git --no-pager log --oneline --since='1 week ago' | wc -l)" >> report.txt
+
+```
+
+### 注意事項
+
+- `--no-pager`オプションは`git`コマンドの直後に指定する必要があります
+- 大量の出力がある場合、端末がスクロールしてしまう可能性があります
+- 対話的な作業では通常ページャーがある方が便利です
+- スクリプトや自動化でのみ使用することを推奨します
 
 ## 実用的な例
 
