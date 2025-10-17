@@ -34,6 +34,7 @@ header_pages:
   - linux.md
   - termux.md
   - vscode.md
+  - gas.md
   - custom-layout-demo.md
 
 # Collections
