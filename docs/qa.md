@@ -21,6 +21,4 @@ GitHub Issueで寄せられた簡単な質問と、その回答をまとめた�
 
 ## 質問一覧
 
-質問への回答ページが作成され次第、ここに追記されます。
-
-<!-- 例: - **[質問のタイトル](qa/123-example-slug.html)** - 質問内容の要約（Issue [#123](https://github.com/toshi0907/docs/issues/123)） -->
+- **[シェルスクリプトでコマンド結果を配列に入れる方法](qa/144-bash-command-output-to-array.html)** - bashでコマンドの実行結果を配列に格納する方法（`mapfile`、`read -a`など）（Issue [#144](https://github.com/toshi0907/docs/issues/144)）
