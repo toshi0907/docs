@@ -15,9 +15,10 @@
   - `assets/js/search.js`, `assets/css/search.css`, `search.json` — クライアントサイド検索（コレクションから生成される `/docs/search.json` を取得する）
   - `index.md` — 手動のドキュメント一覧を持つホームページ（`_config.yml` の `header_pages` と同期させる必要がある）
   - `<topic>.md`（api, git, github, gdb, html, css, javascript, nodejs, python, csharp, regexp, nginx, shellscript, bat, jekyll, linux, termux, vscode, gas, ...）— 技術ごとの個別リファレンスドキュメント
-  - `qa.md` — IssueでのQ&Aのハブページ。個別の回答ページ（`qa-<issue番号>-<スラッグ>.md`）への一覧リンクを持つ
+  - `qa.md` — IssueでのQ&Aのハブページ。個別の回答ページ（`qa/<issue番号>-<スラッグ>.md`）への一覧リンクを持つ
+  - `qa/` — Issueからの質問に対する個別回答ページを格納するディレクトリ（`header_pages`やホームページの一覧には載せず、`qa.md`からのみリンクする）
 - `copilot-instructions.md`（リポジトリルート）— `docs/*.md` 配下のページ向けの日本語コンテンツ作成ガイドライン（TOC、フロントマター、文体、Liquid構文のエスケープ、Issueからの回答ページ作成手順など）。下記のコンテンツ規約はこのファイルに由来する
-- `.github/ISSUE_TEMPLATE/question.md` — 技術的な質問用のIssueテンプレート（回答は`qa-*.md`ページとして作成される）
+- `.github/ISSUE_TEMPLATE/question.md` — 技術的な質問用のIssueテンプレート（回答は`docs/qa/`配下のページとして作成される）
 - `.vscode/tasks.json` — 下記のJekyllビルド・サーブコマンドを実行するVS Codeビルドタスク
 
 ## ビルド・サーブコマンド
@@ -61,10 +62,10 @@ bundle exec jekyll serve --host 0.0.0.0 --port 4000
 
 技術ページ全体の新規作成・更新を依頼するIssue（例：「git.mdの更新」）とは別に、単発の技術的な質問（例：「◯◯するにはどうすればいいか」）がIssueとして起票された場合は、既存ページを編集せず専用の回答ページを作成します。
 
-1. `docs/qa-<issue番号>-<内容を表す英字スラッグ>.md` を作成する（フロントマターに `layout: page`、`title`、由来のIssue番号を示す `issue:` を含める）
+1. `docs/qa/<issue番号>-<内容を表す英字スラッグ>.md` を作成する（フロントマターに `layout: page`、`title`、由来のIssue番号を示す `issue:` を含める）
 2. 本文は `* 目次` + `{:toc}` の後、`## 質問` でIssue内容を要約し、`## 回答` に具体的な回答を書く（`## 参考資料` は必要な場合のみ）
 3. `docs/qa.md` の「質問一覧」に作成したページへのリンクをIssue番号の降順で追記する
-4. 個別の回答ページ（`qa-*.md`）は `header_pages:` や `index.md` には追加しない — ナビゲーションには `qa.md`（ハブページ）のみを掲載する
+4. `docs/qa/` 配下の個別の回答ページは `header_pages:` や `index.md` には追加しない — ナビゲーションには `qa.md`（ハブページ）のみを掲載する
 5. Issueには回答ページへのリンクをコメントし、クローズする
 
 詳細は `copilot-instructions.md` の「Issueからの回答ページ作成」セクションを参照してください。

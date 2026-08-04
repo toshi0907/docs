@@ -13,7 +13,7 @@ GitHub Issueで寄せられた簡単な質問と、その回答をまとめた�
 ## 運用の流れ
 
 1. 質問をGitHub Issueとして起票する
-2. 質問内容に対する回答を `docs/qa-<issue番号>-<内容を表す英字スラッグ>.md` として作成する
+2. 質問内容に対する回答を `docs/qa/<issue番号>-<内容を表す英字スラッグ>.md` として作成する
 3. 作成したページへのリンクをこの一覧に追加する（Issue番号の降順）
 4. 回答ページへのリンクをIssueにコメントし、Issueをクローズする
 
@@ -23,4 +23,4 @@ GitHub Issueで寄せられた簡単な質問と、その回答をまとめた�
 
 質問への回答ページが作成され次第、ここに追記されます。
 
-<!-- 例: - **[質問のタイトル](qa-123-example-slug.html)** - 質問内容の要約（Issue [#123](https://github.com/toshi0907/docs/issues/123)） -->
+<!-- 例: - **[質問のタイトル](qa/123-example-slug.html)** - 質問内容の要約（Issue [#123](https://github.com/toshi0907/docs/issues/123)） -->
