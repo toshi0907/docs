@@ -28,6 +28,7 @@ permalink: /
 - **[Termux リファレンス](termux.html)** - Android アプリ Termux の使用方法と Linux 環境構築
 - **[Visual Studio Code リファレンス](vscode.html)** - Visual Studio Codeの設定ファイルと便利な機能についてのリファレンス
 - **[カスタムレイアウトデモ](custom-layout-demo.html)** - 新しく追加されたJekyllカスタムレイアウトの機能紹介
+- **[Q&A](qa.html)** - Issueで寄せられた質問とその回答をまとめた一覧
 
 ---
 

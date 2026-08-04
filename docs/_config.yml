@@ -36,6 +36,7 @@ header_pages:
   - vscode.md
   - gas.md
   - custom-layout-demo.md
+  - qa.md
 
 # Collections
 collections:
