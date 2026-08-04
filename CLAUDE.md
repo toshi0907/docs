@@ -15,8 +15,7 @@ This is a Jekyll-based technical documentation site (`各種ドキュメント�
   - `assets/js/search.js`, `assets/css/search.css`, `search.json` — client-side search (fetches `/docs/search.json` built from the collection)
   - `index.md` — homepage with the manual doc listing (must stay in sync with `_config.yml`'s `header_pages`)
   - `<topic>.md` (api, git, github, gdb, html, css, javascript, nodejs, python, csharp, regexp, nginx, shellscript, bat, jekyll, linux, termux, vscode, gas, ...) — individual reference docs, one per technology
-- `copilot-instructions.md` (repo root) — legacy Japanese content-writing guidelines (superseded by `.github/copilot-instructions.md` but kept for reference)
-- `.github/copilot-instructions.md` — the authoritative, detailed instructions for this repo (build steps, timings, troubleshooting); treat it as a primary source alongside this file
+- `copilot-instructions.md` (repo root) — Japanese content-writing guidelines for pages under `docs/*.md` (TOC, front matter, tone, Liquid-syntax escaping, etc.); the content-convention rules below are derived from it
 - `.vscode/tasks.json` — VS Code build task that runs the Jekyll build+serve commands below
 
 ## Build / serve commands
@@ -45,7 +44,7 @@ There is no test suite or linter — validation is: build succeeds with no error
 
 Known, expected build noise (not failures): Liquid syntax warnings from `github.md` (documenting `${{ ... }}` GitHub Actions syntax) and Sass deprecation warnings from the Minima theme.
 
-## Content conventions (enforced by `.github/copilot-instructions.md`)
+## Content conventions (from `copilot-instructions.md`)
 
 When adding or editing a page under `docs/*.md`:
 
