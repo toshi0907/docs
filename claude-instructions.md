@@ -1,9 +1,9 @@
 ---
 layout: page
-title: "Copilot Instructions for Documentation Creation"
+title: "Claude Instructions for Documentation Creation"
 ---
 
-# Copilot Instructions for Documentation Creation
+# Claude Instructions for Documentation Creation
 
 このドキュメントは、GitHub Pagesでの表示に最適化された技術ドキュメント作成のためのガイドラインです。今後の技術ドキュメント作成時は、GitHub Pages環境での最適な表示を考慮して作成してください。
 
@@ -240,9 +240,9 @@ steps:
 - **言語配慮**: 日本語リソースと英語リソースをバランスよく配置
 - **説明付与**: 各リンクには簡潔な説明文を併記
 
-### copilot-instructions.mdでの参考資料
+### claude-instructions.mdでの参考資料
 
-このファイル（copilot-instructions.md）には参考資料のリンクは含めず、ルールとガイドラインのみを記述すること。参考となるリソースは個別のドキュメントページで管理する。
+このファイル（claude-instructions.md）には参考資料のリンクは含めず、ルールとガイドラインのみを記述すること。参考となるリソースは個別のドキュメントページで管理する。
 
 ## Issueからの回答ページ作成
 
