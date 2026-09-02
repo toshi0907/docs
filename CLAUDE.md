@@ -17,7 +17,7 @@
   - `<topic>.md`（api, git, github, gdb, html, css, javascript, nodejs, python, csharp, regexp, nginx, shellscript, bat, jekyll, linux, termux, vscode, gas, ...）— 技術ごとの個別リファレンスドキュメント
   - `qa.md` — IssueでのQ&Aのハブページ。個別の回答ページ（`qa/<issue番号>-<スラッグ>.md`）への一覧リンクを持つ
   - `qa/` — Issueからの質問に対する個別回答ページを格納するディレクトリ（`header_pages`やホームページの一覧には載せず、`qa.md`からのみリンクする）
-- `copilot-instructions.md`（リポジトリルート）— `docs/*.md` 配下のページ向けの日本語コンテンツ作成ガイドライン（TOC、フロントマター、文体、Liquid構文のエスケープ、Issueからの回答ページ作成手順など）。下記のコンテンツ規約はこのファイルに由来する
+- `claude-instructions.md`（リポジトリルート）— `docs/*.md` 配下のページ向けの日本語コンテンツ作成ガイドライン（TOC、フロントマター、文体、Liquid構文のエスケープ、Issueからの回答ページ作成手順など）。下記のコンテンツ規約はこのファイルに由来する
 - `.github/ISSUE_TEMPLATE/question.md` — 技術的な質問用のIssueテンプレート（回答は`docs/qa/`配下のページとして作成される）
 - `.vscode/tasks.json` — 下記のJekyllビルド・サーブコマンドを実行するVS Codeビルドタスク
 
@@ -47,7 +47,7 @@ bundle exec jekyll serve --host 0.0.0.0 --port 4000
 
 既知の想定内のビルド出力（エラーではない）: `github.md`（`${{ ... }}` というGitHub Actions構文を説明している）に起因するLiquid構文の警告、およびMinimaテーマによるSassの非推奨警告。
 
-## コンテンツ規約（`copilot-instructions.md` より）
+## コンテンツ規約（`claude-instructions.md` より）
 
 `docs/*.md` 配下のページを追加・編集する際は以下に従ってください。
 
@@ -56,7 +56,7 @@ bundle exec jekyll serve --host 0.0.0.0 --port 4000
 - 本文は日本語（丁寧語）で記述し、必要に応じて英語の専門用語をインラインで併記します（例: `shebang（シバン）`）。
 - GitHub Actionsの `${{ ... }}`、Docker Composeの `${VAR}`、Helmの `{{ .Values }}` など、Jekyllの Liquid パーサーと衝突するテンプレート構文を文書化する場合は、コードブロックを `{% raw %} ... {% endraw %}` で囲み、Jekyllが評価しないようにしてください。
 - 新規ページを追加する場合、ナビゲーションの整合性を保つために2箇所の追加編集が必要です。`docs/_config.yml` の `header_pages:` にファイル名を追加すること、および `docs/index.md` の一覧に対応するリンクを追加すること。両方で並び順を揃えてください。
-- 各技術ページの末尾には `## 参考資料`（参考資料）セクションを配置し、`### 公式ドキュメント` / `### 学習リソース` / `### ツールとライブラリ`（任意で `### ベストプラクティス・参考文献`）に分けます。`copilot-instructions.md` 自体には参考リンクを含めず、ルール・ガイドラインのみを記載します。
+- 各技術ページの末尾には `## 参考資料`（参考資料）セクションを配置し、`### 公式ドキュメント` / `### 学習リソース` / `### ツールとライブラリ`（任意で `### ベストプラクティス・参考文献`）に分けます。`claude-instructions.md` 自体には参考リンクを含めず、ルール・ガイドラインのみを記載します。
 
 ## Issueからの回答ページ作成
 
@@ -68,7 +68,7 @@ bundle exec jekyll serve --host 0.0.0.0 --port 4000
 4. `docs/qa/` 配下の個別の回答ページは `header_pages:` や `index.md` には追加しない — ナビゲーションには `qa.md`（ハブページ）のみを掲載する
 5. Issueには回答ページへのリンクをコメントし、クローズする
 
-詳細は `copilot-instructions.md` の「Issueからの回答ページ作成」セクションを参照してください。
+詳細は `claude-instructions.md` の「Issueからの回答ページ作成」セクションを参照してください。
 
 ## デプロイ
 
