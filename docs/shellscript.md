@@ -177,6 +177,87 @@ fruits+=("ぶどう")
 
 ```
 
+### 変数のクォート
+
+シェルはクォートしていない変数を展開する際に、空白で単語分割したり、`*`のようなワイルドカードをファイル名展開（グロブ）してしまいます。特にファイルパスや外部入力を扱う変数は必ず`"$var"`のようにダブルクォートで囲むのが鉄則です。
+
+```bash
+filename="My Documents/report final.txt"
+
+# クォートなし: 空白で分割されて意図しない引数になり、エラーになる
+cat $filename
+
+# クォートあり: 1つの引数として正しく渡る
+cat "$filename"
+
+# 配列展開でも同様。"${array[@]}" は各要素を個別の引数として保持する
+files=("report 1.txt" "report 2.txt")
+for f in "${files[@]}"; do
+    echo "処理中: $f"
+done
+```
+
+「変数展開は基本的に全部ダブルクォート」をルール化しておくと、思わぬバグを大きく減らせます。
+
+### `$@` と `$*` の違い、`shift` による引数処理
+
+スクリプトやシェル関数に渡された引数を扱う際、`$@`と`$*`は見た目が似ていますが、ダブルクォート付きで使うと挙動が異なります。
+
+```bash
+show_args() {
+    echo "--- \"\$@\" (各引数を個別に展開) ---"
+    for a in "$@"; do echo "[$a]"; done
+
+    echo "--- \"\$*\" (全体を1つの文字列に連結) ---"
+    for a in "$*"; do echo "[$a]"; done
+}
+
+show_args "foo bar" "baz"
+# "$@" は ["foo bar"] ["baz"] の2要素として扱われる
+# "$*" は ["foo bar baz"] という1つの文字列にまとまる
+```
+
+`shift`で先頭の引数を1つずつ消費しながら処理することもできます。
+
+```bash
+while [[ $# -gt 0 ]]; do
+    echo "処理中: $1"
+    shift
+done
+```
+
+複数の引数をそのまま別のコマンドに渡したい場合は原則`"$@"`を使うのが安全です（`$*`は空白を含む引数が壊れる原因になります）。
+
+### `getopts` によるオプション解析
+
+自作のシェルスクリプトに`-f file`や`-v`のようなオプションを持たせたい場合、`getopts`を使うと標準的な作法で解析できます。
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+verbose=false
+output=""
+
+while getopts "vo:h" opt; do
+    case "$opt" in
+        v) verbose=true ;;
+        o) output="$OPTARG" ;;   # コロン付きオプションは引数を取る
+        h) echo "使い方: $0 [-v] [-o output] [-h]"; exit 0 ;;
+        *) echo "不明なオプションです" >&2; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))  # 解析済みオプションを引数リストから取り除く
+
+echo "verbose=$verbose output=$output 残りの引数=$*"
+```
+
+```bash
+./script.sh -v -o result.txt input1.txt input2.txt
+```
+
+longオプションが必要な場合は`getopts`では対応できないため、その際は`getopt`（GNU拡張）や手動のcase文パースを検討してください。
+
 ## 出力とユーザー入力
 
 ### echo コマンド
@@ -656,6 +737,34 @@ read -p "名前と年齢を入力してください: " name age
 
 ```
 
+### ヒアドキュメント（Here Document）
+
+複数行の文字列をコマンドに渡したり、ファイルに書き出したりする際、`echo`を何度も呼ぶ代わりにヒアドキュメント（`<<`）を使うと読みやすく書けます。変数展開を防ぎたい場合は開始タグをクォートします。
+
+```bash
+name="太郎"
+
+# 変数展開が有効なヒアドキュメント
+cat <<EOF
+こんにちは、${name}さん。
+本日の処理を開始します。
+EOF
+
+# 開始タグをクォートすると変数展開されない(テンプレートをそのまま出力したい時に便利)
+cat <<'EOF'
+このブロックの $name はそのまま出力されます。
+EOF
+
+# ファイルへの書き出し例(設定ファイルを生成する場合など)
+cat <<EOF > /tmp/config.yml
+app_name: myapp
+environment: production
+owner: ${name}
+EOF
+```
+
+設定ファイルの雛形生成やSQL文の埋め込みなど、複数行テキストを扱う場面で積極的に使うとスクリプトがぐっと読みやすくなります。
+
 ## 条件分岐
 
 ### if文
@@ -708,6 +817,36 @@ elif [ -n "$str1" ]; then
 fi
 
 ```
+
+### `[[ ]]` と `[ ]` の違い
+
+`[ ]`はPOSIX互換の古典的なtestコマンドですが、`[[ ]]`はbash/zshの拡張構文で、より安全で高機能です。変数展開時の単語分割やグロブが起きず、ワイルドカードパターンマッチングや正規表現マッチも使えます。
+
+```bash
+name="Taro Yamada"
+
+# [ ] だと変数をクォートし忘れるとエラーになりやすい
+if [ "$name" = "Taro Yamada" ]; then
+    echo "match (POSIX test)"
+fi
+
+# [[ ]] なら未クォートでも単語分割されない(それでもクォートは推奨)
+if [[ $name == "Taro Yamada" ]]; then
+    echo "match (bash test)"
+fi
+
+# [[ ]] はワイルドカードパターンマッチができる
+if [[ $name == Taro* ]]; then
+    echo "Taroで始まる名前です"
+fi
+
+# 正規表現マッチ (=~) も[[ ]]だけの機能
+if [[ $name =~ ^Taro\ [A-Z][a-z]+$ ]]; then
+    echo "正規表現にもマッチしました"
+fi
+```
+
+bash専用スクリプトなら基本的に`[[ ]]`を使い、`/bin/sh`との互換性が必要な場合のみ`[ ]`を使う、と使い分けるのがおすすめです。
 
 ### ファイル・ディレクトリの存在チェック
 
@@ -1668,6 +1807,34 @@ command || { echo "エラーが発生しました"; exit 1; }
 command1 && command2 && command3
 
 ```
+
+### `set -euo pipefail` による安全なスクリプトの基本設定
+
+Bashスクリプトはデフォルトだとエラーが起きても処理を続行してしまい、意図しない被害が広がることがあります。前述の`set -e`（エラー時に終了）・`set -u`（未定義変数をエラーに）に加えて`set -o pipefail`を組み合わせ、スクリプトの先頭に`set -euo pipefail`とまとめて書くのが定番の安全設定です。
+
+- `set -e`: コマンドが失敗(非ゼロ終了)したら即座にスクリプトを終了
+- `set -u`: 未定義変数を参照したらエラーにする
+- `set -o pipefail`: パイプの途中のコマンドが失敗した場合もパイプ全体を失敗扱いにする
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# 存在しないファイルへのcpは失敗するので、ここでスクリプトが即終了する
+cp not_exist.txt /tmp/
+echo "ここには到達しない"
+```
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# pipefailなしだと、catが失敗してもgrepが成功すれば全体は成功扱いになってしまう
+cat not_exist.txt | grep "hello"
+echo "pipefailにより、この行の前でスクリプトが停止する"
+```
+
+特に本番運用するスクリプトでは、事故防止のため冒頭に必ず入れておく習慣をつけましょう。
 
 ### シグナルハンドリング
 
