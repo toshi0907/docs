@@ -1,0 +1,48 @@
+/* 日本語本文向けのフォントと行間 */
+:root {
+	--sl-font: 'Noto Sans JP Variable', system-ui, -apple-system, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+	--sl-font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	--sl-line-height: 1.8;
+}
+
+/* アクセントカラー（ダーク） */
+:root {
+	--sl-color-accent-low: #1a2a4f;
+	--sl-color-accent: #4f7df3;
+	--sl-color-accent-high: #c3d3ff;
+}
+
+/* アクセントカラー（ライト） */
+:root[data-theme='light'] {
+	--sl-color-accent-low: #dbe5ff;
+	--sl-color-accent: #2f5fd8;
+	--sl-color-accent-high: #1a3480;
+}
+
+/* 見出しの字間を少し詰める */
+.sl-markdown-content :is(h2, h3) {
+	letter-spacing: -0.01em;
+}
+
+/* 表を横スクロール可能にする（長いコマンド一覧向け） */
+.sl-markdown-content table {
+	display: block;
+	overflow-x: auto;
+}
+
+/* トップページ */
+.hero kbd {
+	font-size: 0.85em;
+}
+
+.doc-sections h2 {
+	margin-top: 2.5rem;
+	font-size: var(--sl-text-2xl);
+}
+
+.doc-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+	gap: 1rem;
+	margin-top: 1rem;
+}
