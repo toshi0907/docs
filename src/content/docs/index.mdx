@@ -1,0 +1,69 @@
+---
+title: 技術ドキュメント集
+description: プログラミング言語・Web 開発・開発ツール・Linux に関する日本語リファレンス集です。
+template: splash
+tableOfContents: false
+lastUpdated: false
+editUrl: false
+hero:
+  tagline: プログラミング言語から開発ツール、Linux まで。よく使うコマンドと設定をまとめた日本語リファレンス集です。<kbd>Ctrl</kbd> + <kbd>K</kbd>（macOS は <kbd>⌘</kbd> + <kbd>K</kbd>）で全文検索できます。
+  actions:
+    - text: Git リファレンスを読む
+      link: /docs/tools/git/
+      icon: right-arrow
+    - text: Q&A を見る
+      link: /docs/qa/
+      icon: question-circle
+      variant: minimal
+---
+
+import DocCard from '../../components/DocCard.astro';
+
+<div class="doc-sections">
+
+## プログラミング言語
+
+<div class="doc-grid">
+	<DocCard title="Python" href="/languages/python/" icon="seti:python" description="基本文法から標準ライブラリ、仮想環境まで" />
+	<DocCard title="JavaScript" href="/languages/javascript/" icon="seti:javascript" description="DOM 操作やモダンな ES6+ の機能" />
+	<DocCard title="C#" href="/languages/csharp/" icon="seti:c-sharp" description="フォームアプリ開発と Excel 操作" />
+	<DocCard title="シェルスクリプト" href="/languages/shellscript/" icon="seti:shell" description="bash の変数・制御構文・実用スクリプト" />
+	<DocCard title="バッチファイル" href="/languages/bat/" icon="seti:windows" description="Windows の .bat / .cmd の書き方" />
+	<DocCard title="正規表現" href="/languages/regexp/" icon="magnifier" description="パターンの基本と言語別の使用例" />
+</div>
+
+## Web 開発
+
+<div class="doc-grid">
+	<DocCard title="HTML" href="/web/html/" icon="seti:html" description="セマンティック HTML と Web ページの基礎" />
+	<DocCard title="CSS" href="/web/css/" icon="seti:css" description="基本構文からレスポンシブデザインまで" />
+	<DocCard title="Node.js" href="/web/nodejs/" icon="node" description="モジュール・非同期処理・HTTP サーバー・運用" />
+	<DocCard title="API" href="/web/api/" icon="seti:json" description="各種 API サービスの情報と使用例" />
+	<DocCard title="Google Apps Script" href="/web/gas/" icon="seti:javascript" description="Google Workspace の自動化" />
+</div>
+
+## 開発ツール
+
+<div class="doc-grid">
+	<DocCard title="Git" href="/tools/git/" icon="seti:git" description="設定・ブランチ・フック・応用テクニック" />
+	<DocCard title="GitHub" href="/tools/github/" icon="github" description="GitHub Copilot と GitHub Actions" />
+	<DocCard title="Visual Studio Code" href="/tools/vscode/" icon="vscode" description="設定ファイルと便利な機能" />
+	<DocCard title="GDB" href="/tools/gdb/" icon="seti:c" description="C/C++ プログラムのデバッグ" />
+	<DocCard title="Jekyll" href="/tools/jekyll/" icon="seti:liquid" description="静的サイト生成と GitHub Pages" />
+</div>
+
+## Linux・サーバー
+
+<div class="doc-grid">
+	<DocCard title="Linux CLI" href="/infra/linux/" icon="linux" description="コマンドラインの基本とよく使うコマンド" />
+	<DocCard title="Nginx" href="/infra/nginx/" icon="server" description="Web サーバーとリバースプロキシの設定" />
+	<DocCard title="Termux" href="/infra/termux/" icon="mobile-android" description="Android 上での Linux 環境構築" />
+</div>
+
+## Q&A
+
+<div class="doc-grid">
+	<DocCard title="Q&A" href="/qa/" icon="question-circle" description="GitHub Issue で寄せられた質問への回答集" />
+</div>
+
+</div>
