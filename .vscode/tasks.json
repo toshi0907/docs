@@ -4,13 +4,20 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "jekyll: build",
-            "type": "shell",
-            "command": "cd docs && export PATH=\"$PATH:/home/runner/.local/share/gem/ruby/3.2.0/bin\" && bundle exec jekyll build && bundle exec jekyll serve --host 0.0.0.0 --port 4000",
+            "label": "astro: build",
+            "type": "npm",
+            "script": "build",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "astro: dev",
+            "type": "npm",
+            "script": "dev",
+            "isBackground": true,
             "problemMatcher": []
         }
     ]
